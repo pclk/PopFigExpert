@@ -1,13 +1,46 @@
 import React from 'react';
-import Chatbot from './components/Chatbot';
+import ChatContainer from './components/ChatContainer';
+import { createTheme, MantineProvider} from '@mantine/core'
+import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+import '@mantine/dates/styles.css';
+
+const theme = createTheme({
+  colorScheme: 'light',
+  primaryColor: 'teal',
+  secondaryColor: 'gray',
+  fontFamily: 'Inter, Arial, sans-serif',
+  headings: {
+    fontFamily: 'Inter, Arial, sans-serif',
+    fontWeight: 600,
+  },
+  components: {
+    Paper: {
+      defaultProps: {
+        shadow: 'md',
+        radius: 'md',
+      },
+    },
+    Button: {
+      defaultProps: {
+        variant: 'filled',
+        radius: 'md',
+      },
+    },
+    TextInput: {
+      defaultProps: {
+        radius: 'md',
+      },
+    },
+  },
+});
+
 
 const App = () => {
   return (
-    <div>
-      <h1>PopFigExpert</h1>
-      <h2> mah lili chatbot don't work no more</h2>
-      <Chatbot />
-    </div>
+    <MantineProvider theme={theme}>
+      <ChatContainer />
+    </MantineProvider>
   );
 };
 
