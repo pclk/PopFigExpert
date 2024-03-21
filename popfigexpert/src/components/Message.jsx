@@ -1,33 +1,58 @@
-import React from 'react';
-import { Box, Text, Avatar, useMantineTheme } from '@mantine/core';
+// Message.jsx
+import React from "react";
+import { Box, Text, Avatar, useMantineTheme } from "@mantine/core";
 
-
-const Message = ({ text, isUser, avatar }) => {
+const Message = ({ text, isUser }) => {
   const theme = useMantineTheme();
-  const chatbotAvatar = '/src/assets/image.png';
+  const chatbotAvatar = "/src/assets/image.png";
 
   return (
     <Box
-      className={`message ${isUser ? 'user-message' : 'chatbot-message'}`}
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: isUser ? 'flex-end' : 'flex-start',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: isUser ? "flex-end" : "flex-start",
         marginBottom: theme.spacing.md,
       }}
     >
-      {!isUser && (
-        <Avatar src={chatbotAvatar} alt="Chatbot Avatar" size="md" mr={theme.spacing.sm} />
+      {isUser && (
+        <Box
+          style={{
+            backgroundColor: theme.colors.gray[1],
+            borderRadius: theme.radius.md,
+            padding: theme.spacing.md,
+            marginRight: theme.spacing.sm,
+          }}
+        >
+          <Text>{text}</Text>
+        </Box>
       )}
-      <Box
-        style={{
-          backgroundColor: isUser ? theme.colors.gray[1] : theme.colors[theme.primaryColor][1],
-          borderRadius: theme.radius.md,
-          padding: theme.spacing.md,
-        }}
-      >
-        <Text color={theme.colors.dark[9]}>{text}</Text>
-      </Box>
+      {isUser && (
+        <Avatar
+          alt="User Avatar"
+          size="md"
+          color={theme.colors[theme.secondaryColor][9]}
+        />
+      )}
+      {!isUser && (
+        <Avatar
+          src={chatbotAvatar}
+          alt="Chatbot Avatar"
+          size="md"
+          mr={theme.spacing.sm}
+        />
+      )}
+      {!isUser && (
+        <Box
+          style={{
+            backgroundColor: theme.colors[theme.primaryColor][1],
+            borderRadius: theme.radius.md,
+            padding: theme.spacing.md,
+          }}
+        >
+          <Text>{text}</Text>
+        </Box>
+      )}
     </Box>
   );
 };
