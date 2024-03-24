@@ -1,19 +1,17 @@
-// ChatContainer.jsx
-import React, { useState } from "react";
+import { Stack, Box, Textarea, Group, useMantineTheme, Button } from "@mantine/core";
 import Message from "./Message";
-import {
-  Paper,
-  Avatar,
-  Text,
-  Textarea,
-  Button,
-  Group,
-  Box,
-} from "@mantine/core";
+import { useState } from "react";
+// import { Button} from "@nextui-org/react"
 
-const ChatContainer = () => {
+interface MessageType {
+  text: string;
+  isUser: boolean;
+}
+
+export default function Chatbot() { 
+  const theme = useMantineTheme();
   const [userInput, setUserInput] = useState("");
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<MessageType[]>([
     { text: "Hello! How can I assist you today?", isUser: false },
     { text: "I need help with my order.", isUser: true },
     {
@@ -24,41 +22,31 @@ const ChatContainer = () => {
 
   const handleSendMessage = () => {
     if (userInput.trim() !== "") {
-      const newMessage = { text: userInput, isUser: true };
+      const newMessage: MessageType = { text: userInput, isUser: true };
       setMessages([...messages, newMessage]);
       setUserInput("");
     }
   };
 
   return (
-    <Paper shadow="sm" p="md" style={{ maxWidth: 600, margin: "auto" }}>
-      <Group align="center" justify="center" mb="md">
-        <Avatar src="/src/assets/image.png" alt="Chatbot Avatar" size="lg" />
-        <Text size="lg" weight={500}>
-          PopFigExpert
-        </Text>
-      </Group>
-      <Box
-        className="chat-messages"
-        style={{ maxHeight: 400, overflowY: "auto" }}
-      >
+    <Stack w="100%">
+      <Box style={{ flexGrow: 1, overflowY: "auto" }}>
         {messages.map((message, index) => (
           <Message key={index} text={message.text} isUser={message.isUser} />
         ))}
       </Box>
-      <Group position="right" mt="md" align="flex-end">
+      <Group align="flex-end">
         <Textarea
           placeholder="Type your message..."
           description="PopFigExpert can make mistakes. Please double-check responses."
           autosize
-          style={{ flexGrow: 1 }}
+          maxRows={20}
           value={userInput}
           onChange={(event) => setUserInput(event.target.value)}
+          style={{ flexGrow: 1 }}
         />
-        <Button onClick={handleSendMessage}>Send</Button>
+        <Button onClick={handleSendMessage} className={`bg-${theme.primaryColor}-500 bg-blue-500`}>Send</Button>
       </Group>
-    </Paper>
+    </Stack>
   );
-};
-
-export default ChatContainer;
+}
