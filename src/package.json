@@ -15,9 +15,13 @@
     "@mantine/notifications": "^7.6.2",
     "@nextui-org/react": "^2.2.10",
     "@tabler/icons-react": "^3.1.0",
+    "@tanstack/react-query": "^5.28.8",
+    "eventsource-parser": "^1.1.2",
     "next": "14.1.4",
+    "next-auth": "^4.24.7",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^20",
