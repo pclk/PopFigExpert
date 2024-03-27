@@ -19,6 +19,7 @@ import {
 import React, { useState } from "react";
 import NavigationBar from "../components/NavigationBar";
 import Providers from "@/components/Providers";
+require('dotenv').config({path: "../.env.local"});
 
 // layout.tsx at src/app
 

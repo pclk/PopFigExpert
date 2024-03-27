@@ -38,6 +38,10 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
     body: JSON.stringify(payload),
   });
 
+  if (!res.ok) {
+    throw new Error(` after API fetch to openai chat completions ${res.status}: ${res.statusText},`);
+  }
+
   const stream = new ReadableStream({
     async start(controller) {
       // callback
@@ -60,21 +64,29 @@ export async function OpenAIStream(payload: OpenAIStreamPayload) {
             controller.enqueue(queue);
             counter++;
           } catch (e) {
-            // maybe parse error
-            controller.error(e);
+            // Handle the error and return a new Error object
+            const error = new Error("Failed to parse response");
+            controller.error(error);
+            return;
           }
         }
       }
-
-      // stream response (SSE) from OpenAI may be fragmented into multiple chunks
-      // this ensures we properly read chunks and invoke an event for each SSE event stream
-      const parser = createParser(onParse);
-      // https://web.dev/streams/#asynchronous-iteration
-      for await (const chunk of res.body as any) {
-        parser.feed(decoder.decode(chunk));
+  
+      try {
+        // stream response (SSE) from OpenAI may be fragmented into multiple chunks
+        // this ensures we properly read chunks and invoke an event for each SSE event stream
+        const parser = createParser(onParse);
+        // https://web.dev/streams/#asynchronous-iteration
+        for await (const chunk of res.body as any) {
+          parser.feed(decoder.decode(chunk));
+        }
+      } catch (e) {
+        // Handle the error and return a new Error object
+        const error = new Error("Failed to read response");
+        controller.error(error);
       }
     },
   });
-
+  
   return stream;
 }
