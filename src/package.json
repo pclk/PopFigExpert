@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^8.13.0",
     "@mantine/core": "^7.6.2",
     "@mantine/dates": "^7.6.2",
     "@mantine/hooks": "^7.6.2",

@@ -1,15 +1,20 @@
-// DocumentResult.tsx
-import React from "react";
-import { Box, Text } from "@mantine/core";
+// components/DocumentResult.tsx
+import React from 'react'
+import { Box, Text } from '@mantine/core'
 
 interface DocumentResultProps {
-  title: string;
-  date: string;
-  country: string;
-  content: string;
+  title: string
+  date: string
+  country: string
+  content: string
 }
 
-export default function DocumentResult({ title, date, country, content }: DocumentResultProps) {
+export default function DocumentResult({
+  title,
+  date,
+  country,
+  content,
+}: DocumentResultProps) {
   return (
     <Box className="bg-white p-4 rounded-md shadow-md mb-4">
       <Text size="lg" className="mb-2">
@@ -23,5 +28,5 @@ export default function DocumentResult({ title, date, country, content }: Docume
       </Text>
       <Text size="sm">{content}</Text>
     </Box>
-  );
+  )
 }
