@@ -1,7 +1,6 @@
 "use client";
 
 import { HistoryProvider } from "@/context/HistoryContext";
-import { MessagesProvider } from "@/context/MessageContext";
 import { ColorSchemeScript, MantineProvider, createTheme } from "@mantine/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React, { FC } from "react";
@@ -23,11 +22,9 @@ const Providers: FC<ProvidersProps> = ({ children }) => {
       <MantineProvider theme={theme}>
         <ColorSchemeScript />
         <HistoryProvider>
-          <MessagesProvider>
             <QueryClientProvider client={queryClient}>
               {children}
             </QueryClientProvider>
-          </MessagesProvider>
         </HistoryProvider>
       </MantineProvider>
     </>

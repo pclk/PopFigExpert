@@ -1,7 +1,6 @@
 // lib/elasticsearch.ts
 import { Client } from '@elastic/elasticsearch'
 import fs from 'fs'
-import path from 'path'
 
 const client = new Client({
   node: "https://8f1b-115-66-136-151.ngrok-free.app/",
