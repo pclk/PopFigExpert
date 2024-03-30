@@ -58,35 +58,35 @@ export default function Home() {
               <Button
                 variant="ghost"
                 onClick={() => handleButtonClick("content")}
-                className={activeButton === "content" ? "bg-blue-100" : ""}
+                className={activeButton === "content" ? "bg-teal-400" : ""}
               >
                 Content
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => handleButtonClick("date")}
-                className={activeButton === "date" ? "bg-blue-100" : ""}
+                className={activeButton === "date" ? "bg-teal-400" : ""}
               >
                 Date
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => handleButtonClick("title")}
-                className={activeButton === "title" ? "bg-blue-100" : ""}
+                className={activeButton === "title" ? "bg-teal-400" : ""}
               >
                 Title
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => handleButtonClick("country")}
-                className={activeButton === "country" ? "bg-blue-100" : ""}
+                className={activeButton === "country" ? "bg-teal-400" : ""}
               >
                 Country
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => handleButtonClick("url")}
-                className={activeButton === "url" ? "bg-blue-100" : ""}
+                className={activeButton === "url" ? "bg-teal-400" : ""}
               >
                 URL
               </Button>
