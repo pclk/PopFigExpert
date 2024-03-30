@@ -117,7 +117,7 @@ export default function ChatContainer() {
           onChange={(event) => setUserInput(event.target.value)}
           style={{ flexGrow: 1 }}
         />
-        <Button onClick={handleSendMessage} className="bg-teal-400" disabled={isPending}>
+        <Button onClick={handleSendMessage} className="flex" disabled={isPending}>
           {isPending ? "Sending..." : "Send"}
         </Button>
       </Group>

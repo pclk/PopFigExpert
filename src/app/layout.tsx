@@ -60,7 +60,8 @@ export default function RootLayout({
             disabled={fullscreen}
           >
             <AppShell.Header p="md">
-              <style>{`@tailwind base; @tailwind components; @tailwind utilities;`}</style>
+              
+              <style>{`@layer tailwind {@tailwind base;}@tailwind components;@tailwind utilities;`}</style>
               <Burger
                 opened={opened}
                 onClick={toggleburger}
