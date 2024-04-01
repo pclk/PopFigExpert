@@ -13,6 +13,7 @@ export default function Home() {
     e.preventDefault()
     const results = await searchDocuments(query)
     setDocuments(results)
+    console.log(results[0].content)
   }
 
   return (
@@ -28,11 +29,12 @@ export default function Home() {
       </form>
       {documents.map((doc) => (
         <DocumentResult
-          key={doc.id}
+          id={doc.id}
           title={doc.title}
           date={doc.date}
           country={doc.country}
           content={doc.content}
+          url = {doc.url}
         />
       ))}
     </div>

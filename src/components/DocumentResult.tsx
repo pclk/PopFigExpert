@@ -1,32 +1,34 @@
 // components/DocumentResult.tsx
 import React from 'react'
 import { Box, Text } from '@mantine/core'
-
-interface DocumentResultProps {
-  title: string
-  date: string
-  country: string
-  content: string
-}
+import { DocumentType } from '@/lib/validators/DocumentType'
+import Markdown from 'react-markdown'
 
 export default function DocumentResult({
+  id,
   title,
   date,
   country,
   content,
-}: DocumentResultProps) {
+  url
+}: DocumentType) {
+  content = "# Hi\n"+ content + "\n## Bye\n"
   return (
     <Box className="bg-white p-4 rounded-md shadow-md mb-4">
-      <Text size="lg" className="mb-2">
+      <Text size="lg" className="mb-2 font-bold">
         {title}
       </Text>
-      <Text size="sm" className="mb-1">
-        Date: {date}
+      <Text size="md" className="mb-1">
+        Date: {`${date}`}
       </Text>
-      <Text size="sm" className="mb-2">
+      <Text size="md" className="mb-2">
         Country: {country}
       </Text>
-      <Text size="sm">{content}</Text>
+      <Markdown className="text-sm">{content}</Markdown>
+      <a href={`${url}`} target="_blank" rel="noopener noreferrer">
+        🔗
+      </a>
+
     </Box>
   )
 }

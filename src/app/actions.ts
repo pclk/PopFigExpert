@@ -14,6 +14,7 @@ export async function searchDocuments(query: string) {
         },
       },
     })
+    // console.log('Response:', response.hits.hits.map((hit: any) => hit._source));
 
     return response.hits.hits.map((hit: any) => hit._source)
   } catch (error) {

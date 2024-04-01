@@ -1,6 +1,6 @@
 // ChatContainer.tsx at src/app/components/chatbot
 "use client";
-import { useContext, useState, useEffect, useRef } from "react";
+import { useContext, useState,  useRef } from "react";
 import { Stack, Box, Text, Textarea, Button, Group } from "@mantine/core";
 import { useParams } from "next/navigation";
 import { HistoryContext } from "../../context/HistoryContext";
