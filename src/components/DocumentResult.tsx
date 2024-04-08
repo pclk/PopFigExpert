@@ -2,7 +2,6 @@
 import React from 'react'
 import { Box, Text } from '@mantine/core'
 import { DocumentType } from '@/lib/validators/DocumentType'
-import Markdown from 'react-markdown'
 
 export default function DocumentResult({
   id,
@@ -12,7 +11,8 @@ export default function DocumentResult({
   content,
   url
 }: DocumentType) {
-  content = "# Hi\n"+ content + "\n## Bye\n"
+
+  console.log('Content in DocumentResult:', content);
   return (
     <Box className="bg-white p-4 rounded-md shadow-md mb-4">
       <Text size="lg" className="mb-2 font-bold">
@@ -24,11 +24,11 @@ export default function DocumentResult({
       <Text size="md" className="mb-2">
         Country: {country}
       </Text>
-      <Markdown className="text-sm">{content}</Markdown>
+      <pre className="text-sm " style={{fontFamily: `inherit`, textWrap: `pretty`}}>{content}</pre>
       <a href={`${url}`} target="_blank" rel="noopener noreferrer">
         🔗
       </a>
-
+{/* implement highlighting of the search. can save in. scrape mfa again with id */}
     </Box>
   )
 }

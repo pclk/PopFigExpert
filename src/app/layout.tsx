@@ -1,111 +1,54 @@
-"use client"
+"use client";
 
 import { Inter } from "next/font/google";
 import "@mantine/core/styles.css";
-import {
-  createTheme,
-  ColorSchemeScript,
-  AppShell,
-  Burger,
-  ScrollArea,
-} from "@mantine/core";
+import { Burger } from "@mantine/core";
 import "tailwindcss/tailwind.css";
-import {
-  IconRobot,
-  IconMessages,
-  IconArrowsDiagonal,
-  IconArrowsDiagonalMinimize,
-} from "@tabler/icons-react";
+import { IconMenu2 } from "@tabler/icons-react";
 import React, { useState } from "react";
 import NavigationBar from "../components/NavigationBar";
 import Providers from "@/components/Providers";
-require('dotenv').config({path: "../.env.local"});
+require("dotenv").config({ path: "../.env.local" });
+import "./globals.css";
 
 // layout.tsx at src/app
 
 const inter = Inter({ subsets: ["latin"] });
-
-const theme = createTheme({
-  primaryColor: "teal",
-  primaryShade: 4,
-  fontFamily: 'Inter, "Helvetica Neue", sans-serif',
-});
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [opened, setOpened] = useState(false);
-  const [fullscreen, setFullscreen] = useState(false);
+  const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 
-  const toggleburger = () => setOpened((o) => !o);
-  const togglefullscreen = () => setFullscreen((f) => !f);
+  const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
+
   return (
     <html lang="en">
       <head>
-        <ColorSchemeScript />
+        <title>PopFigExpert</title>
+        <link rel="stylesheet" href="./globals.css" />
       </head>
-      <body className={inter.className}>
+      <body className={`flex ${inter.className}`}>
         <Providers>
-          <AppShell
-            layout="alt"
-            header={{ height: 60 }}
-            navbar={{
-              width: 250,
-              breakpoint: "sm",
-              collapsed: { mobile: !opened },
-            }}
-            padding="md"
-            disabled={fullscreen}
+          <IconMenu2
+            className="fixed right-4 top-4 z-10 lg:hidden"
+            onClick={toggleNavBar}
+          />
+          <nav
+            className={`fixed left-0 top-0 z-20 h-full w-72 transform bg-secondary p-4 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+              isNavBarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
           >
-            <AppShell.Header p="md">
-              
-              <style>{`@layer tailwind {@tailwind base;}@tailwind components;@tailwind utilities;`}</style>
-              <Burger
-                opened={opened}
-                onClick={toggleburger}
-                hiddenFrom="sm"
-                size="sm"
-              />
-              <div className="flex items-center">
-                <IconRobot className="mr-2" />
-                <div>PopFigExpert</div>
-              </div>
-            </AppShell.Header>
-            <AppShell.Navbar p="md">
-              <Burger
-                opened={opened}
-                onClick={toggleburger}
-                hiddenFrom="sm"
-                size="sm"
-              />
-              <AppShell.Section className="flex">
-                <IconMessages className="mr-2" />
-                Chat History
-              </AppShell.Section>
-              <AppShell.Section grow my="md" component={ScrollArea}>
-                  <NavigationBar />
-              </AppShell.Section>
-            </AppShell.Navbar>
-            <AppShell.Main>
-              {fullscreen ? (
-                <IconArrowsDiagonalMinimize
-                  onClick={togglefullscreen}
-                  className="absolute"
-                  style={{ right: 16 }}
-                />
-              ) : (
-                <IconArrowsDiagonal
-                  onClick={togglefullscreen}
-                  className="absolute"
-                  style={{ right: 16 }}
-                />
-              )}
+            <NavigationBar />
+          </nav>
+          <main className="grow p-4">
+            <div className="relative flex h-full flex-col items-center justify-end">
               {children}
-            </AppShell.Main>
-          </AppShell>
-          </Providers>
+            </div>
+          </main>
+        </Providers>
       </body>
     </html>
   );

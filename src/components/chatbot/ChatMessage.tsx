@@ -7,16 +7,23 @@ interface ChatMessageProps {
 
 export default function ChatMessage({ message }: ChatMessageProps) {
   return (
-    <Box className={`flex items-center mb-4`}>
+    <Box className={`mb-4 flex items-center`}>
       {message.isUser ? (
         <>
-          <Text className={`bg-gray-100 rounded-md p-4 mr-2`}>{message.text}</Text>
+          <Text className={`mr-2 rounded-md bg-white p-4`}>{message.text}</Text>
           <Avatar alt="User Avatar" size="lg" />
         </>
       ) : (
         <>
-          <Avatar src="/chatbot.png" alt="Chatbot Avatar" size="lg" className="rounded-full mr-2" />
-          <Text className={`bg-blue-100 justify-start rounded-md p-4`}>{message.text}</Text>
+          <Avatar
+            src="/chatbot.png"
+            alt="Chatbot Avatar"
+            size="lg"
+            className="mr-2 rounded-full"
+          />
+          <Text className={`justify-start rounded-md bg-secondary p-4`}>
+            {message.text}
+          </Text>
         </>
       )}
     </Box>

@@ -80,18 +80,16 @@ export default function Home() {
         </AppShell.Section>
       </AppShell.Navbar>
 
-      <AppShell.Main className="flex">
+      <AppShell.Main>
         {fullscreen ? (
           <IconArrowsDiagonalMinimize
             onClick={togglefullscreen}
-            className="absolute"
-            style={{ right: 16 }}
+            className="absolute right-2"
           />
         ) : (
           <IconArrowsDiagonal
             onClick={togglefullscreen}
-            className="absolute"
-            style={{ right: 16 }}
+            className="absolute right-2"
           />
         )}
         <Chatbot />
