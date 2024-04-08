@@ -1,27 +1,33 @@
 // ChatContainer.tsx at src/app/components/chatbot
 "use client";
-import { useContext, useState,  useRef } from "react";
-import { Stack, Box, Text, Textarea, Button, Group } from "@mantine/core";
-import { useParams } from "next/navigation";
-import { HistoryContext } from "../../context/HistoryContext";
+import { useContext, useRef } from "react";
+import { Box, Text } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 import { nanoid } from "nanoid";
 import { MessageType } from "@/lib/validators/MessageType";
 import ChatMessage from "./ChatMessage";
+import ChatInput from "./ChatInput";
+import { HistoryContext } from "../../context/HistoryContext";
+import { HistoryType } from "@/lib/validators/HistoryType";
 
-export default function ChatContainer() {
-  const params = useParams()!;
-  const { Chathistory, addMessages, updateMessages } = useContext(HistoryContext);
-  const [userInput, setUserInput] = useState("");
-  const ChatID = params.chatId as string;
-  const selectedHistory = Chathistory.find((history) => history.id === ChatID);
+interface ChatContainerProps {
+  selectedHistory?: HistoryType;
+}
+
+export default function ChatContainer({ selectedHistory }: ChatContainerProps) {
+  const { addMessages, updateMessages } = useContext(HistoryContext);
   const streamRef = useRef<ReadableStream | null>(null);
 
-  const { mutate: sendMessage, isPending, isError, error } = useMutation({
+  const {
+    mutate: sendMessage,
+    isPending,
+    isError,
+    error,
+  } = useMutation({
     mutationKey: ["sendMessage"],
     mutationFn: async (message: MessageType) => {
       const updatedMessages = [...(selectedHistory?.messages || []), message];
-      addMessages(ChatID, message);
+      addMessages(selectedHistory?.id || "", message);
 
       const res = await fetch("/api/openai", {
         method: "POST",
@@ -34,7 +40,9 @@ export default function ChatContainer() {
 
       if (!res.ok) {
         const errorText = await res.text();
-        throw new Error(`Failed to send message: ${res.status} ${res.statusText}, ${errorText}`);
+        throw new Error(
+          `Failed to send message: ${res.status} ${res.statusText}, ${errorText}`,
+        );
       }
 
       streamRef.current = res.body;
@@ -43,42 +51,44 @@ export default function ChatContainer() {
     onError: (error) => {
       console.error("Error in sendMessage mutation:", error);
     },
-
     onSuccess: async (res) => {
-      if (!res.body) throw new Error('No stream found')
-      const stream = res.body
-      console.log('Stream:', stream);
+      if (!res.body) throw new Error("No stream found");
+      const stream = res.body;
+      console.log("Stream:", stream);
+
       // construct new message to add
-      const id = nanoid()
+      const id = nanoid();
       const responseMessage: MessageType = {
         id,
         isUser: false,
-        text: '',
-      }
+        text: "",
+      };
 
-      addMessages(ChatID, responseMessage)
+      addMessages(selectedHistory?.id || "", responseMessage);
 
-      const reader = stream.getReader()
-      const decoder = new TextDecoder()
-      let done = false
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
 
       while (!done) {
-        const { value, done: doneReading } = await reader.read()
-        done = doneReading
-        const chunkValue = decoder.decode(value)
-        console.log(chunkValue)
-        updateMessages(ChatID, (prevMessages) =>
-        prevMessages.map((message) => {
-          if (message.id === id) {
-            return { ...message, text: message.text + chunkValue };
-          }
-          return message;      
-        }));
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value);
+        console.log(chunkValue);
+
+        updateMessages(selectedHistory?.id || "", (prevMessages) =>
+          prevMessages.map((message) => {
+            if (message.id === id) {
+              return { ...message, text: message.text + chunkValue };
+            }
+            return message;
+          }),
+        );
       }
     },
   });
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (userInput: string) => {
     if (userInput.trim() !== "") {
       const newMessage: MessageType = {
         id: nanoid(),
@@ -86,13 +96,12 @@ export default function ChatContainer() {
         isUser: true,
       };
       sendMessage(newMessage);
-      setUserInput("");
     }
   };
 
   return (
-    <Stack w="100%">
-      <Box style={{ flexGrow: 1, overflowY: "auto" }}>
+    <div className="relative flex h-full w-full flex-col">
+      <Box className="">
         {selectedHistory ? (
           selectedHistory.messages.map((message, index) => (
             <ChatMessage key={index} message={message} />
@@ -101,31 +110,14 @@ export default function ChatContainer() {
           <Text size="xl">Select a chat to start messaging</Text>
         )}
       </Box>
-      <Group align="flex-end">
-        <Textarea
-          placeholder="Type your message..."
-          description="PopFigExpert can make mistakes. Please double-check responses."
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              handleSendMessage();
-            }
-          }}
-          autosize
-          maxRows={20}
-          value={userInput}
-          onChange={(event) => setUserInput(event.target.value)}
-          style={{ flexGrow: 1 }}
-        />
-        <Button onClick={handleSendMessage} className="flex" disabled={isPending}>
-          {isPending ? "Sending..." : "Send"}
-        </Button>
-      </Group>
-      {isError && (
-        <Text color="red" size="sm">
-          Error: {(error as Error)?.message}
-        </Text>
-      )}
-    </Stack>
+      <ChatInput
+        onSendMessage={handleSendMessage}
+        isPending={isPending}
+        isError={isError}
+        error={error}
+        placeholder="Chat with Eve..."
+        description="Eve may make mistakes. Please check her responses."
+      />
+    </div>
   );
 }

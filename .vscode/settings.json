@@ -17,5 +17,23 @@
       "**/.next": true,
       "**/package-lock.json": true,
       "**/.eslintrc.json": true,
-    }
+      "**/.env.example": true,
+      "**/.gitignore": true,
+      "**/components.json": true,
+      "**/next-env.d.ts": true,
+      "**/tsconfig.json": true,
+      // "**/tailwind.config.js": true,
+      "**/postcss.config.js": true,
+      "**/next.config.mjs": true,
+    },
+    "tailwindCSS.includeLanguages": {
+      "html": "html",
+      "javascript": "javascript",
+      "css": "css",
+      "plaintext": "ts",
+    },
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "css.validate": false,
   }

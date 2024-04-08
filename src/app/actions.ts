@@ -13,6 +13,11 @@ export async function searchDocuments(query: string) {
           fields: ['title', 'content'],
         },
       },
+      highlight: {
+        fields: {
+          content: {},
+        },
+      }
     })
     // console.log('Response:', response.hits.hits.map((hit: any) => hit._source));
 
@@ -23,3 +28,5 @@ export async function searchDocuments(query: string) {
     throw new Error('An error occurred while searching documents. Please try again later.');
   }
 }
+
+// another server action for saving chathistory
