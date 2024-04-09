@@ -24,7 +24,7 @@
       "**/tsconfig.json": true,
       // "**/tailwind.config.js": true,
       "**/postcss.config.js": true,
-      "**/next.config.mjs": true,
+      // "**/next.config.mjs": true,
     },
     "tailwindCSS.includeLanguages": {
       "html": "html",
