@@ -40,7 +40,9 @@ export default function RootLayout({
           >
             <NavigationBar />
           </nav>
-          <main className="grow overflow-y-hidden p-4">{children}</main>
+          <main className="relative grow overflow-y-hidden p-4">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

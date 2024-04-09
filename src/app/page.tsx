@@ -8,22 +8,45 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SetStateAction, useState } from "react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 import ChatInput from "@/components/chatbot/ChatInput";
 import { useRouter } from "next/navigation";
+import TextareaAutosize from "react-textarea-autosize";
 
 export default function Home() {
-  const [activeButton, setActiveButton] = useState("");
   const [activeTab, setActiveTab] = useState("chat");
   const router = useRouter();
   const [placeholder, setPlaceholder] = useState("Chat with Eve...");
   const [description, setDescription] = useState(
     "Eve can make mistakes. Please check her responses.",
   );
+  const [model, setModel] = useState("gpt-3.5-turbo");
+  const [modelDisplay, setModelDisplay] = useState("GPT 3.5 Turbo");
+  const [filters, setFilters] = useState({
+    content: "",
+    date: "",
+    title: "",
+    country: "",
+  });
 
-  const handleButtonClick = (buttonName: SetStateAction<string>) => {
-    setActiveButton(buttonName);
-  };
+  function handleModelChange(model: string) {
+    setModel(model);
+    if (model === "gpt-3.5-turbo") {
+      setModelDisplay("GPT 3.5 Turbo");
+    } else if (model === "mistralai/mixtral-8x7b-instruct-v0.1") {
+      setModelDisplay("Mixtral 7x8b");
+    }
+  }
 
   function changeTab(tab: string) {
     setActiveTab(tab);
@@ -49,6 +72,40 @@ export default function Home() {
 
   return (
     <>
+      <div className="sticky left-0 top-0">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              className="border-none font-inter text-darkprim hover:bg-secondary active:bg-primary active:text-white"
+            >
+              {modelDisplay} ⏷
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuLabel>Your model of choice</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup
+              value={model}
+              onValueChange={handleModelChange}
+            >
+              <DropdownMenuRadioItem
+                value="gpt-3.5-turbo"
+                className="hover:bg-secondary active:bg-primary active:text-white"
+              >
+                GPT 3.5 Turbo
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem
+                value="mistralai/mixtral-8x7b-instruct-v0.1"
+                className="text hover:bg-secondary active:bg-primary active:text-white"
+              >
+                Mixtral 7x8b
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       <Tabs
         defaultValue="chat"
         className="flex h-full grow flex-col justify-center"
@@ -131,42 +188,38 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <Button
-                variant="ghost"
-                onClick={() => handleButtonClick("content")}
-                className={`hover:bg-secondary ${
-                  activeButton === "content" ? "bg-primary text-white" : ""
-                }`}
-              >
-                Content
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => handleButtonClick("date")}
-                className={`hover:bg-secondary ${
-                  activeButton === "date" ? "bg-primary text-white" : ""
-                }`}
-              >
-                Date
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => handleButtonClick("title")}
-                className={`hover:bg-secondary ${
-                  activeButton === "title" ? "bg-primary text-white" : ""
-                }`}
-              >
-                Title
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => handleButtonClick("country")}
-                className={`hover:bg-secondary ${
-                  activeButton === "country" ? "bg-primary text-white" : ""
-                }`}
-              >
-                Country
-              </Button>
+              <TextareaAutosize
+                className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                placeholder="Content"
+                value={filters.content}
+                onChange={(e) =>
+                  setFilters({ ...filters, content: e.target.value })
+                }
+              />
+              <TextareaAutosize
+                className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                placeholder="Date"
+                value={filters.date}
+                onChange={(e) =>
+                  setFilters({ ...filters, date: e.target.value })
+                }
+              />
+              <TextareaAutosize
+                className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                placeholder="Title"
+                value={filters.title}
+                onChange={(e) =>
+                  setFilters({ ...filters, title: e.target.value })
+                }
+              />
+              <TextareaAutosize
+                className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                placeholder="Country"
+                value={filters.country}
+                onChange={(e) =>
+                  setFilters({ ...filters, country: e.target.value })
+                }
+              />
             </CardContent>
           </Card>
         </TabsContent>
