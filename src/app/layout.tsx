@@ -1,15 +1,13 @@
 "use client";
 
 import { Inter } from "next/font/google";
-import "@mantine/core/styles.css";
-import { Burger } from "@mantine/core";
 import "tailwindcss/tailwind.css";
 import { IconMenu2 } from "@tabler/icons-react";
 import React, { useState } from "react";
 import NavigationBar from "../components/NavigationBar";
 import Providers from "@/components/Providers";
 require("dotenv").config({ path: "../.env.local" });
-import "./globals.css";
+import "@/app/globals.css";
 
 // layout.tsx at src/app
 
@@ -28,16 +26,15 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>PopFigExpert</title>
-        <link rel="stylesheet" href="./globals.css" />
       </head>
-      <body className={`flex ${inter.className}`}>
+      <body className={`m-0 flex ${inter.className}`}>
         <Providers>
           <IconMenu2
             className="fixed right-4 top-4 z-10 lg:hidden"
             onClick={toggleNavBar}
           />
           <nav
-            className={`fixed left-0 top-0 z-20 h-full w-72 transform bg-secondary p-4 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+            className={`fixed left-0 top-0 z-20 box-border h-full w-72 transform bg-secondary p-4 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
               isNavBarOpen ? "translate-x-0" : "-translate-x-full"
             }`}
           >

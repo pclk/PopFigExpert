@@ -1,5 +1,4 @@
 import { MessageType } from "@/lib/validators/MessageType";
-import { Avatar, Text, Box } from "@mantine/core";
 
 interface ChatMessageProps {
   message: MessageType;
@@ -7,25 +6,24 @@ interface ChatMessageProps {
 
 export default function ChatMessage({ message }: ChatMessageProps) {
   return (
-    <Box className={`mb-4 flex items-center`}>
+    <div className={`mb-4 flex items-center`}>
       {message.isUser ? (
         <>
-          <Text className={`mr-2 rounded-md bg-white p-4`}>{message.text}</Text>
-          <Avatar alt="User Avatar" size="lg" />
+          <text className={`mr-2 rounded-md bg-white p-4`}>{message.text}</text>
+          <img alt="User Avatar" />
         </>
       ) : (
         <>
-          <Avatar
+          <img
             src="/chatbot.png"
             alt="Chatbot Avatar"
-            size="lg"
-            className="mr-2 rounded-full"
+            className="mr-2 size-16 rounded-full align-middle"
           />
-          <Text className={`justify-start rounded-md bg-secondary p-4`}>
+          <text className={`justify-start rounded-md bg-secondary p-4`}>
             {message.text}
-          </Text>
+          </text>
         </>
       )}
-    </Box>
+    </div>
   );
 }

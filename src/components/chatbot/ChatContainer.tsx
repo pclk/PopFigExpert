@@ -1,7 +1,6 @@
 // ChatContainer.tsx at src/app/components/chatbot
 "use client";
 import { useContext, useRef } from "react";
-import { Box, Text } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
 import { nanoid } from "nanoid";
 import { MessageType } from "@/lib/validators/MessageType";
@@ -101,15 +100,15 @@ export default function ChatContainer({ selectedHistory }: ChatContainerProps) {
 
   return (
     <div className="relative flex h-full w-full flex-col">
-      <Box className="">
+      <div className="">
         {selectedHistory ? (
           selectedHistory.messages.map((message, index) => (
             <ChatMessage key={index} message={message} />
           ))
         ) : (
-          <Text size="xl">Select a chat to start messaging</Text>
+          <text>Select a chat to start messaging</text>
         )}
-      </Box>
+      </div>
       <ChatInput
         onSendMessage={handleSendMessage}
         isPending={isPending}

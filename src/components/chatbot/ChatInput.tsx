@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Textarea } from "@mantine/core";
+import TextareaAutosize from "react-textarea-autosize";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -40,29 +40,25 @@ export default function ChatInput({
   return (
     <div className="relative bottom-0 left-0 flex w-full">
       <div className="flex w-full items-end gap-4">
-        <Textarea
-          className="text-darkprim grow caret-primary transition-all focus:text-lg"
-          placeholder={placeholder || "Type your message..."}
-          description={
-            description ||
-            "PopFigExpert can make mistakes. Please double-check responses."
-          }
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              handleSendMessage();
-            }
-          }}
-          autosize
-          maxRows={20}
-          value={userInput}
-          onChange={(event) => setUserInput(event.target.value)}
-          style={{ flexGrow: 1 }}
-        />
+        <div className="flex w-full flex-grow flex-col justify-end">
+          <text className="text-muted-foreground mb-1 text-sm text-gray-400">
+            {description}
+          </text>
+          <TextareaAutosize
+            className="font-inter box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+            placeholder={placeholder}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                handleSendMessage();
+              }
+            }}
+          ></TextareaAutosize>
+        </div>
         <button
           onClick={handleSendMessage}
           disabled={isPending}
-          className="group rounded-sm border-0 bg-primary px-4 py-2 text-sm transition-all hover:border-2 hover:bg-white active:bg-primary"
+          className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-secondary active:bg-primary"
         >
           <text className="text-white group-hover:text-darkprim ">
             {isPending ? "Sending..." : "Send"}
