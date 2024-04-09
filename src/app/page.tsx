@@ -49,7 +49,10 @@ export default function Home() {
 
   return (
     <>
-      <Tabs defaultValue="chat" className="flex grow flex-col justify-center">
+      <Tabs
+        defaultValue="chat"
+        className="flex h-full grow flex-col justify-center"
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger
             className="group bg-secondary hover:bg-white active:bg-primary"
@@ -71,7 +74,7 @@ export default function Home() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="chat">
-          <Card>
+          <Card className="shadow-none">
             <CardHeader>
               <div className="flex items-center justify-center">
                 <img

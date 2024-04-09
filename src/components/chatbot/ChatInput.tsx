@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 interface ChatInputProps {
@@ -21,14 +21,6 @@ export default function ChatInput({
   givenUserInput,
 }: ChatInputProps) {
   const [userInput, setUserInput] = useState(givenUserInput || "");
-  const [width, setWidth] = useState(0);
-
-  useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
-    setWidth(window.innerWidth);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleSendMessage = () => {
     if (userInput.trim() !== "") {
@@ -38,7 +30,7 @@ export default function ChatInput({
   };
 
   return (
-    <div className="relative bottom-0 left-0 flex w-full">
+    <div className="sticky bottom-0 left-0 flex w-full bg-white">
       <div className="flex w-full items-end gap-4">
         <div className="flex w-full flex-grow flex-col justify-end">
           <text className="text-muted-foreground mb-1 text-sm text-gray-400">
@@ -53,6 +45,8 @@ export default function ChatInput({
                 handleSendMessage();
               }
             }}
+            value={userInput}
+            onChange={(event) => setUserInput(event.target.value)}
           ></TextareaAutosize>
         </div>
         <button
@@ -60,7 +54,7 @@ export default function ChatInput({
           disabled={isPending}
           className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-secondary active:bg-primary"
         >
-          <text className="text-white group-hover:text-darkprim ">
+          <text className="text-white group-hover:text-darkprim">
             {isPending ? "Sending..." : "Send"}
           </text>
         </button>

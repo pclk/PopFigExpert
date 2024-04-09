@@ -99,8 +99,8 @@ export default function ChatContainer({ selectedHistory }: ChatContainerProps) {
   };
 
   return (
-    <div className="flex w-full grow flex-col">
-      <div className="grow">
+    <div className="flex h-full w-full flex-col justify-end">
+      <div className="grow overflow-y-auto">
         {selectedHistory ? (
           selectedHistory.messages.map((message, index) => (
             <ChatMessage key={index} message={message} />
