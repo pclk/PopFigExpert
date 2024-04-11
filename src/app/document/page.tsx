@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { searchDocuments } from "@/app/action";
-import ChatInput from "@/components/chatbot/ChatInput";
+import ChatInput from "@/components/ChatInput";
 
 interface GroupedDocuments {
   date: string;
@@ -124,21 +124,18 @@ export default function DocumentSearch() {
         description={description}
       />
       {results.map((doc, index) => (
-        <div key={index}>
-          <h3>{doc.title}</h3>
-          <p>
-            URL: <a href={doc.url}>{doc.url}</a>
-          </p>
-          <p>Date: {`${doc.date}`}</p>
-          <p>Country: {doc.country}</p>
+        <div key={index} className="mb-4 rounded-md bg-white p-4 shadow-md">
+          <h3 className="mb-2 text-lg font-bold">{doc.title}</h3>
+          <p className="text-md mb-1">Date: {`${doc.date}`}</p>
+          <p className="text-md mb-2">Country: {doc.country}</p>
           {doc.multiple_chunks.map((chunk, chunkIndex) => (
-            <div
-              key={chunkIndex}
-              className="m-3 block border border-solid border-black p-4"
-            >
-              {chunk.slice(0, 500) + "..."}
-            </div>
+            <pre key={chunkIndex} className="text-sm">
+              {chunk}
+            </pre>
           ))}
+          <a href={`${doc.url}`} target="_blank" rel="noopener noreferrer">
+            🔗
+          </a>
         </div>
       ))}
     </div>

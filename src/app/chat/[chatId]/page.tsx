@@ -2,11 +2,12 @@
 
 import { useParams } from "next/navigation";
 import { HistoryContext } from "@/context/HistoryContext";
-import ChatInput from "@/components/chatbot/ChatInput";
+import ChatInput from "@/components/ChatInput";
 import { useUIState, useActions } from "ai/rsc";
 import type { AI } from "@/app/ai";
+import { IconUser } from "@tabler/icons-react";
 
-const ChatPage = () => {
+export default function ChatPage() {
   const params = useParams()!;
   const ChatID = params.chatId as string;
   const [messages, setMessages] = useUIState<typeof AI>();
@@ -27,8 +28,29 @@ const ChatPage = () => {
             <div className="grow overflow-y-auto">
               {selectedHistory ? (
                 messages.map((message, index) => (
-                  <div key={index} className="pb-4">
-                    {message.display}
+                  <div
+                    key={index}
+                    className="mb-4 flex flex-col items-center pb-4"
+                  >
+                    {message.isUser ? (
+                      <div className="flex items-center self-end">
+                        <text className="mr-2 rounded-md bg-primary p-4">
+                          {message.text}
+                        </text>
+                        <IconUser className="size-10 flex-shrink-0 fill-darkprim " />
+                      </div>
+                    ) : (
+                      <div className="flex items-center self-start">
+                        <img
+                          src="/chatbot.png"
+                          alt="Chatbot Avatar"
+                          className="mr-2 size-12 flex-shrink-0 rounded-full align-middle"
+                        />
+                        <text className="justify-start rounded-md bg-secondary p-4">
+                          {message.text}
+                        </text>
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (
@@ -45,6 +67,4 @@ const ChatPage = () => {
       }}
     </HistoryContext.Consumer>
   );
-};
-
-export default ChatPage;
+}

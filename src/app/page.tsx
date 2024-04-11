@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useContext, useState } from "react";
-import ChatInput from "@/components/chatbot/ChatInput";
+import ChatInput from "@/components/ChatInput";
 import { useRouter } from "next/navigation";
 import TextareaAutosize from "react-textarea-autosize";
 import { MessageType } from "@/lib/validators/MessageType";
@@ -29,6 +29,7 @@ import { nanoid } from "nanoid";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("chat");
+  const [isDocumentPage, setIsDocumentPage] = useState(false);
   const router = useRouter();
   const [placeholder, setPlaceholder] = useState("Chat with Eve...");
   const [description, setDescription] = useState(
@@ -58,6 +59,7 @@ export default function Home() {
 
   function changeTab(tab: string) {
     setActiveTab(tab);
+    setIsDocumentPage(tab === "search");
     if (tab === "chat") {
       setPlaceholder("Chat with Eve...");
       setDescription("Eve can make mistakes. Please check her responses.");

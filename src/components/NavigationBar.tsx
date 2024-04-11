@@ -6,8 +6,11 @@ import { HistoryContext } from "../context/HistoryContext";
 import { nanoid } from "nanoid";
 import { HistoryType } from "../lib/validators/HistoryType";
 
-// NavigationBar.tsx at src/app/components
-export default function NavigationBar() {
+interface NavigationBarProps {
+  isDocumentPage: boolean;
+}
+
+export default function NavigationBar({ isDocumentPage }: NavigationBarProps) {
   const { Chathistory, addHistory } = useContext(HistoryContext);
 
   const handleNewChat = () => {
@@ -21,27 +24,39 @@ export default function NavigationBar() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex justify-between rounded-sm">
-        <button
-          className="group w-full rounded-md border-0 bg-secondary p-2 text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
-          onClick={handleNewChat}
-        >
-          <div className="flex items-center group-active:text-white">
-            <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" />
-            New Chat
+      {isDocumentPage ? (
+        // Render the navigation bar for the document page
+        <div>
+          {/* Display previous searches performed on the document page */}
+          <h3>Previous Searches</h3>
+          {/* Render the list of previous searches */}
+        </div>
+      ) : (
+        // Render the navigation bar for other pages
+        <>
+          <div className="flex justify-between rounded-sm">
+            <button
+              className="group w-full rounded-md border-0 bg-secondary p-2 text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
+              onClick={handleNewChat}
+            >
+              <div className="flex items-center group-active:text-white">
+                <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" />
+                New Chat
+              </div>
+            </button>
           </div>
-        </button>
-      </div>
-      <hr className="w-full border-[-1px] border-solid border-darkprim" />
-      {Chathistory.map((history, index) => (
-        <a
-          key={index}
-          href={`/chat/${history.id}`}
-          className="mb-2 truncate rounded-md p-2 no-underline transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
-        >
-          {String(history.label)}
-        </a>
-      ))}
+          <hr className="w-full border-[-1px] border-solid border-darkprim" />
+          {Chathistory.map((history, index) => (
+            <a
+              key={index}
+              href={`/chat/${history.id}`}
+              className="mb-2 truncate rounded-md p-2 no-underline transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
+            >
+              {String(history.label)}
+            </a>
+          ))}
+        </>
+      )}
     </div>
   );
 }
