@@ -1,8 +1,8 @@
-"use server";
+import "server-only";
 
 import client from "@/lib/elasticsearch";
 import { OpenAI } from "openai";
-import { getMutableAIState, createStreamableUI } from "ai/rsc";
+import { createAI, getMutableAIState, createStreamableUI } from "ai/rsc";
 import { z } from "zod";
 import { BotMessage, BotCard } from "@/components/ai-ui/message";
 import { spinner } from "@/components/ai-ui/spinner";
@@ -145,6 +145,7 @@ export async function submitUserMessage(content: string) {
   return {
     id: Date.now(),
     display: reply.value,
+    isUser: true,
   };
 }
 
@@ -219,7 +220,7 @@ export async function searchDocuments(query: string, filters: any) {
 //   }
 // }
 
-async function getChatHistory(id: string) {
+export async function getChatHistory(id: string) {
   try {
     const response = await client.get({
       index: "chathist",
@@ -266,7 +267,7 @@ async function getChatHistory(id: string) {
 // }
 
 // Generate report summary (placeholder function)
-async function generateReportSummary(reports: any[]) {
+export async function generateReportSummary(reports: any[]) {
   // Placeholder implementation, replace with actual summary generation logic
   return `Summary of ${reports.length} reports`;
 }

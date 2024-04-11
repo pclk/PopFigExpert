@@ -1,4 +1,5 @@
-// lib/elasticsearch.ts
+"use server";
+ // lib/elasticsearch.ts
 import { Client } from '@elastic/elasticsearch'
 import  fs from 'fs';
 

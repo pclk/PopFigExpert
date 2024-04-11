@@ -1,3 +1,4 @@
+"use client";
 import { Inter } from "next/font/google";
 import "tailwindcss/tailwind.css";
 import { IconMenu2 } from "@tabler/icons-react";
@@ -7,17 +8,17 @@ import Providers from "@/components/Providers";
 require("dotenv").config({ path: "../.env.local" });
 import "@/app/globals.css";
 import { AI } from "./ai";
+import { usePathname } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
-  segments,
 }: {
   children: React.ReactNode;
-  segments: string[];
 }) {
-  const isDocumentPage = segments[0] === "document";
+  let pathname = usePathname();
+  const isDocumentPage = pathname === "/document";
 
   return (
     <html lang="en">

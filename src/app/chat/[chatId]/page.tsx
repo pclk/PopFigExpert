@@ -35,7 +35,7 @@ export default function ChatPage() {
                     {message.isUser ? (
                       <div className="flex items-center self-end">
                         <text className="mr-2 rounded-md bg-primary p-4">
-                          {message.text}
+                          {message.display}
                         </text>
                         <IconUser className="size-10 flex-shrink-0 fill-darkprim " />
                       </div>
@@ -47,7 +47,7 @@ export default function ChatPage() {
                           className="mr-2 size-12 flex-shrink-0 rounded-full align-middle"
                         />
                         <text className="justify-start rounded-md bg-secondary p-4">
-                          {message.text}
+                          {message.display}
                         </text>
                       </div>
                     )}

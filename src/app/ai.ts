@@ -1,3 +1,4 @@
+import "server-only"
 // ai.ts
 import { createAI } from "ai/rsc";
 import { submitUserMessage } from "./action";
@@ -9,11 +10,13 @@ const initialAIState: {
     name?: string;
   }[] = [];
 
-const initialUIState: {
-  id: number;
-  display: React.ReactNode;
-}[] = [];
+  const initialUIState: {
+    id: number;
+    display: React.ReactNode;
+    isUser: boolean;
+  }[] = [];
 
+// @ts-ignore
 export const AI = createAI({
   actions: {
     submitUserMessage,
