@@ -18,10 +18,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import ChatInput from "@/components/chatbot/ChatInput";
 import { useRouter } from "next/navigation";
 import TextareaAutosize from "react-textarea-autosize";
+import { MessageType } from "@/lib/validators/MessageType";
+import { HistoryType } from "@/lib/validators/HistoryType";
+import { HistoryContext } from "../context/HistoryContext";
+import { nanoid } from "nanoid";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("chat");
@@ -38,6 +42,7 @@ export default function Home() {
     title: "",
     country: "",
   });
+  const { addHistory } = useContext(HistoryContext);
 
   function handleModelChange(model: string) {
     setModel(model);
@@ -61,9 +66,23 @@ export default function Home() {
 
   const handleSendMessage = (message: string) => {
     if (activeTab === "chat") {
-      // Start a new chat with the user message
-      // Implement your chat logic here
-      console.log("Starting a new chat with message:", message);
+      // Create a new chat message
+      const newMessage: MessageType = {
+        id: nanoid(),
+        text: message,
+        isUser: true,
+      };
+
+      // Create a new chat history
+      const newHistory: HistoryType = {
+        id: nanoid(),
+        label: "New Chat",
+        messages: [newMessage],
+      };
+      addHistory(newHistory);
+
+      // Redirect to /chat/[chatId]
+      router.push(`/chat/${newHistory.id}`);
     } else if (activeTab === "search") {
       // Redirect to /document with the search term
       router.push(`/document?search=${encodeURIComponent(message)}`);
