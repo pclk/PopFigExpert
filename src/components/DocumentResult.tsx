@@ -1,6 +1,5 @@
 // components/DocumentResult.tsx
 import React from "react";
-import { Box, Text } from "@mantine/core";
 import { DocumentType } from "@/lib/validators/DocumentType";
 
 export default function DocumentResult({
@@ -12,19 +11,13 @@ export default function DocumentResult({
 }: DocumentType) {
   console.log("Content in DocumentResult:", chunk);
   return (
-    <Box className="mb-4 rounded-md bg-white p-4 shadow-md">
-      <Text size="lg" className="mb-2 font-bold">
-        {title}
-      </Text>
-      <Text size="md" className="mb-1">
-        Date: {`${date}`}
-      </Text>
-      <Text size="md" className="mb-2">
-        Country: {country}
-      </Text>
+    <div className="mb-4 rounded-md bg-white p-4 shadow-md">
+      <h3 className="mb-2 text-lg font-bold">{title}</h3>
+      <p className="text-md mb-1">Date: {`${date}`}</p>
+      <p className="text-md mb-2">Country: {country}</p>
       <pre
-        className="text-sm "
-        style={{ fontFamily: `inherit`, textWrap: `pretty` }}
+        className="text-sm"
+        style={{ fontFamily: `inherit`, whiteSpace: `pre-wrap` }}
       >
         {chunk}
       </pre>
@@ -32,6 +25,6 @@ export default function DocumentResult({
         🔗
       </a>
       {/* implement highlighting of the search. can save in. scrape mfa again with id */}
-    </Box>
+    </div>
   );
 }

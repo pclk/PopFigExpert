@@ -245,9 +245,6 @@ export default function Home() {
       </Tabs>
       <ChatInput
         onSendMessage={handleSendMessage}
-        isPending={false}
-        isError={false}
-        error={null}
         placeholder={placeholder}
         description={description}
       />

@@ -3,24 +3,16 @@ import TextareaAutosize from "react-textarea-autosize";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
-  isPending: boolean;
-  isError: boolean;
-  error: any;
   placeholder?: string;
   description?: string;
-  givenUserInput?: string;
 }
 
 export default function ChatInput({
   onSendMessage,
-  isPending,
-  isError,
-  error,
   placeholder,
   description,
-  givenUserInput,
 }: ChatInputProps) {
-  const [userInput, setUserInput] = useState(givenUserInput || "");
+  const [userInput, setUserInput] = useState("");
 
   const handleSendMessage = () => {
     if (userInput.trim() !== "") {
@@ -37,7 +29,7 @@ export default function ChatInput({
             {description}
           </text>
           <TextareaAutosize
-            className="font-inter box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+            className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
             placeholder={placeholder}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !event.shiftKey) {
@@ -51,19 +43,11 @@ export default function ChatInput({
         </div>
         <button
           onClick={handleSendMessage}
-          disabled={isPending}
           className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-secondary active:bg-primary"
         >
-          <text className="text-white group-hover:text-darkprim">
-            {isPending ? "Sending..." : "Send"}
-          </text>
+          <text className="text-white group-hover:text-darkprim">Send</text>
         </button>
       </div>
-      {isError && (
-        <text className="text-red text-sm">
-          Error: {(error as Error)?.message}
-        </text>
-      )}
     </div>
   );
 }
