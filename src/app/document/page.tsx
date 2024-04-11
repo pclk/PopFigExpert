@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { searchDocuments } from "../actions";
+import { searchDocuments } from "@/app/action";
 import ChatInput from "@/components/chatbot/ChatInput";
 
 interface GroupedDocuments {

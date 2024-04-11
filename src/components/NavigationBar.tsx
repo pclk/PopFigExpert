@@ -1,3 +1,5 @@
+"use client";
+
 import { useContext } from "react";
 import { IconMessages } from "@tabler/icons-react";
 import { HistoryContext } from "../context/HistoryContext";
@@ -21,10 +23,10 @@ export default function NavigationBar() {
     <div className="flex h-full flex-col">
       <div className="flex justify-between rounded-sm">
         <button
-          className="active:text-white group w-full rounded-md border-0 bg-secondary p-2 text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary"
+          className="group w-full rounded-md border-0 bg-secondary p-2 text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
           onClick={handleNewChat}
         >
-          <div className="group-active:text-white flex items-center">
+          <div className="flex items-center group-active:text-white">
             <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" />
             New Chat
           </div>
@@ -35,7 +37,7 @@ export default function NavigationBar() {
         <a
           key={index}
           href={`/chat/${history.id}`}
-          className="active:text-white mb-2 truncate rounded-md p-2 no-underline transition-all hover:bg-white hover:shadow-md active:bg-primary"
+          className="mb-2 truncate rounded-md p-2 no-underline transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
         >
           {String(history.label)}
         </a>

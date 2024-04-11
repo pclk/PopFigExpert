@@ -43,6 +43,9 @@ export default function Home() {
     country: "",
   });
   const { addHistory } = useContext(HistoryContext);
+  const [isNavBarOpen, setIsNavBarOpen] = useState(false);
+
+  const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
 
   function handleModelChange(model: string) {
     setModel(model);

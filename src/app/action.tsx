@@ -1,43 +1,23 @@
-// app/actions.ts
 "use server";
 
 import client from "@/lib/elasticsearch";
 import { OpenAI } from "openai";
-import { createAI, getMutableAIState, createStreamableUI } from "ai/rsc";
+import { getMutableAIState, createStreamableUI } from "ai/rsc";
 import { z } from "zod";
 import { BotMessage, BotCard } from "@/components/ai-ui/message";
 import { spinner } from "@/components/ai-ui/spinner";
 import { runOpenAICompletion } from "@/lib/utils";
 import ReportSummarySkeleton from "@/components/ai-ui/ReportSummarySkeleton";
 import ArticlesSkeleton from "@/components/ai-ui/ArticlesSkeleton";
-import ReportSummary from "@/components/ai-ui/ReportSummary";
+// import ReportSummary from "@/components/ai-ui/ReportSummary";
 import Articles from "@/components/ai-ui/Articles";
+import { AI } from "./ai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
+  apiKey: process.env.OPENAI_API_KEY || "",
 });
 
-const initialAIState: {
-  role: "user" | "assistant" | "system" | "function";
-  content: string;
-  id?: string;
-  name?: string;
-}[] = [];
-
-const initialUIState: {
-  id: number;
-  display: React.ReactNode;
-}[] = [];
-
-export const AI = createAI({
-  actions: {
-    submitUserMessage,
-  },
-  initialUIState,
-  initialAIState,
-});
-
-async function submitUserMessage(content: string) {
+export async function submitUserMessage(content: string) {
   "use server";
 
   const aiState = getMutableAIState<typeof AI>();
@@ -149,11 +129,7 @@ async function submitUserMessage(content: string) {
       );
       const summary = generateReportSummary(reports);
 
-      reply.done(
-        <BotCard>
-          <ReportSummary summary={summary} />
-        </BotCard>,
-      );
+      reply.done(<BotCard>summary</BotCard>);
 
       aiState.done([
         ...aiState.get(),
@@ -174,6 +150,7 @@ async function submitUserMessage(content: string) {
 
 // Search documents with filter parameters
 export async function searchDocuments(query: string, filters: any) {
+  "use server";
   try {
     const { date, country, title } = filters;
 
@@ -227,22 +204,22 @@ export async function searchDocuments(query: string, filters: any) {
   }
 }
 
-// CRUD operations for chat history data
-export async function createChatHistory(history: any) {
-  try {
-    await client.index({
-      index: "chathist",
-      body: history,
-    });
-  } catch (error) {
-    console.error("Error creating chat history:", String(error).slice(0, 50));
-    throw new Error(
-      "An error occurred while creating chat history. Please try again later.",
-    );
-  }
-}
+// // CRUD operations for chat history data
+// async function createChatHistory(history: any) {
+//   try {
+//     await client.index({
+//       index: "chathist",
+//       body: history,
+//     });
+//   } catch (error) {
+//     console.error("Error creating chat history:", String(error).slice(0, 50));
+//     throw new Error(
+//       "An error occurred while creating chat history. Please try again later.",
+//     );
+//   }
+// }
 
-export async function getChatHistory(id: string) {
+async function getChatHistory(id: string) {
   try {
     const response = await client.get({
       index: "chathist",
@@ -257,39 +234,39 @@ export async function getChatHistory(id: string) {
   }
 }
 
-export async function updateChatHistory(id: string, history: any) {
-  try {
-    await client.update({
-      index: "chathist",
-      id: id,
-      body: {
-        doc: history,
-      },
-    });
-  } catch (error) {
-    console.error("Error updating chat history:", String(error).slice(0, 50));
-    throw new Error(
-      "An error occurred while updating chat history. Please try again later.",
-    );
-  }
-}
+// async function updateChatHistory(id: string, history: any) {
+//   try {
+//     await client.update({
+//       index: "chathist",
+//       id: id,
+//       body: {
+//         doc: history,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Error updating chat history:", String(error).slice(0, 50));
+//     throw new Error(
+//       "An error occurred while updating chat history. Please try again later.",
+//     );
+//   }
+// }
 
-export async function deleteChatHistory(id: string) {
-  try {
-    await client.delete({
-      index: "chathist",
-      id: id,
-    });
-  } catch (error) {
-    console.error("Error deleting chat history:", String(error).slice(0, 50));
-    throw new Error(
-      "An error occurred while deleting chat history. Please try again later.",
-    );
-  }
-}
+// async function deleteChatHistory(id: string) {
+//   try {
+//     await client.delete({
+//       index: "chathist",
+//       id: id,
+//     });
+//   } catch (error) {
+//     console.error("Error deleting chat history:", String(error).slice(0, 50));
+//     throw new Error(
+//       "An error occurred while deleting chat history. Please try again later.",
+//     );
+//   }
+// }
 
 // Generate report summary (placeholder function)
-function generateReportSummary(reports: any[]) {
+async function generateReportSummary(reports: any[]) {
   // Placeholder implementation, replace with actual summary generation logic
   return `Summary of ${reports.length} reports`;
 }

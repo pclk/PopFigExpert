@@ -1,15 +1,20 @@
 "use client";
+
 import { useParams } from "next/navigation";
 import { HistoryContext } from "@/context/HistoryContext";
 import ChatInput from "@/components/chatbot/ChatInput";
 import { useUIState, useActions } from "ai/rsc";
-import type { AI } from "@/app/actions";
+import type { AI } from "@/app/ai";
 
 const ChatPage = () => {
   const params = useParams()!;
   const ChatID = params.chatId as string;
   const [messages, setMessages] = useUIState<typeof AI>();
   const { submitUserMessage } = useActions<typeof AI>();
+
+  function handleSendMessage() {
+    return null;
+  }
 
   return (
     <HistoryContext.Consumer>

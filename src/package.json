@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -29,6 +29,7 @@
     "dotenv": "^16.4.5",
     "drawer": "^0.0.2",
     "eventsource-parser": "^1.1.2",
+    "fs": "^0.0.1-security",
     "lucide-react": "^0.363.0",
     "next": "14.1.4",
     "next-auth": "^4.24.7",
@@ -38,6 +39,7 @@
     "react-markdown": "^9.0.1",
     "react-textarea-autosize": "^8.5.3",
     "shadcn-ui": "^0.8.0",
+    "stream": "^0.0.2",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"
