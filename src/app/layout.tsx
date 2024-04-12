@@ -1,27 +1,29 @@
-"use client";
 import { Inter } from "next/font/google";
 import "tailwindcss/tailwind.css";
 import { IconMenu2 } from "@tabler/icons-react";
 import React from "react";
 import NavigationBar from "../components/NavigationBar";
 import Providers from "@/components/Providers";
-require("dotenv").config({ path: "../.env.local" });
 import "@/app/globals.css";
-import { AI } from "./ai";
-import { usePathname } from "next/navigation";
+import { AI } from "./action";
+import { headers } from "next/headers";
+import type { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const metadata: Metadata = {
+  title: "PopFigExpert",
+  description: "Popular Figure Expert chatbot.",
+};
+
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
-  let pathname = usePathname();
-  const isDocumentPage = pathname === "/document";
-
+}>) {
+  const isDocumentPage = headers().get("referer") === "/document";
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>PopFigExpert</title>
       </head>
@@ -43,3 +45,4 @@ export default function RootLayout({
     </html>
   );
 }
+export const runtime = "edge";

@@ -21,7 +21,7 @@
       // "**/.gitignore": true,
       "**/components.json": true,
       "**/next-env.d.ts": true,
-      "**/tsconfig.json": true,
+      // "**/tsconfig.json": true,
       // "**/tailwind.config.js": true,
       "**/postcss.config.js": true,
       // "**/next.config.mjs": true,

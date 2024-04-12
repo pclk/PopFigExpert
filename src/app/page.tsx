@@ -18,116 +18,75 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useContext, useState } from "react";
 import ChatInput from "@/components/ChatInput";
 import { useRouter } from "next/navigation";
 import TextareaAutosize from "react-textarea-autosize";
-import { MessageType } from "@/lib/validators/MessageType";
-import { HistoryType } from "@/lib/validators/HistoryType";
-import { HistoryContext } from "../context/HistoryContext";
-import { nanoid } from "nanoid";
+import { useFormState } from "react-dom";
+import { useUIState, useActions } from "ai/rsc";
+import {
+  handleFilterChange,
+  handleModelChange,
+  handleSendMessage,
+  handleTabChange,
+  type AI,
+} from "@/app/action";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("chat");
-  const [isDocumentPage, setIsDocumentPage] = useState(false);
   const router = useRouter();
-  const [placeholder, setPlaceholder] = useState("Chat with Eve...");
-  const [description, setDescription] = useState(
-    "Eve can make mistakes. Please check her responses.",
+  const [modelDisplayState, handleModelChangeAction] = useFormState(
+    handleModelChange,
+    { modelDisplay: "GPT 3.5 Turbo" },
   );
-  const [model, setModel] = useState("gpt-3.5-turbo");
-  const [modelDisplay, setModelDisplay] = useState("GPT 3.5 Turbo");
-  const [filters, setFilters] = useState({
-    content: "",
-    date: "",
-    title: "",
-    country: "",
+  const [tabState, handleTabChangeAction] = useFormState(handleTabChange, {
+    tab: "chat",
+    placeholder: "Chat with Eve...",
+    description: "Eve can make mistakes. Please check her responses.",
   });
-  const { addHistory } = useContext(HistoryContext);
-  const [isNavBarOpen, setIsNavBarOpen] = useState(false);
-
-  const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
-
-  function handleModelChange(model: string) {
-    setModel(model);
-    if (model === "gpt-3.5-turbo") {
-      setModelDisplay("GPT 3.5 Turbo");
-    } else if (model === "mistralai/mixtral-8x7b-instruct-v0.1") {
-      setModelDisplay("Mixtral 7x8b");
-    }
-  }
-
-  function changeTab(tab: string) {
-    setActiveTab(tab);
-    setIsDocumentPage(tab === "search");
-    if (tab === "chat") {
-      setPlaceholder("Chat with Eve...");
-      setDescription("Eve can make mistakes. Please check her responses.");
-    } else if (tab === "search") {
-      setPlaceholder("Enter a search term...");
-      setDescription("Showing results x of xx...");
-    }
-  }
-
-  const handleSendMessage = (message: string) => {
-    if (activeTab === "chat") {
-      // Create a new chat message
-      const newMessage: MessageType = {
-        id: nanoid(),
-        text: message,
-        isUser: true,
-      };
-
-      // Create a new chat history
-      const newHistory: HistoryType = {
-        id: nanoid(),
-        label: "New Chat",
-        messages: [newMessage],
-      };
-      addHistory(newHistory);
-
-      // Redirect to /chat/[chatId]
-      router.push(`/chat/${newHistory.id}`);
-    } else if (activeTab === "search") {
-      // Redirect to /document with the search term
-      router.push(`/document?search=${encodeURIComponent(message)}`);
-    }
-  };
+  const [filterState, handleFilterChangeAction] = useFormState(
+    handleFilterChange,
+    {
+      content: "",
+      date: "",
+      title: "",
+      country: "",
+    },
+  );
+  const [messages, setMessages] = useUIState<typeof AI>();
+  const { submitUserMessage } = useActions<typeof AI>();
 
   return (
     <>
       <div className="sticky left-0 top-0">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="border-none font-inter text-darkprim hover:bg-secondary active:bg-primary active:text-white"
-            >
-              {modelDisplay} ⏷
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Your model of choice</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup
-              value={model}
-              onValueChange={handleModelChange}
-            >
-              <DropdownMenuRadioItem
-                value="gpt-3.5-turbo"
-                className="hover:bg-secondary active:bg-primary active:text-white"
+        <form action={handleModelChangeAction}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="border-none font-inter text-darkprim hover:bg-secondary active:bg-primary active:text-white"
               >
-                GPT 3.5 Turbo
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem
-                value="mistralai/mixtral-8x7b-instruct-v0.1"
-                className="text hover:bg-secondary active:bg-primary active:text-white"
-              >
-                Mixtral 7x8b
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                {modelDisplayState?.modelDisplay}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>Your model of choice</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup>
+                <DropdownMenuRadioItem
+                  value="gpt-3.5-turbo"
+                  className="hover:bg-secondary active:bg-primary active:text-white"
+                >
+                  GPT 3.5 Turbo
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem
+                  value="mistralai/mixtral-8x7b-instruct-v0.1"
+                  className="text hover:bg-secondary active:bg-primary active:text-white"
+                >
+                  Mixtral 7x8b
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </form>
       </div>
 
       <Tabs
@@ -135,24 +94,26 @@ export default function Home() {
         className="flex h-full grow flex-col justify-center"
       >
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger
-            className="group bg-secondary hover:bg-white active:bg-primary"
-            value="chat"
-            onClick={() => changeTab("chat")}
-          >
-            <text className="text-darkprim group-active:text-white">
-              Chat with Eve{" "}
-            </text>
-          </TabsTrigger>
-          <TabsTrigger
-            className="group bg-secondary hover:bg-white active:bg-primary"
-            value="search"
-            onClick={() => changeTab("search")}
-          >
-            <text className="text-darkprim group-active:text-white">
-              Manual Document Search
-            </text>
-          </TabsTrigger>
+          <form action={handleTabChangeAction}>
+            <TabsTrigger
+              className="group bg-secondary hover:bg-white active:bg-primary"
+              value="chat"
+            >
+              <input type="hidden" name="tab" value="chat" />
+              <text className="text-darkprim group-active:text-white">
+                Chat with Eve{" "}
+              </text>
+            </TabsTrigger>
+            <TabsTrigger
+              className="group bg-secondary hover:bg-white active:bg-primary"
+              value="search"
+            >
+              <input type="hidden" name="tab" value="search" />
+              <text className="text-darkprim group-active:text-white">
+                Manual Document Search
+              </text>
+            </TabsTrigger>
+          </form>
         </TabsList>
         <TabsContent value="chat">
           <Card className="shadow-none">
@@ -212,46 +173,40 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <TextareaAutosize
-                className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
-                placeholder="Content"
-                value={filters.content}
-                onChange={(e) =>
-                  setFilters({ ...filters, content: e.target.value })
-                }
-              />
-              <TextareaAutosize
-                className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
-                placeholder="Date"
-                value={filters.date}
-                onChange={(e) =>
-                  setFilters({ ...filters, date: e.target.value })
-                }
-              />
-              <TextareaAutosize
-                className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
-                placeholder="Title"
-                value={filters.title}
-                onChange={(e) =>
-                  setFilters({ ...filters, title: e.target.value })
-                }
-              />
-              <TextareaAutosize
-                className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
-                placeholder="Country"
-                value={filters.country}
-                onChange={(e) =>
-                  setFilters({ ...filters, country: e.target.value })
-                }
-              />
+              <form action={handleFilterChangeAction}>
+                <TextareaAutosize
+                  className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                  placeholder="Content"
+                  name="content"
+                  value={filterState.content}
+                />
+                <TextareaAutosize
+                  className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                  placeholder="Date"
+                  name="date"
+                  value={filterState.date}
+                />
+                <TextareaAutosize
+                  className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                  placeholder="Title"
+                  name="title"
+                  value={filterState.title}
+                />
+                <TextareaAutosize
+                  className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                  placeholder="Country"
+                  name="country"
+                  value={filterState.country}
+                />
+              </form>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
       <ChatInput
-        onSendMessage={handleSendMessage}
-        placeholder={placeholder}
-        description={description}
+        action={handleSendMessage}
+        placeholder={tabState.placeholder}
+        description={tabState.description}
       />
     </>
   );

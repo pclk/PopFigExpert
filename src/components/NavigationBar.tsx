@@ -1,17 +1,17 @@
-"use client";
-
-import { useContext } from "react";
 import { IconMessages } from "@tabler/icons-react";
-import { HistoryContext } from "../context/HistoryContext";
 import { nanoid } from "nanoid";
 import { HistoryType } from "../lib/validators/HistoryType";
+import { cookies } from "next/headers";
+import { addHistory } from "@/app/action";
 
 interface NavigationBarProps {
   isDocumentPage: boolean;
 }
 
 export default function NavigationBar({ isDocumentPage }: NavigationBarProps) {
-  const { Chathistory, addHistory } = useContext(HistoryContext);
+  const chatHistory: HistoryType[] = JSON.parse(
+    cookies().get("chatHistory")?.value ?? "[]",
+  );
 
   const handleNewChat = () => {
     const newHistory: HistoryType = {
@@ -46,7 +46,7 @@ export default function NavigationBar({ isDocumentPage }: NavigationBarProps) {
             </button>
           </div>
           <hr className="w-full border-[-1px] border-solid border-darkprim" />
-          {Chathistory.map((history, index) => (
+          {chatHistory.map((history, index) => (
             <a
               key={index}
               href={`/chat/${history.id}`}

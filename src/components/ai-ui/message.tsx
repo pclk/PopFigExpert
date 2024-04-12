@@ -1,5 +1,3 @@
-"use client";
-
 import { IconUser } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 

@@ -1,31 +1,78 @@
-import "server-only";
+"use server";
+import {
+  createAI,
+  getMutableAIState,
+  createStreamableUI,
+  render,
+} from "ai/rsc";
+import OpenAI from "openai";
 
-import client from "@/lib/elasticsearch";
-import { OpenAI } from "openai";
-import { createAI, getMutableAIState, createStreamableUI } from "ai/rsc";
-import { z } from "zod";
-import { BotMessage, BotCard } from "@/components/ai-ui/message";
+import { BotMessage } from "@/components/ai-ui/message";
 import { spinner } from "@/components/ai-ui/spinner";
-import { runOpenAICompletion } from "@/lib/utils";
-import ReportSummarySkeleton from "@/components/ai-ui/ReportSummarySkeleton";
-import ArticlesSkeleton from "@/components/ai-ui/ArticlesSkeleton";
-// import ReportSummary from "@/components/ai-ui/ReportSummary";
-import Articles from "@/components/ai-ui/Articles";
-import { AI } from "./ai";
+import { HistoryType } from "@/lib/validators/HistoryType";
+import { nanoid } from "ai";
+import { MessageType } from "../lib/validators/MessageType";
+import { cookies } from "next/headers";
+// import { runOpenAICompletion } from "@/lib/utils";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
 });
 
-export async function submitUserMessage(content: string) {
-  "use server";
+export async function handleTabChange(prevState: any, formData: FormData) {
+  const tab = formData.get("tab") as string;
+  const placeholder =
+    tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
+  const description =
+    tab === "chat"
+      ? "Eve can make mistakes. Please check her responses."
+      : "Showing results x of xx...";
+  return { ...prevState, tab, placeholder, description };
+}
 
+export async function handleModelChange(prevState: any, formData: FormData) {
+  const model = formData.get("model") as string;
+  const modelDisplay =
+    model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
+  return { ...prevState, modelDisplay };
+}
+
+export async function handleFilterChange(prevState: any, formData: FormData) {
+  const content = formData.get("content") as string;
+  const date = formData.get("date") as string;
+  const title = formData.get("title") as string;
+  const country = formData.get("country") as string;
+  return { ...prevState, content, date, title, country };
+}
+
+export async function handleSendMessage(formData: FormData) {
+  const userInput = formData.get("userInput") as string;
+  if (userInput.trim() !== "") {
+    const message = {
+      id: nanoid(),
+      text: userInput,
+      isUser: true,
+    };
+    const newHistory: HistoryType = {
+      id: nanoid(),
+      label: userInput,
+      messages: [
+        {
+          ...message,
+        },
+      ],
+    };
+    addHistory(newHistory);
+  }
+}
+
+export async function submitUserMessage(userInput: string): Promise<any> {
   const aiState = getMutableAIState<typeof AI>();
   aiState.update([
     ...aiState.get(),
     {
       role: "user",
-      content,
+      content: userInput,
     },
   ]);
 
@@ -33,25 +80,13 @@ export async function submitUserMessage(content: string) {
     <BotMessage className="items-center">{spinner}</BotMessage>,
   );
 
-  const completion = runOpenAICompletion(openai, {
+  const ui = render({
     model: "gpt-3.5-turbo",
-    stream: true,
+    provider: openai,
     messages: [
       {
         role: "system",
-        content: `
-  You are an AI assistant within the Centre for Strategic Infocomm Technologies (CSIT) in the Ministry of Defence, operating on a secure intranet to deliver critical information to staff. Adhere to the following principles:
-  1. **Professionalism**: Employ precise, clear, and objective language, avoiding colloquialisms and ensuring information accuracy.
-  2. **Knowledgeability**: Utilize the ministry's document database to provide comprehensive insights on global political figures, historical contexts, and current events, ensuring relevance and depth in responses.
-
-  When a user asks a question, search the Elasticsearch instance for relevant information and summarize the findings in a concise and intuitive manner. If the user requests a report summary, summarize up to 4 reports and display the results in an easy-to-understand format.
-
-  If the user needs assistance with prompt engineering or has a specific level of proficiency, adjust your responses accordingly to guide them effectively.
-
-  Additional functions:
-  - \`search_news_articles\`: Search for relevant news articles based on the user's query.
-  - \`generate_report_summary\`: Summarize up to 4 reports and display the results intuitively.
-  `,
+        content: "You are a simple AI assistant.",
       },
       ...aiState.get().map((info: any) => ({
         role: info.role,
@@ -59,215 +94,106 @@ export async function submitUserMessage(content: string) {
         name: info.name,
       })),
     ],
-    functions: [
-      {
-        name: "search_news_articles",
-        description:
-          "Search for relevant news articles based on the user's query.",
-        parameters: z.object({
-          query: z.string().describe("The search query provided by the user."),
-        }),
-      },
-      {
-        name: "generate_report_summary",
-        description:
-          "Summarize up to 4 reports and display the results intuitively.",
-        parameters: z.object({
-          reportIds: z
-            .array(z.string())
-            .describe("The IDs of the reports to summarize."),
-        }),
-      },
-    ],
-    temperature: 0,
-  });
-
-  completion.onTextContent((content: string, isFinal: boolean) => {
-    reply.update(<BotMessage>{content}</BotMessage>);
-    if (isFinal) {
-      reply.done();
-      aiState.done([...aiState.get(), { role: "assistant", content }]);
-    }
-  });
-
-  completion.onFunctionCall("search_news_articles", async ({ query }) => {
-    reply.update(
-      <BotCard>
-        <ArticlesSkeleton />
-      </BotCard>,
-    );
-
-    const articles = await searchDocuments(query, {});
-
-    reply.done(
-      <BotCard>
-        <Articles articles={articles} />
-      </BotCard>,
-    );
-
-    aiState.done([
-      ...aiState.get(),
-      {
-        role: "function",
-        name: "search_news_articles",
-        content: JSON.stringify(articles),
-      },
-    ]);
-  });
-
-  completion.onFunctionCall(
-    "generate_report_summary",
-    async ({ reportIds }) => {
-      reply.update(
-        <BotCard>
-          <ReportSummarySkeleton />
-        </BotCard>,
-      );
-
-      const reports = await Promise.all(
-        reportIds.map((id) => getChatHistory(id)),
-      );
-      const summary = generateReportSummary(reports);
-
-      reply.done(<BotCard>summary</BotCard>);
-
-      aiState.done([
-        ...aiState.get(),
-        {
-          role: "function",
-          name: "generate_report_summary",
-          content: JSON.stringify(summary),
-        },
-      ]);
+    text: ({ content, done }) => {
+      if (done) {
+        aiState.done([...aiState.get(), { role: "assistant", content }]);
+      }
+      return <p>{content}</p>;
     },
-  );
-
+    tools: {},
+  });
   return {
     id: Date.now(),
-    display: reply.value,
-    isUser: true,
+    display: ui,
   };
 }
 
-// Search documents with filter parameters
-export async function searchDocuments(query: string, filters: any) {
-  "use server";
-  try {
-    const { date, country, title } = filters;
+const initialAIState: {
+  role: "user" | "assistant" | "system" | "function";
+  content: string;
+  id?: string;
+  name?: string;
+}[] = [];
 
-    const must = [
+const initialUIState: {
+  id: number;
+  display: React.ReactNode;
+}[] = [];
+
+export const AI = createAI({
+  actions: {
+    submitUserMessage,
+  },
+  initialUIState: initialUIState,
+  initialAIState: initialAIState,
+});
+
+// ChatHistory Management
+const defaultValue = [
+  {
+    id: "ocH49A5lVYXi9izu6eNuU",
+    label: "User seeking for order assistance.",
+    messages: [
       {
-        multi_match: {
-          query: query,
-          fields: ["title", "content"],
-        },
+        id: nanoid(),
+        text: "Hello! How can I assist you today?",
+        isUser: false,
       },
-    ];
+    ],
+  },
+];
 
-    if (date) {
-      must.push({
-        multi_match: { query: date, fields: ["date"] },
-      });
-    }
+// const chatHistory = cookies().get("chatHistory");
+// const Chathistory: HistoryType[] = chatHistory
+//   ? JSON.parse(chatHistory.value)
+//   : [];
 
-    if (country) {
-      must.push({
-        multi_match: { query: country, fields: ["country"] },
-      });
-    }
+// if (!chatHistory) {
+//   cookies().set("chatHistory", JSON.stringify(defaultValue));
+// }
 
-    if (title) {
-      must.push({
-        multi_match: { query: title, fields: ["title"] },
-      });
-    }
-
-    const response = await client.search({
-      index: "mfa-press",
-      query: {
-        bool: {
-          must: must,
-        },
-      },
-      highlight: {
-        fields: {
-          content: {},
-        },
-      },
-    });
-
-    return response.hits.hits.map((hit: any) => hit._source);
-  } catch (error) {
-    console.error("Error searching documents:", String(error).slice(0, 50));
-    throw new Error(
-      "An error occurred while searching documents. Please try again later.",
-    );
-  }
+export async function addHistory(history: HistoryType) {
+  const updatedHistory = [...Chathistory, history];
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
-// // CRUD operations for chat history data
-// async function createChatHistory(history: any) {
-//   try {
-//     await client.index({
-//       index: "chathist",
-//       body: history,
-//     });
-//   } catch (error) {
-//     console.error("Error creating chat history:", String(error).slice(0, 50));
-//     throw new Error(
-//       "An error occurred while creating chat history. Please try again later.",
-//     );
-//   }
-// }
-
-export async function getChatHistory(id: string) {
-  try {
-    const response = await client.get({
-      index: "chathist",
-      id: id,
-    });
-    return response._source;
-  } catch (error) {
-    console.error("Error retrieving chat history:", String(error).slice(0, 50));
-    throw new Error(
-      "An error occurred while retrieving chat history. Please try again later.",
-    );
-  }
+export async function removeHistory(id: string) {
+  const updatedHistory = Chathistory.filter((history) => history.id !== id);
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
-// async function updateChatHistory(id: string, history: any) {
-//   try {
-//     await client.update({
-//       index: "chathist",
-//       id: id,
-//       body: {
-//         doc: history,
-//       },
-//     });
-//   } catch (error) {
-//     console.error("Error updating chat history:", String(error).slice(0, 50));
-//     throw new Error(
-//       "An error occurred while updating chat history. Please try again later.",
-//     );
-//   }
-// }
+export async function updateHistoryLabel(
+  id: string,
+  updateFn: (prevLabel: string) => string,
+) {
+  const updatedHistory = Chathistory.map((history) => {
+    if (history.id === id) {
+      return { ...history, label: updateFn(history.label) };
+    }
+    return history;
+  });
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
+}
 
-// async function deleteChatHistory(id: string) {
-//   try {
-//     await client.delete({
-//       index: "chathist",
-//       id: id,
-//     });
-//   } catch (error) {
-//     console.error("Error deleting chat history:", String(error).slice(0, 50));
-//     throw new Error(
-//       "An error occurred while deleting chat history. Please try again later.",
-//     );
-//   }
-// }
+export async function addMessages(id: string, message: MessageType) {
+  const updatedHistory = Chathistory.map((history) => {
+    if (history.id === id) {
+      return { ...history, messages: [...history.messages, message] };
+    }
+    return history;
+  });
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
+}
 
-// Generate report summary (placeholder function)
-export async function generateReportSummary(reports: any[]) {
-  // Placeholder implementation, replace with actual summary generation logic
-  return `Summary of ${reports.length} reports`;
+export async function updateMessages(
+  id: string,
+  updateFn: (prevMessages: MessageType[]) => MessageType[],
+) {
+  const updatedHistory = Chathistory.map((history) => {
+    if (history.id === id) {
+      return { ...history, messages: updateFn(history.messages) };
+    }
+    return history;
+  });
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
