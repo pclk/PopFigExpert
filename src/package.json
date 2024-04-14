@@ -31,7 +31,7 @@
     "react-dom": "^18.2.0",
     "react-textarea-autosize": "^8.5.3",
     "shadcn-ui": "^0.8.0",
-    "tailwind-merge": "^2.2.1",
+    "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "3.22.4",
     "zod-to-json-schema": "3.22.4"

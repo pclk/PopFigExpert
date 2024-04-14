@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-} from "@radix-ui/react-dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 
 export default function ModelDropdown() {
   const [modelDisplay, setModelDisplay] = useState("GPT 3.5 Turbo");

@@ -1,48 +1,36 @@
 // components/ChatInput.tsx
 "use client";
-
 import { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
-import { useUIState, useActions } from "ai/rsc";
-import { AI } from "@/app/action";
-import { nanoid } from "ai";
-import { HistoryType } from "@/lib/validators/HistoryType";
 
 interface ChatInputProps {
   placeholder?: string;
   description?: string;
+  submitMessage: (message: string) => void;
 }
 
-export default function ChatInput({ placeholder, description }: ChatInputProps) {
+export default function ChatInput({
+  placeholder,
+  description,
+  submitMessage,
+}: ChatInputProps) {
   const [userInput, setUserInput] = useState("");
-  const [messages, setMessages] = useUIState<typeof AI>();
-  const { submitUserMessage } = useActions<typeof AI>();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setUserInput(e.target.value);
   };
 
-  const handleSendMessage = async () => {
-    if (userInput.trim() !== "") {
-      const message = {
-        id: nanoid(),
-        text: userInput,
-        isUser: true,
-      };
-      const newHistory: HistoryType = {
-        id: nanoid(),
-        label: userInput,
-        messages: [
-          {
-            ...message,
-          },
-        ],
-      };
-      setMessages((prevMessages) => [...prevMessages, newHistory]);
-      setUserInput("");
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
-      // Call the server action to handle the user message
-      await submitUserMessage(userInput);
+  const handleSendMessage = () => {
+    if (userInput.trim() !== "") {
+      submitMessage(userInput);
+      setUserInput("");
     }
   };
 
@@ -58,6 +46,7 @@ export default function ChatInput({ placeholder, description }: ChatInputProps) 
             placeholder={placeholder}
             value={userInput}
             onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
           ></TextareaAutosize>
         </div>
         <button

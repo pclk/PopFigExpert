@@ -20,7 +20,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
 });
 
-export async function submitUserMessage(userInput: string): Promise<any> {
+async function submitUserMessage(userInput: string): Promise<any> {
   const aiState = getMutableAIState<typeof AI>();
   aiState.update([
     ...aiState.get(),
@@ -64,29 +64,32 @@ export async function submitUserMessage(userInput: string): Promise<any> {
   };
 }
 
-const initialAIState: {
-  role: "user" | "assistant" | "system" | "function";
-  content: string;
-  id?: string;
-  name?: string;
-}[] = [];
 
-const initialUIState: {
-  id: number;
-  display: React.ReactNode;
-}[] = [];
+export async function handleSendMessage(message: string) {
+  const aiState = getMutableAIState<typeof AI>();
+  const currentMessages = aiState.get();
 
-export const AI = createAI({
-  actions: {
-    submitUserMessage,
-  },
-  initialUIState: initialUIState,
-  initialAIState: initialAIState,
-});
+  // Add user message to the state
+  aiState.update([
+    ...currentMessages,
+    {
+      id: Date.now(),
+      display: <div>{message}</div>,
+      isUser: true,
+    },
+  ]);
+
+  // Submit and get response message
+  const responseMessage = await submitUserMessage(message);
+
+  // Add response message to the state
+  aiState.update([...currentMessages, responseMessage]);
+
+  return aiState.get();
+}
 
 
-
-export async function handleTabChange(prevState: any, formData: FormData) {
+async function handleTabChange(prevState: any, formData: FormData) {
   const tab = formData.get("tab") as string;
   const placeholder =
     tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
@@ -97,14 +100,14 @@ export async function handleTabChange(prevState: any, formData: FormData) {
   return { ...prevState, tab, placeholder, description };
 }
 
-export async function handleModelChange(prevState: any, formData: FormData) {
+async function handleModelChange(prevState: any, formData: FormData) {
   const model = formData.get("model") as string;
   const modelDisplay =
     model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
   return { ...prevState, modelDisplay };
 }
 
-export async function handleFilterChange(prevState: any, formData: FormData) {
+async function handleFilterChange(prevState: any, formData: FormData) {
   const content = formData.get("content") as string;
   const date = formData.get("date") as string;
   const title = formData.get("title") as string;
@@ -112,26 +115,7 @@ export async function handleFilterChange(prevState: any, formData: FormData) {
   return { ...prevState, content, date, title, country };
 }
 
-export async function handleSendMessage(formData: FormData) {
-  const userInput = formData.get("userInput") as string;
-  if (userInput.trim() !== "") {
-    const message = {
-      id: nanoid(),
-      text: userInput,
-      isUser: true,
-    };
-    const newHistory: HistoryType = {
-      id: nanoid(),
-      label: userInput,
-      messages: [
-        {
-          ...message,
-        },
-      ],
-    };
-    addHistory(newHistory);
-  }
-}
+//Chat
 const defaultValue = [
   {
     id: "ocH49A5lVYXi9izu6eNuU",
@@ -154,17 +138,17 @@ const Chathistory: HistoryType[] = chatHistory
 
 
 
-export async function addHistory(history: HistoryType) {
+async function addHistory(history: HistoryType) {
 const updatedHistory = [...Chathistory, history];
 cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
-export async function removeHistory(id: string) {
+async function removeHistory(id: string) {
 const updatedHistory = Chathistory.filter((history) => history.id !== id);
 cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
-export async function updateHistoryLabel(
+async function updateHistoryLabel(
 id: string,
 updateFn: (prevLabel: string) => string,
 ) {
@@ -177,7 +161,7 @@ const updatedHistory = Chathistory.map((history) => {
 cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
-export async function addMessages(id: string, message: MessageType) {
+async function addMessages(id: string, message: MessageType) {
 const updatedHistory = Chathistory.map((history) => {
   if (history.id === id) {
   return { ...history, messages: [...history.messages, message] };
@@ -187,7 +171,7 @@ const updatedHistory = Chathistory.map((history) => {
 cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
-export async function updateMessages(
+async function updateMessages(
 id: string,
 updateFn: (prevMessages: MessageType[]) => MessageType[],
 ) {
@@ -199,3 +183,33 @@ const updatedHistory = Chathistory.map((history) => {
 });
 cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
+
+const initialAIState: {
+  role: "user" | "assistant" | "system" | "function";
+  content: string;
+  id?: string;
+  name?: string;
+}[] = [];
+
+const initialUIState: {
+  id: number;
+  display: React.ReactNode;
+}[] = [];
+
+
+export const AI = createAI({
+  actions: {
+    submitUserMessage,
+    handleSendMessage,
+    handleTabChange,
+    handleModelChange,
+    handleFilterChange,
+    addHistory,
+    removeHistory,
+    updateHistoryLabel,
+    addMessages,
+    updateMessages,
+  },
+  initialUIState: [],
+  initialAIState: [],
+});
