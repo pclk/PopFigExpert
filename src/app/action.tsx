@@ -1,5 +1,5 @@
 "use server";
-import "server-only";
+import 'server-only';
 
 import {
   createAI,
@@ -8,6 +8,7 @@ import {
   render,
 } from "ai/rsc";
 import OpenAI from "openai";
+
 
 import { HistoryType } from "@/lib/validators/HistoryType";
 import { nanoid } from "ai";
@@ -32,7 +33,7 @@ export async function submitUserMessage(userInput: string): Promise<any> {
   const reply = createStreamableUI(
     <div>
       <p>Thinking...</p>
-    </div>,
+    </div>
   );
 
   const ui = render({
@@ -82,6 +83,8 @@ export const AI = createAI({
   initialUIState: initialUIState,
   initialAIState: initialAIState,
 });
+
+
 
 export async function handleTabChange(prevState: any, formData: FormData) {
   const tab = formData.get("tab") as string;
@@ -143,53 +146,56 @@ const defaultValue = [
   },
 ];
 
+
 const chatHistory = cookies().get("chatHistory");
 const Chathistory: HistoryType[] = chatHistory
-  ? JSON.parse(chatHistory.value)
-  : [];
+? JSON.parse(chatHistory.value)
+: [];
+
+
 
 export async function addHistory(history: HistoryType) {
-  const updatedHistory = [...Chathistory, history];
-  cookies().set("chatHistory", JSON.stringify(updatedHistory));
+const updatedHistory = [...Chathistory, history];
+cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
 export async function removeHistory(id: string) {
-  const updatedHistory = Chathistory.filter((history) => history.id !== id);
-  cookies().set("chatHistory", JSON.stringify(updatedHistory));
+const updatedHistory = Chathistory.filter((history) => history.id !== id);
+cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
 export async function updateHistoryLabel(
-  id: string,
-  updateFn: (prevLabel: string) => string,
+id: string,
+updateFn: (prevLabel: string) => string,
 ) {
-  const updatedHistory = Chathistory.map((history) => {
-    if (history.id === id) {
-      return { ...history, label: updateFn(history.label) };
-    }
-    return history;
-  });
-  cookies().set("chatHistory", JSON.stringify(updatedHistory));
+const updatedHistory = Chathistory.map((history) => {
+  if (history.id === id) {
+  return { ...history, label: updateFn(history.label) };
+  }
+  return history;
+});
+cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
 export async function addMessages(id: string, message: MessageType) {
-  const updatedHistory = Chathistory.map((history) => {
-    if (history.id === id) {
-      return { ...history, messages: [...history.messages, message] };
-    }
-    return history;
-  });
-  cookies().set("chatHistory", JSON.stringify(updatedHistory));
+const updatedHistory = Chathistory.map((history) => {
+  if (history.id === id) {
+  return { ...history, messages: [...history.messages, message] };
+  }
+  return history;
+});
+cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
 export async function updateMessages(
-  id: string,
-  updateFn: (prevMessages: MessageType[]) => MessageType[],
+id: string,
+updateFn: (prevMessages: MessageType[]) => MessageType[],
 ) {
-  const updatedHistory = Chathistory.map((history) => {
-    if (history.id === id) {
-      return { ...history, messages: updateFn(history.messages) };
-    }
-    return history;
-  });
-  cookies().set("chatHistory", JSON.stringify(updatedHistory));
+const updatedHistory = Chathistory.map((history) => {
+  if (history.id === id) {
+  return { ...history, messages: updateFn(history.messages) };
+  }
+  return history;
+});
+cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
