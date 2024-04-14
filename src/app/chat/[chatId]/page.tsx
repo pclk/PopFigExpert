@@ -3,12 +3,12 @@ import ChatInput from "@/components/ChatInput";
 import { useUIState, useActions } from "ai/rsc";
 import type { AI } from "@/app/action";
 import { IconUser } from "@tabler/icons-react";
+import { submitUserMessage } from "@/app/action";
 
 export default function ChatPage() {
   const params = useParams()!;
   const ChatID = params.chatId as string;
   const [messages, setMessages] = useUIState<typeof AI>();
-  const { submitUserMessage } = useActions<typeof AI>();
 
   async function handleSendMessage(formData: FormData) {
     "use server";

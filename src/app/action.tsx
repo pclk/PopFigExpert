@@ -1,4 +1,6 @@
 "use server";
+import "server-only";
+
 import {
   createAI,
   getMutableAIState,
@@ -7,8 +9,6 @@ import {
 } from "ai/rsc";
 import OpenAI from "openai";
 
-import { BotMessage } from "@/components/ai-ui/message";
-import { spinner } from "@/components/ai-ui/spinner";
 import { HistoryType } from "@/lib/validators/HistoryType";
 import { nanoid } from "ai";
 import { MessageType } from "../lib/validators/MessageType";
@@ -18,53 +18,6 @@ import { cookies } from "next/headers";
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
 });
-
-export async function handleTabChange(prevState: any, formData: FormData) {
-  const tab = formData.get("tab") as string;
-  const placeholder =
-    tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
-  const description =
-    tab === "chat"
-      ? "Eve can make mistakes. Please check her responses."
-      : "Showing results x of xx...";
-  return { ...prevState, tab, placeholder, description };
-}
-
-export async function handleModelChange(prevState: any, formData: FormData) {
-  const model = formData.get("model") as string;
-  const modelDisplay =
-    model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
-  return { ...prevState, modelDisplay };
-}
-
-export async function handleFilterChange(prevState: any, formData: FormData) {
-  const content = formData.get("content") as string;
-  const date = formData.get("date") as string;
-  const title = formData.get("title") as string;
-  const country = formData.get("country") as string;
-  return { ...prevState, content, date, title, country };
-}
-
-export async function handleSendMessage(formData: FormData) {
-  const userInput = formData.get("userInput") as string;
-  if (userInput.trim() !== "") {
-    const message = {
-      id: nanoid(),
-      text: userInput,
-      isUser: true,
-    };
-    const newHistory: HistoryType = {
-      id: nanoid(),
-      label: userInput,
-      messages: [
-        {
-          ...message,
-        },
-      ],
-    };
-    addHistory(newHistory);
-  }
-}
 
 export async function submitUserMessage(userInput: string): Promise<any> {
   const aiState = getMutableAIState<typeof AI>();
@@ -77,7 +30,9 @@ export async function submitUserMessage(userInput: string): Promise<any> {
   ]);
 
   const reply = createStreamableUI(
-    <BotMessage className="items-center">{spinner}</BotMessage>,
+    <div>
+      <p>Thinking...</p>
+    </div>,
   );
 
   const ui = render({
@@ -128,7 +83,52 @@ export const AI = createAI({
   initialAIState: initialAIState,
 });
 
-// ChatHistory Management
+export async function handleTabChange(prevState: any, formData: FormData) {
+  const tab = formData.get("tab") as string;
+  const placeholder =
+    tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
+  const description =
+    tab === "chat"
+      ? "Eve can make mistakes. Please check her responses."
+      : "Showing results x of xx...";
+  return { ...prevState, tab, placeholder, description };
+}
+
+export async function handleModelChange(prevState: any, formData: FormData) {
+  const model = formData.get("model") as string;
+  const modelDisplay =
+    model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
+  return { ...prevState, modelDisplay };
+}
+
+export async function handleFilterChange(prevState: any, formData: FormData) {
+  const content = formData.get("content") as string;
+  const date = formData.get("date") as string;
+  const title = formData.get("title") as string;
+  const country = formData.get("country") as string;
+  return { ...prevState, content, date, title, country };
+}
+
+export async function handleSendMessage(formData: FormData) {
+  const userInput = formData.get("userInput") as string;
+  if (userInput.trim() !== "") {
+    const message = {
+      id: nanoid(),
+      text: userInput,
+      isUser: true,
+    };
+    const newHistory: HistoryType = {
+      id: nanoid(),
+      label: userInput,
+      messages: [
+        {
+          ...message,
+        },
+      ],
+    };
+    addHistory(newHistory);
+  }
+}
 const defaultValue = [
   {
     id: "ocH49A5lVYXi9izu6eNuU",
@@ -143,14 +143,10 @@ const defaultValue = [
   },
 ];
 
-// const chatHistory = cookies().get("chatHistory");
-// const Chathistory: HistoryType[] = chatHistory
-//   ? JSON.parse(chatHistory.value)
-//   : [];
-
-// if (!chatHistory) {
-//   cookies().set("chatHistory", JSON.stringify(defaultValue));
-// }
+const chatHistory = cookies().get("chatHistory");
+const Chathistory: HistoryType[] = chatHistory
+  ? JSON.parse(chatHistory.value)
+  : [];
 
 export async function addHistory(history: HistoryType) {
   const updatedHistory = [...Chathistory, history];

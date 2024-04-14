@@ -1,18 +1,18 @@
+"use client";
 import { IconMessages } from "@tabler/icons-react";
 import { nanoid } from "nanoid";
 import { HistoryType } from "../lib/validators/HistoryType";
-import { cookies } from "next/headers";
 import { addHistory } from "@/app/action";
 
 interface NavigationBarProps {
   isDocumentPage: boolean;
+  chatHistory: HistoryType[];
 }
 
-export default function NavigationBar({ isDocumentPage }: NavigationBarProps) {
-  const chatHistory: HistoryType[] = JSON.parse(
-    cookies().get("chatHistory")?.value ?? "[]",
-  );
-
+export default function NavigationBar({
+  isDocumentPage,
+  chatHistory,
+}: NavigationBarProps) {
   const handleNewChat = () => {
     const newHistory: HistoryType = {
       id: nanoid(),
