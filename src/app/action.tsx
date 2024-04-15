@@ -6,6 +6,7 @@ import {
   getMutableAIState,
   createStreamableUI,
   render,
+  getAIState,
 } from "ai/rsc";
 import OpenAI from "openai";
 
@@ -69,7 +70,6 @@ async function submitUserMessage(userInput: string): Promise<Message> {
         },
         body: JSON.stringify({ messages: [userInput] }),
       });
-      console.log("what is the response:", response.body)
 
       if (response.ok) {
         const reader = response.body.getReader();
@@ -232,6 +232,12 @@ async function submitUserMessage(userInput: string): Promise<Message> {
     messageID: Date.now(),
     display: reply.value,
   };
+} 
+
+export async function getAIStateAction(id: string): Promise<AIState[]> {
+  "use server";
+  return getAIState(id);
+
 }
 
 export async function handleSendMessage(message: string): Promise<Message> {
@@ -354,6 +360,9 @@ async function updateMessages(
   });
   cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
+
+
+
 export interface Message {
   messageID: number;
   display: React.ReactNode;
@@ -363,12 +372,14 @@ export interface Chat {
   chatID: string;
   messages: Message[];
 }
-const initialAIState: {
+
+export interface AIState {
   role: "user" | "assistant" | "system" | "function";
   content: string;
   id?: string;
   name?: string;
-}[] = [];
+}
+const initialAIState: AIState[] = [];
 
 const initialUIState: Chat[] = [];
 

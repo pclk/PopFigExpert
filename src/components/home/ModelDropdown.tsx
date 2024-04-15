@@ -12,16 +12,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useActions } from "ai/rsc";
 
+import { useModelContext } from "@/context/modelContext";
+
 export default function ModelDropdown() {
-  const {changeModel, getModelType} = useActions();
-  const [modelDisplay, setModelDisplay] = useState(getModelType() === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b");
+  const { changeModel } = useActions();
+  const { modelType, setModelType } = useModelContext();
 
   const handleModelChange = (model: string) => {
-    const modelDisplay =
-      model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
     changeModel(model);
-    setModelDisplay(modelDisplay);
-    
+    setModelType(model);
   };
 
   return (
@@ -32,14 +31,14 @@ export default function ModelDropdown() {
             variant="outline"
             className="border-none font-inter text-darkprim hover:bg-secondary active:bg-primary active:text-white"
           >
-            {modelDisplay}
+            {modelType}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>Your model of choice</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuRadioGroup
-            value={modelDisplay}
+            value={modelType}
             onValueChange={handleModelChange}
           >
             <DropdownMenuRadioItem

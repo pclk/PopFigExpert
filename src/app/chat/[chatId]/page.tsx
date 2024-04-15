@@ -1,4 +1,4 @@
-// pages/chat/[chatId].tsx
+// pages/chat/[chatId]/page.tsx
 
 "use client";
 
@@ -6,10 +6,10 @@ import { useParams } from "next/navigation";
 import ChatInput from "@/components/ChatInput";
 import { useActions, useUIState } from "ai/rsc";
 import type { AI } from "@/app/action";
-import { IconUser } from "@tabler/icons-react";
 import { Chat, Message } from "@/app/action";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ModelDropdown } from "@/components/home";
+import { isValidElement } from "react";
 
 export default function ChatPage() {
   const params = useParams()!;
@@ -17,83 +17,87 @@ export default function ChatPage() {
   const [chat, setChat] = useUIState<typeof AI>();
   const { handleSendMessage } = useActions();
 
-  // Function to process the initial message
-  const processInitialMessage = async (currentChat: Chat) => {
-      const initialMessage = currentChat.messages[0]?.display.props.children;
-      const responseMessage = await handleSendMessage(initialMessage);
-      setChat((currentChat: Chat[]) => [
-        ...currentChat.map((chat) => {
-          if (chat.chatID === chatId) {
-            return {
-              ...chat,
-              messages: [...chat.messages, responseMessage],
-            };
-          }
-          return chat;
-        }),
-      ]);
-  }
-
-  // Find the current chat based on chatId
-  const currentChat = chat.find((chat: Chat) => chat.chatID === chatId);
-
-  // Process the initial message if the current chat has only one message and it hasn't been processed yet
-  if (currentChat && currentChat.messages.length === 1) {
-    processInitialMessage(currentChat);
-  }
-
-  return (
-    <><div className="sticky left-0 top-0">
-    <ModelDropdown />
-  </div>
-    <div>
-      {chat
-        .filter((chat: Chat) => chat.chatID === chatId)
-        .flatMap((chat: Chat) =>
-          chat.messages.map((message: Message) => (
-            <div key={message.messageID}>{message.display}</div>
-          ))
-        )}
-      <ChatInput
-        submitMessage={async (message) => {
+  useEffect(() => {
+    const processInitialMessage = async () => {
+      // Find the current chat based on chatId
+      const currentChat = chat.find((chat: Chat) => chat.chatID === chatId);
+  
+      // Process the initial message if the current chat has only one message and it hasn't been processed yet
+      if (currentChat && currentChat.messages.length === 1) {
+        const initialMessage = currentChat.messages[0]?.display;
+        if (isValidElement(initialMessage)) {
+          const messageContent = initialMessage.props.children;
+          const responseMessage = await handleSendMessage(messageContent);
           setChat((currentChat: Chat[]) => [
             ...currentChat.map((chat) => {
               if (chat.chatID === chatId) {
                 return {
                   ...chat,
-                  messages: [
-                    ...chat.messages,
-                    {
-                      messageID: Date.now(),
-                      display: <div key={Date.now()}>{message}</div>,
-                    },
-                  ],
+                  messages: [...chat.messages, responseMessage],
                 };
               }
               return chat;
             }),
           ]);
-
-          const responseMessage = await handleSendMessage(message);
-
-          try {
-            setChat((currentChat: Chat[]) => [
-              ...currentChat.map((chat) => {
+        }
+      }
+    };
+  
+    processInitialMessage();
+  }, [chatId, chat, handleSendMessage]);
+  return (
+    <>
+      <div className="fixed left-0 top-0">
+        <ModelDropdown />
+      </div>
+      <div>
+        {chat
+          .filter((chat: Chat) => chat.chatID === chatId)
+          .flatMap((chat: Chat) =>
+            chat.messages.map((message: Message) => (
+              <div key={message.messageID}>{message.display}</div>
+            ))
+          )}
+        <ChatInput
+          submitMessage={async (message) => {
+            setChat((currentAI: Chat[]) => [
+              ...currentAI.map((chat) => {
                 if (chat.chatID === chatId) {
                   return {
                     ...chat,
-                    messages: [...chat.messages, responseMessage],
+                    messages: [
+                      ...chat.messages,
+                      {
+                        messageID: Date.now(),
+                        display: <div key={Date.now()}>{message}</div>,
+                      },
+                    ],
                   };
                 }
                 return chat;
               }),
             ]);
-          } catch (error) {
-            console.log("error:", error);
-          }
-        }}
-      />
-    </div>
+
+            const responseMessage = await handleSendMessage(message);
+
+            try {
+              setChat((currentAI: Chat[]) => [
+                ...currentAI.map((chat) => {
+                  if (chat.chatID === chatId) {
+                    return {
+                      ...chat,
+                      messages: [...chat.messages, responseMessage],
+                    };
+                  }
+                  return chat;
+                }),
+              ]);
+            } catch (error) {
+              console.log("error:", error);
+            }
+          }}
+        />
+      </div>
     </>
   );
 }

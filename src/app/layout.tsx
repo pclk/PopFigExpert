@@ -5,6 +5,7 @@ import React from "react";
 import NavigationBar from "../components/NavigationBar";
 import "@/app/globals.css";
 import { AI } from "./action";
+import { ModelProvider } from "@/context/modelContext";
 import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`m-0 flex ${inter.className}`}>
         <AI>
+          <ModelProvider>
           <NavigationBar
             isDocumentPage={isDocumentPage}
             chatHistory={chatHistory}
@@ -38,6 +40,7 @@ export default function RootLayout({
           <main className="relative grow overflow-y-hidden p-4">
             {children}
           </main>
+          </ModelProvider>
         </AI>
       </body>
     </html>
