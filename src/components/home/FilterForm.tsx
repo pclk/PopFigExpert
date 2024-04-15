@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import { handleFilterChange } from "@/app/action";
 import TextareaAutosize from "react-textarea-autosize";
 import { Button } from "@/components/ui/button";
+import { useActions } from "ai/rsc";
 
 export default function FilterForm() {
   const [filterState, setFilterState] = useState({
@@ -11,6 +11,7 @@ export default function FilterForm() {
     title: "",
     country: "",
   });
+  const { handleFilterChange } = useActions();
 
   const handleFilterClick = () => {
     handleFilterChange(null, {

@@ -1,9 +1,9 @@
-import { OpenAIStream } from 'ai';
-import type OpenAI from 'openai';
-import zodToJsonSchema from 'zod-to-json-schema';
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import { z } from 'zod';
+import { OpenAIStream } from "ai";
+import type OpenAI from "openai";
+import zodToJsonSchema from "zod-to-json-schema";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 /**
  * Any array of ToolDefinitions.
@@ -27,7 +27,7 @@ export type TToolDefinitionMap<
 > = TToolDefinitionArray extends [infer TFirst, ...infer Rest]
   ? TFirst extends TAnyToolDefinitionArray[number]
     ? Rest extends TAnyToolDefinitionArray
-      ? Readonly<{ [K in TFirst['name']]: TFirst }> & TToolDefinitionMap<Rest>
+      ? Readonly<{ [K in TFirst["name"]]: TFirst }> & TToolDefinitionMap<Rest>
       : never
     : never
   : Readonly<{}>;
@@ -59,7 +59,6 @@ export interface ToolDefinition<
   parameters: PARAMETERS;
 }
 
-
 const consumeStream = async (stream: ReadableStream) => {
   const reader = stream.getReader();
   while (true) {
@@ -71,7 +70,7 @@ const consumeStream = async (stream: ReadableStream) => {
 export function runOpenAICompletion<
   T extends Omit<
     Parameters<typeof OpenAI.prototype.chat.completions.create>[0],
-    'functions'
+    "functions"
   >,
   const TFunctions extends TAnyToolDefinitionArray,
 >(
@@ -80,7 +79,7 @@ export function runOpenAICompletion<
     functions: TFunctions;
   },
 ) {
-  let text = '';
+  let text = "";
   let hasFunction = false;
 
   type TToolMap = TToolDefinitionMap<TFunctions>;
@@ -101,7 +100,7 @@ export function runOpenAICompletion<
         (await openai.chat.completions.create({
           ...rest,
           stream: true,
-          functions: functions.map(fn => ({
+          functions: functions.map((fn) => ({
             name: fn.name,
             description: fn.description,
             parameters: zodToJsonSchema(fn.parameters) as Record<
@@ -135,7 +134,7 @@ export function runOpenAICompletion<
           },
           onToken(token) {
             text += token;
-            if (text.startsWith('{')) return;
+            if (text.startsWith("{")) return;
             onTextContent(text, false);
           },
           onFinal() {
@@ -153,14 +152,14 @@ export function runOpenAICompletion<
     ) => {
       onTextContent = callback;
     },
-    onFunctionCall: <TName extends TFunctions[number]['name']>(
+    onFunctionCall: <TName extends TFunctions[number]["name"]>(
       name: TName,
       callback: (
         args: z.output<
           TName extends keyof TToolMap
             ? TToolMap[TName] extends infer TToolDef
               ? TToolDef extends TAnyToolDefinitionArray[number]
-                ? TToolDef['parameters']
+                ? TToolDef["parameters"]
                 : never
               : never
             : never
@@ -171,8 +170,6 @@ export function runOpenAICompletion<
     },
   };
 }
-
-
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

@@ -15,7 +15,8 @@ export default function ModelDropdown() {
   const [modelDisplay, setModelDisplay] = useState("GPT 3.5 Turbo");
 
   const handleModelChange = (model: string) => {
-    const modelDisplay = model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
+    const modelDisplay =
+      model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
     setModelDisplay(modelDisplay);
   };
 
@@ -33,7 +34,10 @@ export default function ModelDropdown() {
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>Your model of choice</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuRadioGroup value={modelDisplay} onValueChange={handleModelChange}>
+          <DropdownMenuRadioGroup
+            value={modelDisplay}
+            onValueChange={handleModelChange}
+          >
             <DropdownMenuRadioItem
               value="gpt-3.5-turbo"
               className="hover:bg-secondary active:bg-primary active:text-white"

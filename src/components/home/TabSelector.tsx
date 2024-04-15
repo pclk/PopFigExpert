@@ -2,19 +2,27 @@
 "use client";
 
 import { useState } from "react";
-import { handleTabChange, handleFilterChange } from "@/app/action";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "../ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../ui/card";
 import TextareaAutosize from "react-textarea-autosize";
 import { useSelectedLayoutSegment } from "next/navigation";
+import { useActions } from "ai/rsc";
 
 export default function TabSelector() {
   const selectedTab = useSelectedLayoutSegment() || "chat";
+  const { handleTabChange, handleFilterChange } = useActions();
 
   const [tabState, setTabState] = useState({
     tab: selectedTab,
-    placeholder: selectedTab === "chat" ? "Chat with Eve..." : "Enter a search term...",
+    placeholder:
+      selectedTab === "chat" ? "Chat with Eve..." : "Enter a search term...",
     description:
       selectedTab === "chat"
         ? "Eve can make mistakes. Please check her responses."
@@ -29,7 +37,8 @@ export default function TabSelector() {
   });
 
   const handleTabClick = (tab: string) => {
-    const placeholder = tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
+    const placeholder =
+      tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
     const description =
       tab === "chat"
         ? "Eve can make mistakes. Please check her responses."
@@ -81,7 +90,8 @@ export default function TabSelector() {
               </CardTitle>
             </div>
             <CardDescription>
-              I can help you summarize reports! Here are some prompts to get started:
+              I can help you summarize reports! Here are some prompts to get
+              started:
             </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">

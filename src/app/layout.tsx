@@ -31,15 +31,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`m-0 flex ${inter.className}`}>
         <AI>
-          <IconMenu2 className="fixed right-4 top-4 z-10 lg:hidden" />
-          <nav
-            className={`fixed left-0 top-0 z-20 box-border h-full w-72 transform bg-secondary p-4 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0`}
-          >
-            <NavigationBar
-              isDocumentPage={isDocumentPage}
-              chatHistory={chatHistory}
-            />
-          </nav>
+          <NavigationBar
+            isDocumentPage={isDocumentPage}
+            chatHistory={chatHistory}
+          />
           <main className="relative grow overflow-y-hidden p-4">
             {children}
           </main>

@@ -2,10 +2,10 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
   prefix: "",
   theme: {
@@ -17,7 +17,7 @@ module.exports = {
       },
     },
     fontFamily: {
-      'inter': ['Inter', 'Poppins', 'sans-serif'],
+      inter: ["Inter", "Poppins", "sans-serif"],
     },
     extend: {
       keyframes: {
@@ -43,8 +43,7 @@ module.exports = {
         accent: "#FBBC4F",
       },
     },
-
   },
   plugins: [require("tailwindcss-animate")],
-  corePlugins: { preflight: false},
-}
+  corePlugins: { preflight: false },
+};

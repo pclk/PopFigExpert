@@ -1,5 +1,5 @@
 "use server";
-import 'server-only';
+import "server-only";
 
 import {
   createAI,
@@ -8,7 +8,6 @@ import {
   render,
 } from "ai/rsc";
 import OpenAI from "openai";
-
 
 import { HistoryType } from "@/lib/validators/HistoryType";
 import { nanoid } from "ai";
@@ -20,7 +19,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
 });
 
-async function submitUserMessage(userInput: string): Promise<any> {
+async function submitUserMessage(userInput: string): Promise<Message> {
   const aiState = getMutableAIState<typeof AI>();
   aiState.update([
     ...aiState.get(),
@@ -33,7 +32,7 @@ async function submitUserMessage(userInput: string): Promise<any> {
   const reply = createStreamableUI(
     <div>
       <p>Thinking...</p>
-    </div>
+    </div>,
   );
 
   const ui = render({
@@ -52,42 +51,33 @@ async function submitUserMessage(userInput: string): Promise<any> {
     ],
     text: ({ content, done }) => {
       if (done) {
-        aiState.done([...aiState.get(), { role: "assistant", content }]);
+        aiState.done([...aiState.get(), { role: "assistant", content: content }]);
       }
       return <p>{content}</p>;
     },
-    tools: {},
+    //tools: {},
   });
   return {
-    id: Date.now(),
+    messageID: Date.now(),
     display: ui,
   };
 }
 
-
-export async function handleSendMessage(message: string) {
+export async function handleSendMessage(message: string): Promise<void> {
   const aiState = getMutableAIState<typeof AI>();
   const currentMessages = aiState.get();
 
   // Add user message to the state
-  aiState.update([
-    ...currentMessages,
-    {
-      id: Date.now(),
-      display: <div>{message}</div>,
-      isUser: true,
-    },
-  ]);
+  aiState.update([...currentMessages, { role: "user", content: message }]);
 
   // Submit and get response message
   const responseMessage = await submitUserMessage(message);
 
   // Add response message to the state
-  aiState.update([...currentMessages, responseMessage]);
+  aiState.update([...currentMessages, { role: "assistant", content: responseMessage.display!.props.children }]);
 
   return aiState.get();
 }
-
 
 async function handleTabChange(prevState: any, formData: FormData) {
   const tab = formData.get("tab") as string;
@@ -130,60 +120,65 @@ const defaultValue = [
   },
 ];
 
-
 const chatHistory = cookies().get("chatHistory");
 const Chathistory: HistoryType[] = chatHistory
-? JSON.parse(chatHistory.value)
-: [];
-
-
+  ? JSON.parse(chatHistory.value)
+  : [];
 
 async function addHistory(history: HistoryType) {
-const updatedHistory = [...Chathistory, history];
-cookies().set("chatHistory", JSON.stringify(updatedHistory));
+  const updatedHistory = [...Chathistory, history];
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
 async function removeHistory(id: string) {
-const updatedHistory = Chathistory.filter((history) => history.id !== id);
-cookies().set("chatHistory", JSON.stringify(updatedHistory));
+  const updatedHistory = Chathistory.filter((history) => history.id !== id);
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
 async function updateHistoryLabel(
-id: string,
-updateFn: (prevLabel: string) => string,
+  id: string,
+  updateFn: (prevLabel: string) => string,
 ) {
-const updatedHistory = Chathistory.map((history) => {
-  if (history.id === id) {
-  return { ...history, label: updateFn(history.label) };
-  }
-  return history;
-});
-cookies().set("chatHistory", JSON.stringify(updatedHistory));
+  const updatedHistory = Chathistory.map((history) => {
+    if (history.id === id) {
+      return { ...history, label: updateFn(history.label) };
+    }
+    return history;
+  });
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
 async function addMessages(id: string, message: MessageType) {
-const updatedHistory = Chathistory.map((history) => {
-  if (history.id === id) {
-  return { ...history, messages: [...history.messages, message] };
-  }
-  return history;
-});
-cookies().set("chatHistory", JSON.stringify(updatedHistory));
+  const updatedHistory = Chathistory.map((history) => {
+    if (history.id === id) {
+      return { ...history, messages: [...history.messages, message] };
+    }
+    return history;
+  });
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
 async function updateMessages(
-id: string,
-updateFn: (prevMessages: MessageType[]) => MessageType[],
+  id: string,
+  updateFn: (prevMessages: MessageType[]) => MessageType[],
 ) {
-const updatedHistory = Chathistory.map((history) => {
-  if (history.id === id) {
-  return { ...history, messages: updateFn(history.messages) };
-  }
-  return history;
-});
-cookies().set("chatHistory", JSON.stringify(updatedHistory));
+  const updatedHistory = Chathistory.map((history) => {
+    if (history.id === id) {
+      return { ...history, messages: updateFn(history.messages) };
+    }
+    return history;
+  });
+  cookies().set("chatHistory", JSON.stringify(updatedHistory));
+}
+export interface Message {
+  messageID: number;
+  display: React.ReactNode;
 }
 
+export interface Chat {
+  chatID: string;
+  messages: Message[];
+}
 const initialAIState: {
   role: "user" | "assistant" | "system" | "function";
   content: string;
@@ -191,11 +186,7 @@ const initialAIState: {
   name?: string;
 }[] = [];
 
-const initialUIState: {
-  id: number;
-  display: React.ReactNode;
-}[] = [];
-
+const initialUIState: Chat[] = [];
 
 export const AI = createAI({
   actions: {
@@ -210,6 +201,6 @@ export const AI = createAI({
     addMessages,
     updateMessages,
   },
-  initialUIState: [],
-  initialAIState: [],
+  initialUIState,
+  initialAIState,
 });
