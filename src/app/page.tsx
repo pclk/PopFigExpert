@@ -9,11 +9,9 @@ import { nanoid } from "ai";
 import { Chat } from "@/app/action";
 
 
-
 export default function Home() {
-  const router = useRouter();
-  const [chat, setChat] = useUIState<typeof AI>();
-  const { handleSendMessage } = useActions();
+  const router = useRouter()
+  const [_, setChat] = useUIState<typeof AI>();
 
   return (
     <>
@@ -26,6 +24,7 @@ export default function Home() {
         description="Eve can make mistakes. Please check her responses."
         submitMessage={async (message) => {
           const chatId = nanoid(); // Generate a unique chatId
+
           setChat((currentChat: Chat[]) => [
             ...currentChat,
             {
@@ -38,27 +37,6 @@ export default function Home() {
               ],
             },
           ]);
-          console.log('homepage:', chat)
-
-          const responseMessage = await handleSendMessage(message);
-          console.log(responseMessage);
-
-          setChat((currentChat: Chat[]) => [
-            ...currentChat.map((chat:Chat) => {
-              if (chat.chatID === chatId) {
-                return {
-                  ...chat,
-                  messages: [
-                    ...chat.messages,
-                    responseMessage
-                  ],
-                };
-              }
-              return chat;
-            }),
-          ]);
-          console.log('homepage:', chat)
-
 
           router.push(`/chat/${chatId}`);
         }}

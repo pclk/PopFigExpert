@@ -1,31 +1,42 @@
-import { NextRequest } from "next/server";
+import { ReplicateStream, StreamingTextResponse } from 'ai';
+import Replicate from 'replicate';
 
-export async function POST(request: NextRequest) {
-  const { prompt } = await request.json();
+export async function POST(req: Request) {
+  const { messages } = await req.json();
+  console.log('Received messages:', messages);
 
-  const response = await fetch("https://api.replicate.com/v1/predictions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      // Pinned to a specific version of Stable Diffusion
-      // See https://replicate.com/stability-ai/sdxl
-      version:
-        "2b017d9b67edd2ee1401238df49d75da53c523f36e363881e057f5dc3ed3c5b2",
-      // This is the text prompt that will be submitted by a form on the frontend
-      input: { prompt },
-    }),
+  
+
+  const replicate = new Replicate({
+    auth: process.env.REPLICATE_API_KEY,
   });
-
-  if (response.status !== 201) {
-    const error = await response.json();
-    return new Response(JSON.stringify({ detail: error.detail }), {
-      status: 500,
+  
+  try {
+    const response = await replicate.predictions.create({
+      model: "mistralai/mixtral-8x7b-instruct-v0.1",
+      stream: true,
+      input: {
+        prompt: messages.messages,
+      },
     });
-  }
+    console.log('Replicate API response:', response);
 
-  const prediction = await response.json();
-  return new Response(JSON.stringify(prediction), { status: 201 });
+    
+    const stream = await ReplicateStream(response);
+    return new StreamingTextResponse(stream);
+  } catch (error) {
+    console.error('Error in /api/replicate route handler:');
+    console.error('Error:', error);
+    
+    if (error instanceof Error) {
+      console.error('Error Name:', error.name);
+      console.error('Error Message:', error.message);
+      console.error('Error Stack:', error.stack);
+    }
+    
+    return new Response(
+      JSON.stringify({ error: error.message, messages: messages }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 }

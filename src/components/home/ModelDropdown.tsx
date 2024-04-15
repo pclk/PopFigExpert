@@ -10,14 +10,18 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
+import { useActions } from "ai/rsc";
 
 export default function ModelDropdown() {
-  const [modelDisplay, setModelDisplay] = useState("GPT 3.5 Turbo");
+  const {changeModel, getModelType} = useActions();
+  const [modelDisplay, setModelDisplay] = useState(getModelType() === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b");
 
   const handleModelChange = (model: string) => {
     const modelDisplay =
       model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
+    changeModel(model);
     setModelDisplay(modelDisplay);
+    
   };
 
   return (
