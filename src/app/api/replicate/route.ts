@@ -6,7 +6,6 @@ const replicate = new Replicate({
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
-  console.log('Received messages:', messages);
 
 
 

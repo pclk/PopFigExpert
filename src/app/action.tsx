@@ -63,17 +63,18 @@ async function submitUserMessage(userInput: string): Promise<Message> {
     try {
       console.log("Texting mistral", JSON.stringify({ messages: [userInput] }));
       
-      const response = await fetch('http://127.0.0.1:3000/api/replicate', {
+      const response = await fetch('http://127.0.0.1:3000/api/mistral', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messages: [userInput] }),
+        body: JSON.stringify({ messages: [{ role: 'user', content: userInput }] }),
       });
 
       if (response.ok) {
-        const reader = response.body.getReader();
+        const reader = response.body!.getReader();
         let text = '';
+      
         while (true) {
           const { done, value } = await reader.read();
           if (done) {
@@ -81,12 +82,15 @@ async function submitUserMessage(userInput: string): Promise<Message> {
             aiState.done([...aiState.get(), { role: "assistant", content: text }]);
             break;
           }
-          const chunk = new TextDecoder('utf-8').decode(value);
+      
+          const chunks = new TextDecoder('utf-8').decode(value).split('"');
+          const chunk = chunks.filter((_, index) => index % 2 !== 0).join('');
           text += chunk;
           reply.update(<div>{text}</div>);
+          
         }
       } else {
-        console.error('Error calling /api/replicate');
+        console.error('Error calling /api/mistral');
         console.error('Status:', response.status);
         console.error('Status Text:', response.statusText);
       
@@ -104,7 +108,7 @@ async function submitUserMessage(userInput: string): Promise<Message> {
         ]);
       }
     } catch (error) {
-      console.error('Error calling /api/replicate');
+      console.error('Error calling /api/mixtral');
       console.error('Error:', error);
       
       if (error instanceof Error) {
