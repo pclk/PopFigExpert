@@ -12,17 +12,23 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
 - [x] Basic chatbot functionality with OpenAI API and Mixtral model support
 - [x] Set up Vercel AI SDK 
 - [x] UI for interacting with the chatbot
-- [ ] Function calling capabilities with OpenAI
+- [ ] Navigation Bar
+- [x] Function calling capabilities with OpenAI
 - [ ] Function calling capabilities with Mixtral (dunno if still possible)
 https://www.reddit.com/r/LocalLLaMA/comments/17kdby3/dolphin_or_mistral_function_calling/
-  - [ ] Function calling with Llama if not possible with Mixtral.
-- [ ] UI for interacting with Elasticsearch through all available params
+- [ ] Function calling with Llama if not possible with Mixtral.
+- [ ] UI for interacting with Elasticsearch
+  - [ ] Search Input, Sorting and Filters
+  - [ ] Infinite scrolling
+  - [ ] Right sidebar for more info
 - [ ] Integrate model's Function calling with Elasticsearch:
   - [ ] Implement chatbot's ability to generate Elasticsearch queries based on user input
   - [ ] Process and present Elasticsearch results to the user within the chat interface
-- [ ] (Extras) Integrate Clerk for user authentication and authorization
-- [ ] Conduct testing, bug fixing, and prepare for deployment
+  - [ ] UI for displaying and sending inputs within the genUI. 
+- [ ] Deploy on Vercel
 
+Extras:
+- [ ] Integrate Clerk for user authentication and authorization
 
 ## Features
 
