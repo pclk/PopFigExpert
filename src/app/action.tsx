@@ -90,17 +90,13 @@ async function submitUserMessage(userInput: string): Promise<Message> {
           
         }
       } else {
-        console.error('Error calling /api/mistral');
-        console.error('Status:', response.status);
-        console.error('Status Text:', response.statusText);
-      
+        console.error('Error response from /api/mistral:', response.status, response.statusText);
         try {
           const errorData = await response.json();
-          console.error('Error Data:', errorData);
+          console.error('Error details:', errorData);
         } catch (parseError) {
-          console.error('Error parsing error response:', parseError);
+          console.error('Failed to parse error response:', parseError);
         }
-      
         reply.done();
         aiState.done([
           ...aiState.get(),
@@ -108,15 +104,7 @@ async function submitUserMessage(userInput: string): Promise<Message> {
         ]);
       }
     } catch (error) {
-      console.error('Error calling /api/mixtral');
-      console.error('Error:', error);
-      
-      if (error instanceof Error) {
-        console.error('Error Name:', error.name);
-        console.error('Error Message:', error.message);
-        console.error('Error Stack:', error.stack);
-      }
-      
+      console.error('Error in submitUserMessage:', error);
       reply.done();
       aiState.done([
         ...aiState.get(),
