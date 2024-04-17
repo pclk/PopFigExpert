@@ -13,11 +13,9 @@ import {
 } from "../ui/card";
 import TextareaAutosize from "react-textarea-autosize";
 import { useSelectedLayoutSegment } from "next/navigation";
-import { useActions } from "ai/rsc";
 
 export default function TabSelector() {
   const selectedTab = useSelectedLayoutSegment() || "chat";
-  const { handleTabChange, handleFilterChange } = useActions();
 
   const [tabState, setTabState] = useState({
     tab: selectedTab,
@@ -36,28 +34,49 @@ export default function TabSelector() {
     country: "",
   });
 
-  const handleTabClick = (tab: string) => {
+  const handleTabChange = (tab: string) => {
+    console.log("handleTabChange called with tab:", tab);
     const placeholder =
       tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
     const description =
       tab === "chat"
         ? "Eve can make mistakes. Please check her responses."
         : "Showing results x of xx...";
-    const newTabState = { tab, placeholder, description };
-    setTabState(newTabState);
-    handleTabChange(null, { get: () => tab } as unknown as FormData);
+    setTabState({ tab, placeholder, description });
+  };
+
+  const handleFilterChange = (formData: FormData) => {
+    console.log("handleFilterChange called");
+    const content = formData.get("content") as string;
+    const date = formData.get("date") as string;
+    const title = formData.get("title") as string;
+    const country = formData.get("country") as string;
+    setFilterState({ content, date, title, country });
+  };
+
+  const handleTabClick = (tab: string) => {
+    console.log("handleTabClick called with tab:", tab);
+    handleTabChange(tab);
   };
 
   const handleFilterClick = () => {
-    handleFilterChange(null, {
-      get: (key: string) => filterState[key as keyof typeof filterState],
-    } as unknown as FormData);
+    console.log("handleFilterClick called");
+    handleFilterChange(
+      new FormData(
+        Object.entries(filterState).reduce((acc, [key, value]) => {
+          acc.append(key, value);
+          return acc;
+        }, new FormData())
+      )
+    );
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFilterState((prevState) => ({ ...prevState, [name]: value }));
   };
+
+  console.log("TabSelector rendered with tabState:", tabState);
 
   return (
     <Tabs
@@ -160,7 +179,6 @@ export default function TabSelector() {
               value={filterState.country}
               onChange={handleInputChange}
             />
-            <Button onClick={handleFilterClick}>Apply Filters</Button>
           </CardContent>
         </Card>
       </TabsContent>

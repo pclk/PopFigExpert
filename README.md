@@ -1,108 +1,144 @@
-# PopFigExpert
+# PopFigExpert - AI-Powered Information Assistant
 
-PopFigExpert is a GenAI-powered chatbot application built as part of a CSIT internship project. It leverages Retrieval-Augmented Generation (RAG) using Elasticsearch and is developed as a single-page application (SPA) using React.
+PopFigExpert is an AI-powered information assistant designed to provide accurate and comprehensive information about popular figures, historical events, and current affairs. Built using Next.js, React, and Tailwind CSS, this application leverages the power of OpenAI's GPT-3.5 Turbo and Anthropic's Mixtral 7x8b models to deliver a seamless and interactive user experience.
 
-## Table of Contents
-- [Introduction](#introduction)
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Architecture](#architecture)
-- [API Documentation](#api-documentation)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
+Special mention to Centre of Strategic Infocomms Technology (CSIT), for assigning this amazing project to me! 
+Thank you Yai Hui, for guiding and assisting me from things to model selection, payment of AI credits, and allowing me to work with Next.js!
 
-## Introduction
-PopFigExpert is an intelligent chatbot designed to provide accurate and contextually relevant responses to user queries. By combining the power of GenAI and Elasticsearch, PopFigExpert can understand user intent, retrieve relevant information, and generate human-like responses in real-time.
+## TODO
 
-The project aims to showcase the potential of GenAI in creating engaging and informative chatbot experiences. It demonstrates the integration of modern web development technologies like React with advanced natural language processing and information retrieval techniques.
+- [x] Scrape and ingest MFA-Press Statements into Elasticsearch
+- [ ] Scrape and ingest Wikipedia articles into Elasticsearch
+- [x] Basic chatbot functionality with OpenAI API and Mixtral model support
+- [x] Set up Vercel AI SDK 
+- [x] UI for interacting with the chatbot
+- [ ] Navigation Bar
+- [x] Function calling capabilities with OpenAI
+- [ ] Function calling capabilities with Mixtral (dunno if still possible)
+https://www.reddit.com/r/LocalLLaMA/comments/17kdby3/dolphin_or_mistral_function_calling/
+- [ ] Function calling with Llama if not possible with Mixtral.
+- [ ] UI for interacting with Elasticsearch
+  - [ ] Search Input, Sorting and Filters
+  - [ ] Infinite scrolling
+  - [ ] Right sidebar for more info
+- [ ] Integrate model's Function calling with Elasticsearch:
+  - [ ] Implement chatbot's ability to generate Elasticsearch queries based on user input
+  - [ ] Process and present Elasticsearch results to the user within the chat interface
+  - [ ] UI for displaying and sending inputs within the genUI. 
+- [ ] Deploy on Vercel
+
+Extras:
+- [ ] Integrate Clerk for user authentication and authorization
 
 ## Features
-- Natural language understanding and generation using GenAI
-- Retrieval-Augmented Generation (RAG) with Elasticsearch for contextual responses
-- Single-page application (SPA) architecture for seamless user experience
-- Responsive and intuitive user interface
-- Real-time chat functionality
-- Ability to handle a wide range of user queries and provide accurate information
-- Integration with external APIs for enhanced functionality
-- Customizable and extensible codebase
 
-## Technologies Used
-- React: JavaScript library for building user interfaces
-- Elasticsearch: Distributed search and analytics engine for fast information retrieval
-- GenAI: Generative AI model for natural language understanding and generation
-- Node.js: JavaScript runtime environment for server-side development
-- Express.js: Web application framework for building APIs
-- HTML5 & CSS3: Markup and styling for the user interface
-- WebSocket: Protocol for real-time bidirectional communication
-- Jest: JavaScript testing framework for unit and integration tests
-- GitHub Codespaces: Cloud-based development environment for collaborative coding
-
-## Installation
-1. Clone the repository:
-`git clone https://github.com/your-username/PopFigExpert.git`
-2. Navigate to the project directory:
-`cd PopFigExpert`
-3. Install the dependencies:
-`npm install`
-4. Set up the required environment variables:
-- Create a `.env` file in the root directory
-- Define the necessary variables (e.g., API keys, database connection strings)
-
-5. Start the development server:
-`npm start`
-6. Access the application in your browser at `http://localhost:3000`
-
-## Usage
-1. Open the PopFigExpert application in your web browser.
-2. Type your query or message in the chat input field.
-3. Press Enter or click the Send button to submit your query.
-4. PopFigExpert will process your query, retrieve relevant information, and generate a response.
-5. The response will be displayed in the chat interface.
-6. Continue the conversation by entering further queries or messages.
+- **AI-Powered Chatbot**: Engage in natural language conversations with Eve, an AI assistant trained to provide information from a curated document database.
+- **Customizable AI Models**: Choose between OpenAI's GPT-3.5 Turbo and Anthropic's Mixtral 7x8b models to power the chatbot's responses.
+- **Document Search**: Perform manual searches on the document database using filters such as content, date, title, and country.
+- **Report Summarization**: Request report summaries on specific topics, and the AI assistant will synthesize information from relevant documents to provide concise summaries.
+- **Personality Summaries**: Obtain "Wikipedia-style" summaries about notable individuals based on information from the document database.
+- **Citation Integration**: The AI assistant incorporates citations using Markdown linking, embedding the source URLs within the summarized information for transparency and credibility.
+- **Chat History**: Easily navigate through previous chat conversations and continue where you left off.
+- **Responsive Design**: The application is designed to be responsive and accessible across various devices and screen sizes.
 
 ## Architecture
-PopFigExpert follows a client-server architecture with the following components:
-- React SPA: The front-end client application built with React, responsible for rendering the user interface and handling user interactions.
-- Node.js Server: The back-end server application built with Node.js and Express.js, responsible for handling API requests, communicating with Elasticsearch, and integrating with the GenAI model.
-- Elasticsearch: The distributed search and analytics engine used for storing and retrieving information relevant to user queries.
-- GenAI Model: The generative AI model responsible for understanding user queries and generating appropriate responses.
 
-The client and server communicate through API endpoints and WebSocket connections for real-time updates.
+The application follows a client-server architecture, with the frontend built using Next.js and React, and the backend powered by Next.js API routes. The key components of the architecture include:
 
-## API Documentation
-The PopFigExpert API documentation can be found in the [API.md](./docs/API.md) file. It provides detailed information about the available endpoints, request/response formats, and authentication requirements.
+- [Next.js](https://nextjs.org/)
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [OpenAI](https://www.openai.com/)
+- [Anthropic](https://www.anthropic.com/)
+- [Mixtral](https://mistral.ai/)
+- [Elasticsearch](https://www.elastic.co/elasticsearch/)
+- [Zod](https://github.com/colinhacks/zod)
+- **Next.js**: A React framework that enables server-side rendering, routing, and API route handling.
+- **React**: A JavaScript library for building user interfaces.
+- **Tailwind CSS**: A utility-first CSS framework for rapidly building custom user interfaces.
+- **OpenAI GPT-3.5 Turbo**: An AI model from OpenAI used for generating chatbot responses and summaries.
+- **Anthropic Mixtral 7x8b**: An alternative AI model from Anthropic, providing a different perspective for chatbot interactions.
+- **Elasticsearch**: A distributed search and analytics engine used for storing and querying the document database.
+- **Zod**: A TypeScript-first schema validation library used for validating user input and API responses.
 
-## Testing
-PopFigExpert includes a comprehensive test suite to ensure the reliability and correctness of the application. The tests cover both the front-end and back-end components.
+## Folder Structure
 
-To run the tests, use the following command:
-`npm test`
+The project follows a standard Next.js folder structure, with additional directories for components, context, and utility functions:
 
-The test results will be displayed in the console, indicating the number of passing and failing tests.
+- `app`: Contains the main application components and pages.
+  - `api`: Defines the API routes for handling requests to the AI models and Elasticsearch.
+  - `chat`: Implements the chat functionality, including chat history and message display.
+  - `document`: Handles the document search functionality.
+- `components`: Contains reusable React components used throughout the application.
+  - `ai-ui`: Implements the user interface components specific to the AI interactions.
+  - `home`: Defines the components used on the home page, such as the model dropdown and tab selector.
+  - `ui`: Contains generic UI components, such as buttons, cards, and input fields.
+- `context`: Manages the application state using React Context API.
+- `lib`: Contains utility functions and type definitions.
+  - `utils`: Provides helper functions for interacting with the AI models and Elasticsearch.
+  - `validators`: Defines data validation schemas using Zod.
 
-## Deployment
-To deploy PopFigExpert to a production environment, follow these steps:
-1. Build the optimized production-ready files:
-`npm run build`
+## Getting Started
 
-2. Deploy the generated files to your preferred hosting platform (e.g., Netlify, Heroku, AWS).
+To run the PopFigExpert application locally, follow these steps:
 
-3. Set up the necessary environment variables on the hosting platform.
+1. Clone the repository:
 
-4. Start the server and ensure it is accessible via the specified URL.
+   ```
+   git clone https://github.com/yourusername/PopFigExpert.git
+   ```
 
-## Contributing
-Contributions to PopFigExpert are welcome! If you'd like to contribute, please follow these steps:
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Make your changes and ensure the tests pass.
-4. Submit a pull request describing your changes.
+2. Install the dependencies:
 
-Please adhere to the [code of conduct](./CODE_OF_CONDUCT.md) and the [contributing guidelines](./CONTRIBUTING.md) when contributing to the project.
+   ```
+   cd PopFigExpert
+   npm install
+   ```
 
-## License
-PopFigExpert is open-source software licensed under the [MIT License](./LICENSE). You are free to use, modify, and distribute the project in accordance with the terms of the license.
+3. Set up the required environment variables:
+
+   - Create a `.env.local` file in the root directory.
+   - Add the necessary environment variables, such as API keys and Elasticsearch configuration.
+
+4. Start the development server:
+
+   ```
+   npm run dev
+   ```
+
+5. Open your browser and navigate to `http://localhost:3000` to access the application.
+
+## Customiation
+
+You can customize:
+- **AI Model**: We already set up OpenAI and Mixtral, meaning you can freely add your preferred OpenAI or Mistral models. However, for other models, you would have to code it yourself.
+- **User Interface**: The UI is built with Tailwind CSS and shadcn. You can modify the design from the tailwind to match your desired design aesthetics.
+- **Document Database**: We use Elasticsearch as our document database. You can customize the configuration there. 
+
+## Troubleshooting
+If you encounter any issues,
+- **Environment Variables**: Ensure that you have properly set up the required environment variables, such as API keys and Elasticsearch configuration, in the .env.local file or your deployment environment.
+- **API Errors**: If you experience errors related to the AI models or Elasticsearch, double-check that your API keys and endpoints are correct and that you have sufficient permissions to access the respective services.
+- **Dependency Issues**: If you face issues with dependencies, try running npm install again to ensure that all the required packages are properly installed. If the issue persists, you can try deleting the node_modules folder and reinstalling the dependencies.
+- **Browser Compatibility**: PopFigExpert is designed to be compatible with modern web browsers and was tested in a chromium browser. If you encounter any rendering or functionality issues, make sure you are using an up-to-date version of a supported browser.
+
+## Acknowledgments
+
+PopFigExpert was made possible thanks to the following technologies and libraries:
+
+- [Next.js](https://nextjs.org/)
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [OpenAI](https://www.openai.com/)
+- [Anthropic](https://www.anthropic.com/)
+- [Mixtral](https://mistral.ai/)
+- [Elasticsearch](https://www.elastic.co/elasticsearch/)
+- [Zod](https://github.com/colinhacks/zod)
+
+Special thanks to the open-source community for their valuable contributions and inspiration.
+
+## Contact
+
+If you have any questions, suggestions, or feedback regarding PopFigExpert, please feel free to reach out to the project maintainer at [your-email@example.com](mailto:your-email@example.com).
+
+Happy exploring with PopFigExpert!

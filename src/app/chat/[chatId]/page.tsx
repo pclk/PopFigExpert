@@ -8,14 +8,16 @@ import { useActions, useUIState } from "ai/rsc";
 import type { AI } from "@/app/action";
 import { Chat, Message } from "@/app/action";
 import { useEffect } from "react";
-import { ModelDropdown } from "@/components/home";
 import { isValidElement } from "react";
+import { useModelContext } from "@/context/ModelContext";
+import { Button } from "@/components/ui/button";
 
 export default function ChatPage() {
   const params = useParams()!;
   const chatId = params.chatId as string;
   const [chat, setChat] = useUIState<typeof AI>();
   const { handleSendMessage } = useActions();
+  const {modelType, setModelType} = useModelContext();
 
   useEffect(() => {
     const processInitialMessage = async () => {
@@ -47,9 +49,14 @@ export default function ChatPage() {
   }, [chatId, chat, handleSendMessage]);
   return (
     <>
-      <div className="fixed left-0 top-0">
-        <ModelDropdown />
-      </div>
+      <div className="sticky left-0 top-0">
+      <Button
+            variant="outline"
+            className="border-none font-inter text-darkprim hover:bg-secondary active:bg-primary active:text-white"
+          >
+            {modelType}
+          </Button>      
+        </div>
       <div>
         {chat
           .filter((chat: Chat) => chat.chatID === chatId)

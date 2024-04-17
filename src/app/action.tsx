@@ -16,6 +16,8 @@ import { MessageType } from "../lib/validators/MessageType";
 import { cookies } from "next/headers";
 import { runOpenAICompletion } from '@/lib/utils';
 import { z } from "zod";
+// import client from '@/lib/elasticsearch';
+
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
@@ -62,7 +64,7 @@ async function submitUserMessage(userInput: string): Promise<Message> {
   if (cookies().get("modelType")?.value === "mistralai/mixtral-8x7b-instruct-v0.1") {
     try {
       console.log("Texting mistral", JSON.stringify({ messages: [userInput] }));
-      
+
       const response = await fetch('http://127.0.0.1:3000/api/mistral', {
         method: 'POST',
         headers: {
@@ -74,7 +76,7 @@ async function submitUserMessage(userInput: string): Promise<Message> {
       if (response.ok) {
         const reader = response.body!.getReader();
         let text = '';
-      
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) {
@@ -82,7 +84,7 @@ async function submitUserMessage(userInput: string): Promise<Message> {
             aiState.done([...aiState.get(), { role: "assistant", content: text }]);
             break;
           }
-      
+
           const chunks = new TextDecoder('utf-8').decode(value).split('"');
           const chunk = chunks.filter((_, index) => index % 2 !== 0).join('');
           text += chunk;
@@ -248,38 +250,6 @@ export async function handleSendMessage(message: string): Promise<Message> {
   return responseMessage;
 }
 
-async function handleTabChange(prevState: any, formData: FormData
-) {
-  "use server";
-  const tab = formData.get("tab") as string;
-  const placeholder =
-    tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
-  const description =
-    tab === "chat"
-      ? "Eve can make mistakes. Please check her responses."
-      : "Showing results x of xx...";
-  return { ...prevState, tab, placeholder, description };
-}
-
-async function handleModelChange(prevState: any, formData: FormData
-) {
-  "use server";
-
-  const model = formData.get("model") as string;
-  const modelDisplay =
-    model === "gpt-3.5-turbo" ? "GPT 3.5 Turbo" : "Mixtral 7x8b";
-  return { ...prevState, modelDisplay };
-}
-
-async function handleFilterChange(prevState: any, formData: FormData) {
-  "use server";
-  const content = formData.get("content") as string;
-  const date = formData.get("date") as string;
-  const title = formData.get("title") as string;
-  const country = formData.get("country") as string;
-  return { ...prevState, content, date, title, country };
-}
-
 //Chat
 const defaultValue = [
   {
@@ -354,6 +324,57 @@ async function updateMessages(
 }
 
 
+// export async function searchDocuments(query: string, filters: any) {
+//   try {
+//     const { date, country, title } = filters;
+
+//     const must = [
+//       {
+//         multi_match: {
+//           query: query,
+//           fields: ['title', 'content'],
+//         },
+//       },
+//     ];
+
+//     if (date) {
+//       must.push({
+//         multi_match: { query: date, fields: ['date'] },
+//       });
+//     }
+
+//     if (country) {
+//       must.push({
+//         multi_match: { query: country, fields: ['country'] },
+//       });
+//     }
+
+//     if (title) {
+//       must.push({
+//         multi_match: { query: title, fields: ['title'] },
+//       });
+//     }
+
+//     const response = await client.search({
+//       index: 'mfa-press',
+//       query: {
+//         bool: {
+//           must: must,
+//         },
+//       },
+//       highlight: {
+//         fields: {
+//           content: {},
+//         },
+//       },
+//     });
+
+//     return response.hits.hits.map((hit: any) => hit._source);
+//   } catch (error) {
+//     console.error('Error searching documents:', String(error).slice(0, 50));
+//     throw new Error('An error occurred while searching documents. Please try again later.');
+//   }
+// }
 
 export interface Message {
   messageID: number;
@@ -381,9 +402,6 @@ export const AI = createAI({
     getModelType,
     submitUserMessage,
     handleSendMessage,
-    handleTabChange,
-    handleModelChange,
-    handleFilterChange,
     addHistory,
     removeHistory,
     updateHistoryLabel,

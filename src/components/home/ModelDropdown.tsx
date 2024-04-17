@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,15 +11,17 @@ import {
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { useActions } from "ai/rsc";
-
-import { useModelContext } from "@/context/modelContext";
+import { useModelContext } from "@/context/ModelContext";
 
 export default function ModelDropdown() {
   const { changeModel } = useActions();
   const { modelType, setModelType } = useModelContext();
 
+  useEffect(() => {
+    changeModel(modelType);
+  }, [modelType, changeModel]);
+
   const handleModelChange = (model: string) => {
-    changeModel(model);
     setModelType(model);
   };
 

@@ -50,7 +50,7 @@ export default function ChatInput({
           ></TextareaAutosize>
         </div>
         <button
-          type="button"
+          type="button" 
           className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-secondary active:bg-primary"
           onClick={async (e) => {
             handleSendMessage();

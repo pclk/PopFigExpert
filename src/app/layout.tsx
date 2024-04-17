@@ -5,7 +5,7 @@ import React from "react";
 import NavigationBar from "../components/NavigationBar";
 import "@/app/globals.css";
 import { AI } from "./action";
-import { ModelProvider } from "@/context/modelContext";
+import { ModelProvider } from "@/context/ModelContext";
 import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";

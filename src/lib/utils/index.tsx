@@ -8,7 +8,6 @@ import zodToJsonSchema from 'zod-to-json-schema';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
-import Replicate from 'replicate';
 
 const consumeStream = async (stream: ReadableStream) => {
   const reader = stream.getReader();
@@ -150,42 +149,7 @@ export function getStockPrice(name: string) {
   return total / 100;
 }
 
-export async function runReplicateModelWithStreaming(
-  prompt: string,
-  MODEL_NAME: string,
-  MODEL_VERSION: string,
-  onTextContent: (text: string, isFinal: boolean) => void,
-) {
-  let text = '';
-  
-  const replicate = new Replicate({
-    auth: process.env.REPLICATE_API_TOKEN,
-  })
 
-  const output = await replicate.predictions.create({
-    version: MODEL_VERSION,
-    input: {
-      model: MODEL_NAME,
-      prompt,
-    },
-    stream: true,
-  })
-
-  for await (const chunk of output) {
-    const lines = chunk.toString().split('\n');
-    for (const line of lines) {
-      const message = line.replace(/^data: /, '');
-      if (message === '[DONE]') {
-        onTextContent(text, true);
-        return;
-      }
-      const json = JSON.parse(message);
-      const token = json.token;
-      text += token;
-      onTextContent(text, false);
-    }
-  }
-}
 export function runMistralCompletion<
   T extends Omit<Parameters<typeof fetch>[1], 'functions'>,
   const TFunctions extends TAnyToolDefinitionArray,
