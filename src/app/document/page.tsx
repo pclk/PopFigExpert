@@ -2,8 +2,9 @@
 // app/document/page.tsx
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { searchDocuments } from "@/app/action";
+
 import ChatInput from "@/components/ChatInput";
+import { useActions } from "ai/rsc";
 
 interface GroupedDocuments {
   date: string;
@@ -25,6 +26,7 @@ export default function DocumentSearch() {
     title: "",
     country: "",
   });
+  const { searchDocuments } = useActions();
 
   useEffect(() => {
     const searchTerm = searchParams.get("search");
@@ -35,6 +37,7 @@ export default function DocumentSearch() {
   }, [searchParams]);
 
   const handleSearch = (searchTerm: string, filters: any) => {
+    console.log("called searchDocuments", searchTerm, filters)
     searchDocuments(searchTerm, filters)
       .then((results) => {
         const groupedDocuments = groupDocumentsByUrl(results);
@@ -119,7 +122,7 @@ export default function DocumentSearch() {
         </div>
       </div>
       <ChatInput
-        onSendMessage={handleSendMessage}
+        submitMessage={handleSendMessage}
         placeholder={placeholder}
         description={description}
       />

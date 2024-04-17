@@ -16,7 +16,6 @@ import { MessageType } from "../lib/validators/MessageType";
 import { cookies } from "next/headers";
 import { runOpenAICompletion } from '@/lib/utils';
 import { z } from "zod";
-// import client from '@/lib/elasticsearch';
 
 
 const openai = new OpenAI({
@@ -324,57 +323,87 @@ async function updateMessages(
 }
 
 
-// export async function searchDocuments(query: string, filters: any) {
-//   try {
-//     const { date, country, title } = filters;
+export async function searchDocuments(query: string, filters: any) {
+  try {
+    const { date, country, title } = filters;
+    const must = [
+      {
+        multi_match: {
+          query: query,
+          fields: ['title', 'content'],
+        },
+      },
+    ];
 
-//     const must = [
-//       {
-//         multi_match: {
-//           query: query,
-//           fields: ['title', 'content'],
-//         },
-//       },
-//     ];
+    if (date) {
+      must.push({
+        multi_match: {
+          query: date,
+          fields: ['date'],
+        },
+      });
+    }
 
-//     if (date) {
-//       must.push({
-//         multi_match: { query: date, fields: ['date'] },
-//       });
-//     }
+    if (country) {
+      must.push({
+        multi_match: {
+          query: country,
+          fields: ['country'],
+        },
+      });
+    }
 
-//     if (country) {
-//       must.push({
-//         multi_match: { query: country, fields: ['country'] },
-//       });
-//     }
+    if (title) {
+      must.push({
+        multi_match: {
+          query: title,
+          fields: ['title'],
+        },
+      });
+    }
 
-//     if (title) {
-//       must.push({
-//         multi_match: { query: title, fields: ['title'] },
-//       });
-//     }
+    const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
+    const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
+    const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
 
-//     const response = await client.search({
-//       index: 'mfa-press',
-//       query: {
-//         bool: {
-//           must: must,
-//         },
-//       },
-//       highlight: {
-//         fields: {
-//           content: {},
-//         },
-//       },
-//     });
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-//     return response.hits.hits.map((hit: any) => hit._source);
-//   } catch (error) {
-//     console.error('Error searching documents:', String(error).slice(0, 50));
-//     throw new Error('An error occurred while searching documents. Please try again later.');
-//   }
-// }
+    const response = await fetch(`${elasticsearchUrl}/mfa-press/_search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
+      },
+      body: JSON.stringify({
+        query: {
+          bool: {
+            must: must,
+          },
+        },
+        highlight: {
+          fields: {
+            content: {},
+          },
+        },
+      }),
+    });
+
+
+    console.log('Response Status:', response.status);
+    console.log('Response Headers:', response.headers);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Elasticsearch request failed with status ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    return data.hits.hits.map((hit: any) => hit._source);
+  } catch (error) {
+    console.error('Error searching documents:', error);
+    throw new Error('An error occurred while searching documents. Please try again later.');
+  }
+}
 
 export interface Message {
   messageID: number;
@@ -407,6 +436,7 @@ export const AI = createAI({
     updateHistoryLabel,
     addMessages,
     updateMessages,
+    searchDocuments
   },
   initialUIState,
   initialAIState,
