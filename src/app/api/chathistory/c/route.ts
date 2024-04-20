@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic'
+
 
 export async function POST(request: Request) {
   const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
@@ -6,15 +8,21 @@ export async function POST(request: Request) {
   const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
 
   try {
-    const requestBody = await request.json();
+    const { user, message, timestamp } = await request.json();
 
-    const response = await fetch(`${elasticsearchUrl}/mfa-press/_search`, {
+    const chatHistoryDocument = {
+      user,
+      message,
+      timestamp,
+    };
+
+    const response = await fetch(`${elasticsearchUrl}/chat-history/_doc`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(chatHistoryDocument),
     });
 
     if (!response.ok) {
@@ -23,9 +31,13 @@ export async function POST(request: Request) {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    const id = data._id; // Retrieve the automatically generated ID
+
+    console.log('Chat history inserted successfully:', { id, ...chatHistoryDocument });
+
+    return NextResponse.json({ message: 'Chat history inserted successfully', id });
   } catch (error) {
-    console.error('Error searching documents:', error);
-    return NextResponse.json({ error: 'An error occurred while searching documents.' }, { status: 500 });
+    console.error('Error inserting chat history:', error);
+    return NextResponse.json({ error: 'An error occurred while inserting chat history.' }, { status: 500 });
   }
 }

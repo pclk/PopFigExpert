@@ -16,6 +16,8 @@ import { MessageType } from "../lib/validators/MessageType";
 import { cookies } from "next/headers";
 import { runOpenAICompletion } from '@/lib/utils';
 import { z } from "zod";
+import { revalidatePath, revalidateTag, unstable_noStore } from 'next/cache'
+
 
 
 const openai = new OpenAI({
@@ -362,17 +364,10 @@ export async function searchDocuments(query: string, filters: any) {
       });
     }
 
-    const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
-    const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
-    const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
-
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
-    const response = await fetch(`${elasticsearchUrl}/mfa-press/_search`, {
+    const response = await fetch(`${process.env.HOST_URL}/api/search`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
       },
       body: JSON.stringify({
         query: {
@@ -388,13 +383,12 @@ export async function searchDocuments(query: string, filters: any) {
       }),
     });
 
-
     console.log('Response Status:', response.status);
     console.log('Response Headers:', response.headers);
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Elasticsearch request failed with status ${response.status}: ${errorText}`);
+      throw new Error(`Search request failed with status ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
@@ -402,6 +396,78 @@ export async function searchDocuments(query: string, filters: any) {
   } catch (error) {
     console.error('Error searching documents:', error);
     throw new Error('An error occurred while searching documents. Please try again later.');
+  }
+}
+
+async function insertChatHistory(user: string, message: string, timestamp: string) {
+  "use server";
+  const _cookies = cookies();
+  try {
+    console.log('Inserting chat history action:', { user, message, timestamp });
+    const response = await fetch(`${process.env.HOST_URL}/api/chathistory/c`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user, message, timestamp }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Insert chat history failed with status ${response.status}: ${errorText}`);
+    }
+
+    const { id } = await response.json();
+    return id;
+  } catch (error) {
+    console.error('Error inserting chat history:', error);
+    throw error;
+  }
+}
+
+async function deleteChatHistory(id: string) {
+  "use server";
+  const _cookies = cookies();
+  try {
+    console.log('Deleting chat history entry action:', id);
+    const response = await fetch(`${process.env.HOST_URL}/api/chathistory/d`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Delete chat history failed with status ${response.status}: ${errorText}`);
+    }
+  } catch (error) {
+    console.error('Error deleting chat history:', error);
+    throw error;
+  }
+}
+
+
+async function fetchChatHistory() {
+  "use server";
+  const _cookies = cookies();
+
+  try {
+    console.log('Fetching chat history action');
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    const response = await fetch(`${process.env.HOST_URL}/api/chathistory/r?`);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Fetch chat history failed with status ${response.status}: ${errorText}`);
+    }
+
+    const chatHistory = await response.json();
+    return chatHistory;
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    throw error;
   }
 }
 
@@ -436,7 +502,10 @@ export const AI = createAI({
     updateHistoryLabel,
     addMessages,
     updateMessages,
-    searchDocuments
+    searchDocuments,
+    insertChatHistory,
+    deleteChatHistory,
+    fetchChatHistory
   },
   initialUIState,
   initialAIState,

@@ -10,6 +10,7 @@ import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { HistoryType } from "@/lib/validators/HistoryType";
+import Providers from "@/components/Providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`m-0 flex ${inter.className}`}>
         <AI>
+          <Providers>
           <ModelProvider>
           <NavigationBar
             isDocumentPage={isDocumentPage}
@@ -41,6 +43,7 @@ export default function RootLayout({
             {children}
           </main>
           </ModelProvider>
+          </Providers>
         </AI>
       </body>
     </html>
