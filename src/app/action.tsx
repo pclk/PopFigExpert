@@ -17,6 +17,7 @@ import { cookies } from "next/headers";
 import { runOpenAICompletion } from '@/lib/utils';
 import { z } from "zod";
 import { revalidatePath, revalidateTag, unstable_noStore } from 'next/cache'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 
 
@@ -399,75 +400,62 @@ export async function searchDocuments(query: string, filters: any) {
   }
 }
 
-async function insertChatHistory(user: string, message: string, timestamp: string) {
+const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
+const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
+const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
+
+async function fetchChatHistory() {
   "use server";
-  const _cookies = cookies();
-  try {
-    console.log('Inserting chat history action:', { user, message, timestamp });
-    const response = await fetch(`${process.env.HOST_URL}/api/chathistory/c`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ user, message, timestamp }),
-    });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Insert chat history failed with status ${response.status}: ${errorText}`);
-    }
+  const response = await fetch(`${process.env.HOST_URL}/api/chathistory/r`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ elasticsearchUrl, elasticsearchUsername, elasticsearchPassword }),
+  });
 
-    const { id } = await response.json();
-    return id;
-  } catch (error) {
-    console.error('Error inserting chat history:', error);
-    throw error;
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Fetch chat history failed with status ${response.status}: ${errorText}`);
   }
+  const chatHistory = await response.json();
+  return chatHistory;
+}
+
+async function insertChatHistory(data: { user: string; message: string; timestamp: string }) {
+  "use server";
+
+  const response = await fetch(`${process.env.HOST_URL}/api/chathistory/c`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ ...data, elasticsearchUrl, elasticsearchUsername, elasticsearchPassword }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Insert chat history failed with status ${response.status}: ${errorText}`);
+  }
+  const { id } = await response.json();
+  return id;
 }
 
 async function deleteChatHistory(id: string) {
   "use server";
-  const _cookies = cookies();
-  try {
-    console.log('Deleting chat history entry action:', id);
-    const response = await fetch(`${process.env.HOST_URL}/api/chathistory/d`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id }),
-    });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Delete chat history failed with status ${response.status}: ${errorText}`);
-    }
-  } catch (error) {
-    console.error('Error deleting chat history:', error);
-    throw error;
-  }
-}
+  const response = await fetch(`${process.env.HOST_URL}/api/chathistory/d`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ id, elasticsearchUrl, elasticsearchUsername, elasticsearchPassword }),
+  });
 
-
-async function fetchChatHistory() {
-  "use server";
-  const _cookies = cookies();
-
-  try {
-    console.log('Fetching chat history action');
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    const response = await fetch(`${process.env.HOST_URL}/api/chathistory/r?`);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Fetch chat history failed with status ${response.status}: ${errorText}`);
-    }
-
-    const chatHistory = await response.json();
-    return chatHistory;
-  } catch (error) {
-    console.error('Error fetching chat history:', error);
-    throw error;
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Delete chat history failed with status ${response.status}: ${errorText}`);
   }
 }
 
@@ -505,7 +493,7 @@ export const AI = createAI({
     searchDocuments,
     insertChatHistory,
     deleteChatHistory,
-    fetchChatHistory
+    fetchChatHistory,
   },
   initialUIState,
   initialAIState,

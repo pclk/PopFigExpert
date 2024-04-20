@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic'
 
-
 export async function DELETE(request: Request) {
-  const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
-  const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
-  const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
-
   try {
-    const { id } = await request.json();
+    const { id, elasticsearchUrl, elasticsearchUsername, elasticsearchPassword } = await request.json();
 
     const response = await fetch(`${elasticsearchUrl}/chat-history/_doc/${id}`, {
       method: 'DELETE',
