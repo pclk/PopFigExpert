@@ -4,14 +4,14 @@ export const dynamic = "force-dynamic";
 export async function DELETE(request: Request) {
   try {
     const {
-      id,
+      chatID,
       elasticsearchUrl,
       elasticsearchUsername,
       elasticsearchPassword,
     } = await request.json();
 
     const response = await fetch(
-      `${elasticsearchUrl}/chat-history/_doc/${id}`,
+      `${elasticsearchUrl}/chat-history/_doc/${chatID}`,
       {
         method: "DELETE",
         headers: {
@@ -27,7 +27,7 @@ export async function DELETE(request: Request) {
         `Elasticsearch request failed with status ${response.status}: ${errorText}`,
       );
     }
-    console.log("Chat history entry deleted successfully:", id);
+    console.log("Chat history entry deleted successfully:", chatID);
     return NextResponse.json({
       message: "Chat history entry deleted successfully",
     });

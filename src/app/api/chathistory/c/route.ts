@@ -4,32 +4,27 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const {
-      id,
-      user,
-      message,
-      timestamp,
+      chatID,
+      messages,
+      aiState,
       elasticsearchUrl,
       elasticsearchUsername,
       elasticsearchPassword,
     } = await request.json();
 
     const chatHistoryDocument = {
-      user,
-      message,
-      timestamp,
+      messages,
+      aiState,
     };
 
-    const response = await fetch(
-      `${elasticsearchUrl}/chat-history/_doc/${id}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
-        },
-        body: JSON.stringify(chatHistoryDocument),
+    const response = await fetch(`${elasticsearchUrl}/chat-history/_doc/${chatID}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
       },
-    );
+      body: JSON.stringify(chatHistoryDocument),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -40,11 +35,9 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
-    console.log("Chat history inserted successfully:", {
-      ...chatHistoryDocument,
-    });
+    console.log("Chat history inserted successfully:", { id: data._id, ...chatHistoryDocument });
 
-    return NextResponse.json({ message: "Chat history inserted successfully" });
+    return NextResponse.json({ id: data._id });
   } catch (error) {
     console.error("Error inserting chat history:", error);
     return NextResponse.json(

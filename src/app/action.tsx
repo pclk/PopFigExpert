@@ -251,11 +251,11 @@ async function submitUserMessage(userInput: string): Promise<Message> {
 
 export async function handleSendMessage(message: string): Promise<Message> {
   "use server";
-  const aiState = getMutableAIState<typeof AI>();
-  const currentMessages = aiState.get();
+  // const aiState = getMutableAIState<typeof AI>();
+  // const currentMessages = aiState.get();
 
   // Add user message to the state
-  aiState.update([...currentMessages, { role: "user", content: message }]);
+  // aiState.update([...currentMessages, { role: "user", content: message }]);
 
   // Submit and get response message
   const responseMessage = await submitUserMessage(message);
@@ -443,9 +443,9 @@ async function fetchChatHistory() {
 }
 
 async function insertChatHistory(data: {
-  user: string;
-  message: string;
-  timestamp: string;
+  chatID: string;
+  messages: Message[];
+  aiStateID: string;
 }) {
   "use server";
 
@@ -468,11 +468,12 @@ async function insertChatHistory(data: {
       `Insert chat history failed with status ${response.status}: ${errorText}`,
     );
   }
+
   const { id } = await response.json();
   return id;
 }
 
-async function deleteChatHistory(id: string) {
+async function deleteChatHistory(chatID: string) {
   "use server";
 
   const response = await fetch(`${process.env.HOST_URL}/api/chathistory/d`, {
@@ -481,7 +482,7 @@ async function deleteChatHistory(id: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      id,
+      chatID,
       elasticsearchUrl,
       elasticsearchUsername,
       elasticsearchPassword,
@@ -512,6 +513,12 @@ export interface AIState {
   id?: string;
   name?: string;
 }
+
+export interface ChatAIStateMapping {
+  chatID: string;
+  aiStateID: string;
+}
+
 const initialAIState: AIState[] = [];
 
 const initialUIState: Chat[] = [];

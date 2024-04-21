@@ -39,11 +39,17 @@ export default function ChatPage() {
               return chat;
             }),
           ]);
-            await insertChatHistory({
-              user: 'hi',
-              message: messageContent,
-              timestamp: Date.now(),
-            });
+          await insertChatHistory({
+            chatID: chatId,
+            messages: [
+              ...currentChat.messages,
+              {
+                messageID: responseMessage.messageID,
+                display: responseMessage.display,
+              },
+            ],
+            aiState: chat.find((chat: Chat) => chat.chatID === chatId)?.aiState || [],
+          });
         }
       }
     };
