@@ -37,7 +37,7 @@ export default function DocumentSearch() {
   }, [searchParams]);
 
   const handleSearch = (searchTerm: string, filters: any) => {
-    console.log("called searchDocuments", searchTerm, filters)
+    console.log("called searchDocuments", searchTerm, filters);
     searchDocuments(searchTerm, filters)
       .then((results) => {
         const groupedDocuments = groupDocumentsByUrl(results);

@@ -34,15 +34,15 @@ export default function RootLayout({
       <body className={`m-0 flex ${inter.className}`}>
         <AI>
           <Providers>
-          <ModelProvider>
-          <NavigationBar
-            isDocumentPage={isDocumentPage}
-            chatHistory={chatHistory}
-          />
-          <main className="relative grow overflow-y-hidden p-4">
-            {children}
-          </main>
-          </ModelProvider>
+            <ModelProvider>
+              <NavigationBar
+                isDocumentPage={isDocumentPage}
+                chatHistory={chatHistory}
+              />
+              <main className="relative grow overflow-y-hidden p-4">
+                {children}
+              </main>
+            </ModelProvider>
           </Providers>
         </AI>
       </body>

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * Any array of ToolDefinitions.
@@ -22,7 +22,7 @@ export type TToolDefinitionMap<
 > = TToolDefinitionArray extends [infer TFirst, ...infer Rest]
   ? TFirst extends TAnyToolDefinitionArray[number]
     ? Rest extends TAnyToolDefinitionArray
-      ? Readonly<{ [K in TFirst['name']]: TFirst }> & TToolDefinitionMap<Rest>
+      ? Readonly<{ [K in TFirst["name"]]: TFirst }> & TToolDefinitionMap<Rest>
       : never
     : never
   : Readonly<{}>;

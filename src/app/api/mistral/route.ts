@@ -1,7 +1,7 @@
-import MistralClient from '@mistralai/mistralai';
-import { MistralStream, StreamingTextResponse } from 'ai';
+import MistralClient from "@mistralai/mistralai";
+import { MistralStream, StreamingTextResponse } from "ai";
 
-export const runtime = 'edge';
+export const runtime = "edge";
 
 const apiKey = process.env.MISTRAL_API_KEY;
 
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   // Extract the `messages` from the body of the request
   const { messages } = await req.json();
 
-  const model = 'mistral-small-2312';
+  const model = "mistral-small-2312";
   let response = await client.chatStream({
     model: model,
     messages: messages,

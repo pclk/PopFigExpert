@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
@@ -9,9 +9,9 @@ export async function POST(request: Request) {
     const requestBody = await request.json();
 
     const response = await fetch(`${elasticsearchUrl}/mfa-press/_search`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
       },
       body: JSON.stringify(requestBody),
@@ -19,13 +19,18 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Elasticsearch request failed with status ${response.status}: ${errorText}`);
+      throw new Error(
+        `Elasticsearch request failed with status ${response.status}: ${errorText}`,
+      );
     }
 
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error searching documents:', error);
-    return NextResponse.json({ error: 'An error occurred while searching documents.' }, { status: 500 });
+    console.error("Error searching documents:", error);
+    return NextResponse.json(
+      { error: "An error occurred while searching documents." },
+      { status: 500 },
+    );
   }
 }

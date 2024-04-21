@@ -1,13 +1,13 @@
 import {
   TAnyToolDefinitionArray,
   TToolDefinitionMap,
-} from '@/lib/utils/tool-definition';
-import { OpenAIStream } from 'ai';
-import type OpenAI from 'openai';
-import zodToJsonSchema from 'zod-to-json-schema';
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import { z } from 'zod';
+} from "@/lib/utils/tool-definition";
+import { OpenAIStream } from "ai";
+import type OpenAI from "openai";
+import zodToJsonSchema from "zod-to-json-schema";
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 const consumeStream = async (stream: ReadableStream) => {
   const reader = stream.getReader();
@@ -20,7 +20,7 @@ const consumeStream = async (stream: ReadableStream) => {
 export function runOpenAICompletion<
   T extends Omit<
     Parameters<typeof OpenAI.prototype.chat.completions.create>[0],
-    'functions'
+    "functions"
   >,
   const TFunctions extends TAnyToolDefinitionArray,
 >(
@@ -29,7 +29,7 @@ export function runOpenAICompletion<
     functions: TFunctions;
   },
 ) {
-  let text = '';
+  let text = "";
   let hasFunction = false;
 
   type TToolMap = TToolDefinitionMap<TFunctions>;
@@ -50,7 +50,7 @@ export function runOpenAICompletion<
         (await openai.chat.completions.create({
           ...rest,
           stream: true,
-          functions: functions.map(fn => ({
+          functions: functions.map((fn) => ({
             name: fn.name,
             description: fn.description,
             parameters: zodToJsonSchema(fn.parameters) as Record<
@@ -84,7 +84,7 @@ export function runOpenAICompletion<
           },
           onToken(token) {
             text += token;
-            if (text.startsWith('{')) return;
+            if (text.startsWith("{")) return;
             onTextContent(text, false);
           },
           onFinal() {
@@ -102,14 +102,14 @@ export function runOpenAICompletion<
     ) => {
       onTextContent = callback;
     },
-    onFunctionCall: <TName extends TFunctions[number]['name']>(
+    onFunctionCall: <TName extends TFunctions[number]["name"]>(
       name: TName,
       callback: (
         args: z.output<
           TName extends keyof TToolMap
             ? TToolMap[TName] extends infer TToolDef
               ? TToolDef extends TAnyToolDefinitionArray[number]
-                ? TToolDef['parameters']
+                ? TToolDef["parameters"]
                 : never
               : never
             : never
@@ -126,9 +126,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatNumber = (value: number) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
   }).format(value);
 
 export const runAsyncFnWithoutBlocking = (
@@ -138,7 +138,7 @@ export const runAsyncFnWithoutBlocking = (
 };
 
 export const sleep = (ms: number) =>
-  new Promise(resolve => setTimeout(resolve, ms));
+  new Promise((resolve) => setTimeout(resolve, ms));
 
 // Fake data
 export function getStockPrice(name: string) {
@@ -149,14 +149,11 @@ export function getStockPrice(name: string) {
   return total / 100;
 }
 
-
 export function runMistralCompletion<
-  T extends Omit<Parameters<typeof fetch>[1], 'functions'>,
+  T extends Omit<Parameters<typeof fetch>[1], "functions">,
   const TFunctions extends TAnyToolDefinitionArray,
->(
-  params: T & { functions: TFunctions; },
-) {
-  let text = '';
+>(params: T & { functions: TFunctions }) {
+  let text = "";
   let hasFunction = false;
   type TToolMap = TToolDefinitionMap<TFunctions>;
   let onTextContent: (text: string, isFinal: boolean) => void = () => {};
@@ -168,10 +165,10 @@ export function runMistralCompletion<
 
   (async () => {
     try {
-      const response = await fetch('http://127.0.0.1:3000/api/mistral', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:3000/api/mistral", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ messages: params.messages }),
       });
@@ -188,11 +185,11 @@ export function runMistralCompletion<
             break;
           }
 
-          const chunks = new TextDecoder('utf-8').decode(value).split('"');
-          const chunk = chunks.filter((_, index) => index % 2 !== 0).join('');
+          const chunks = new TextDecoder("utf-8").decode(value).split('"');
+          const chunk = chunks.filter((_, index) => index % 2 !== 0).join("");
           text += chunk;
 
-          if (chunk.startsWith('{')) {
+          if (chunk.startsWith("{")) {
             hasFunction = true;
             const functionCallPayload = JSON.parse(chunk);
             if (!onFunctionCall[functionCallPayload.name]) {
@@ -200,9 +197,13 @@ export function runMistralCompletion<
             }
 
             const zodSchema = functionsMap[functionCallPayload.name].parameters;
-            const parsedArgs = zodSchema.safeParse(functionCallPayload.arguments);
+            const parsedArgs = zodSchema.safeParse(
+              functionCallPayload.arguments,
+            );
             if (!parsedArgs.success) {
-              throw new Error('Invalid function call in message. Expected a function call object');
+              throw new Error(
+                "Invalid function call in message. Expected a function call object",
+              );
             }
             onFunctionCall[functionCallPayload.name]?.(parsedArgs.data);
           } else {
@@ -210,11 +211,11 @@ export function runMistralCompletion<
           }
         }
       } else {
-        console.error('Error calling /api/mistral');
+        console.error("Error calling /api/mistral");
         // Handle error case
       }
     } catch (error) {
-      console.error('Error calling /api/mistral');
+      console.error("Error calling /api/mistral");
       // Handle error case
     }
   })();
@@ -225,14 +226,14 @@ export function runMistralCompletion<
     ) => {
       onTextContent = callback;
     },
-    onFunctionCall: <TName extends TFunctions[number]['name']>(
+    onFunctionCall: <TName extends TFunctions[number]["name"]>(
       name: TName,
       callback: (
         args: z.output<
           TName extends keyof TToolMap
             ? TToolMap[TName] extends infer TToolDef
               ? TToolDef extends TAnyToolDefinitionArray[number]
-                ? TToolDef['parameters']
+                ? TToolDef["parameters"]
                 : never
               : never
             : never

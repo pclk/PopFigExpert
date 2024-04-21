@@ -1,26 +1,41 @@
-import { NextResponse } from 'next/server';
-export const dynamic = 'force-dynamic'
+import { NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 
 export async function DELETE(request: Request) {
   try {
-    const { id, elasticsearchUrl, elasticsearchUsername, elasticsearchPassword } = await request.json();
+    const {
+      id,
+      elasticsearchUrl,
+      elasticsearchUsername,
+      elasticsearchPassword,
+    } = await request.json();
 
-    const response = await fetch(`${elasticsearchUrl}/chat-history/_doc/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
+    const response = await fetch(
+      `${elasticsearchUrl}/chat-history/_doc/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
+        },
       },
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Elasticsearch request failed with status ${response.status}: ${errorText}`);
+      throw new Error(
+        `Elasticsearch request failed with status ${response.status}: ${errorText}`,
+      );
     }
-    console.log('Chat history entry deleted successfully:', id);
-    return NextResponse.json({ message: 'Chat history entry deleted successfully' });
+    console.log("Chat history entry deleted successfully:", id);
+    return NextResponse.json({
+      message: "Chat history entry deleted successfully",
+    });
   } catch (error) {
-    console.error('Error deleting chat history entry:', error);
-    return NextResponse.json({ error: 'An error occurred while deleting the chat history entry.' }, { status: 500 });
+    console.error("Error deleting chat history entry:", error);
+    return NextResponse.json(
+      { error: "An error occurred while deleting the chat history entry." },
+      { status: 500 },
+    );
   }
 }

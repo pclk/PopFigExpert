@@ -12,7 +12,9 @@ const ModelContext = createContext<{
 
 export const useModelContext = () => useContext(ModelContext);
 
-export const ModelProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const ModelProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [modelType, setModelType] = useState("gpt-3.5-turbo");
 
   return (

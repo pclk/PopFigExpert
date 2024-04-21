@@ -142,3 +142,6 @@ Special thanks to the open-source community for their valuable contributions and
 If you have any questions, suggestions, or feedback regarding PopFigExpert, please feel free to reach out to the project maintainer at [your-email@example.com](mailto:your-email@example.com).
 
 Happy exploring with PopFigExpert!
+
+
+maybe i should start a nextjs project on benchmarking llms on your own questions.

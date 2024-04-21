@@ -14,12 +14,12 @@ import { HistoryType } from "@/lib/validators/HistoryType";
 import { nanoid } from "ai";
 import { MessageType } from "../lib/validators/MessageType";
 import { cookies } from "next/headers";
-import { runOpenAICompletion } from '@/lib/utils';
+import { runOpenAICompletion } from "@/lib/utils";
 import { z } from "zod";
-import { revalidatePath, revalidateTag, unstable_noStore } from 'next/cache'
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-
+const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
+const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
+const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
@@ -30,7 +30,7 @@ let modelType = "gpt-3.5-turbo";
 async function changeModel(model: string) {
   "use server";
   console.log("triggered changemodel function");
-  
+
   if (model === "gpt-3.5-turbo") {
     modelType = "gpt-3.5-turbo";
     console.log("triggered changemodel function: gpt-3.5-turbo");
@@ -38,24 +38,21 @@ async function changeModel(model: string) {
     modelType = "mistralai/mixtral-8x7b-instruct-v0.1";
     console.log("triggered changemodel function: mixtral 7x8b");
   }
-  
+
   // Set the modelType value in a cookie
-  cookies().set('modelType', modelType);
+  cookies().set("modelType", modelType);
 }
 
 // Retrieve the modelType value from the cookie on each request
 async function getModelType() {
   "use server";
-  return cookies().get('modelType')?.value || "gpt-3.5-turbo";
-};
+  return cookies().get("modelType")?.value || "gpt-3.5-turbo";
+}
 
 async function submitUserMessage(userInput: string): Promise<Message> {
   "use server";
   const aiState = getMutableAIState<typeof AI>();
-  aiState.update([
-    ...aiState.get(),
-    { role: "user", content: userInput },
-  ]);
+  aiState.update([...aiState.get(), { role: "user", content: userInput }]);
 
   const reply = createStreamableUI(
     <div>
@@ -63,65 +60,82 @@ async function submitUserMessage(userInput: string): Promise<Message> {
     </div>,
   );
 
-  if (cookies().get("modelType")?.value === "mistralai/mixtral-8x7b-instruct-v0.1") {
+  if (
+    cookies().get("modelType")?.value === "mistralai/mixtral-8x7b-instruct-v0.1"
+  ) {
     try {
       console.log("Texting mistral", JSON.stringify({ messages: [userInput] }));
 
-      const response = await fetch('http://127.0.0.1:3000/api/mistral', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:3000/api/mistral", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messages: [{ role: 'user', content: userInput }] }),
+        body: JSON.stringify({
+          messages: [{ role: "user", content: userInput }],
+        }),
       });
 
       if (response.ok) {
         const reader = response.body!.getReader();
-        let text = '';
+        let text = "";
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) {
             reply.done();
-            aiState.done([...aiState.get(), { role: "assistant", content: text }]);
+            aiState.done([
+              ...aiState.get(),
+              { role: "assistant", content: text },
+            ]);
             break;
           }
 
-          const chunks = new TextDecoder('utf-8').decode(value).split('"');
-          const chunk = chunks.filter((_, index) => index % 2 !== 0).join('');
+          const chunks = new TextDecoder("utf-8").decode(value).split('"');
+          const chunk = chunks.filter((_, index) => index % 2 !== 0).join("");
           text += chunk;
           reply.update(<div>{text}</div>);
-          
         }
       } else {
-        console.error('Error response from /api/mistral:', response.status, response.statusText);
+        console.error(
+          "Error response from /api/mistral:",
+          response.status,
+          response.statusText,
+        );
         try {
           const errorData = await response.json();
-          console.error('Error details:', errorData);
+          console.error("Error details:", errorData);
         } catch (parseError) {
-          console.error('Failed to parse error response:', parseError);
+          console.error("Failed to parse error response:", parseError);
         }
         reply.done();
         aiState.done([
           ...aiState.get(),
-          { role: "assistant", content: 'An error occurred while processing your request.' }
+          {
+            role: "assistant",
+            content: "An error occurred while processing your request.",
+          },
         ]);
       }
     } catch (error) {
-      console.error('Error in submitUserMessage:', error);
+      console.error("Error in submitUserMessage:", error);
       reply.done();
       aiState.done([
         ...aiState.get(),
-        { role: "assistant", content: 'An error occurred while processing your request.' }
+        {
+          role: "assistant",
+          content: "An error occurred while processing your request.",
+        },
       ]);
     }
-  } else {const completion = runOpenAICompletion(openai, {
-    model: "gpt-3.5-turbo",
-    stream: true,
-    messages: [
-      {
-        role: "system",
-        content: `\
+  } else {
+    const completion = runOpenAICompletion(openai, {
+      model: "gpt-3.5-turbo",
+      stream: true,
+      messages: [
+        {
+          role: "system",
+          content: `\
   You are an AI assistant within the Centre for Strategic Infocomm Technologies (CSIT) in the Ministry of Defence, operating on a secure intranet to deliver critical information to staff. Adhere to the following principles:
   1. **Professionalism**: Employ precise, clear, and objective language, avoiding colloquialisms and ensuring information accuracy.
   2. **Knowledgeability**: Utilize the ministry's document database to provide comprehensive insights on global political figures, historical contexts, and current events, ensuring relevance and depth in responses.
@@ -134,107 +148,106 @@ async function submitUserMessage(userInput: string): Promise<Message> {
   - \`search_news_articles\`: Search for relevant news articles based on the user's query.
   - \`generate_report_summary\`: Summarize up to 4 reports and display the results intuitively.
   `,
-      },
-      ...aiState.get().map((info: any) => ({
-        role: info.role,
-        content: info.content,
-        name: info.name,
-      })),
-    ],
-    functions: [
-      {
-        name: "search_news_articles",
-        description:
-          "Search for relevant news articles based on the user's query.",
-        parameters: z.object({
-          query: z.string().describe("The search query provided by the user."),
-        }),
-      },
-      {
-        name: "generate_report_summary",
-        description:
-          "Summarize up to 4 reports and display the results intuitively.",
-        parameters: z.object({
-          reportIds: z
-            .array(z.string())
-            .describe("The IDs of the reports to summarize."),
-        }),
-      },
-    ],
-    temperature: 0,
-  });
+        },
+        ...aiState.get().map((info: any) => ({
+          role: info.role,
+          content: info.content,
+          name: info.name,
+        })),
+      ],
+      functions: [
+        {
+          name: "search_news_articles",
+          description:
+            "Search for relevant news articles based on the user's query.",
+          parameters: z.object({
+            query: z
+              .string()
+              .describe("The search query provided by the user."),
+          }),
+        },
+        {
+          name: "generate_report_summary",
+          description:
+            "Summarize up to 4 reports and display the results intuitively.",
+          parameters: z.object({
+            reportIds: z
+              .array(z.string())
+              .describe("The IDs of the reports to summarize."),
+          }),
+        },
+      ],
+      temperature: 0,
+    });
 
-  completion.onTextContent((content: string, isFinal: boolean) => {
-    reply.update(<div>{content}</div>);
-    if (isFinal) {
-      reply.done();
-      aiState.done([...aiState.get(), { role: "assistant", content }]);
-    }
-  });
+    completion.onTextContent((content: string, isFinal: boolean) => {
+      reply.update(<div>{content}</div>);
+      if (isFinal) {
+        reply.done();
+        aiState.done([...aiState.get(), { role: "assistant", content }]);
+      }
+    });
 
-  completion.onFunctionCall("search_news_articles", async ({ query }) => {
-    reply.update(
-      <div>
-        <div>searching..</div>
-      </div>,
-    );
-
-    // const articles = await searchDocuments(query, {});
-
-    reply.done(
-      <div>
-        <div>3articles</div>
-      </div>,
-    );
-
-    aiState.done([
-      ...aiState.get(),
-      {
-        role: "function",
-        name: "search_news_articles",
-        content: JSON.stringify("user got articles"),
-      },
-    ]);
-  });
-
-  completion.onFunctionCall(
-    "generate_report_summary",
-    async ({ reportIds }) => {
+    completion.onFunctionCall("search_news_articles", async ({ query }) => {
       reply.update(
         <div>
-          <div>Generating report summary...</div>
+          <div>searching..</div>
         </div>,
       );
 
-      // const reports = await Promise.all(
-      //   reportIds.map((id) => getChatHistory(id)),
-      // );
-      // const summary = generateReportSummary(reports);
+      // const articles = await searchDocuments(query, {});
 
-      reply.done(<div>summary</div>);
+      reply.done(
+        <div>
+          <div>3articles</div>
+        </div>,
+      );
 
       aiState.done([
         ...aiState.get(),
         {
           role: "function",
-          name: "generate_report_summary",
-          content: JSON.stringify("user got report summary"),
+          name: "search_news_articles",
+          content: JSON.stringify("user got articles"),
         },
       ]);
-    },
-  );}
+    });
+
+    completion.onFunctionCall(
+      "generate_report_summary",
+      async ({ reportIds }) => {
+        reply.update(
+          <div>
+            <div>Generating report summary...</div>
+          </div>,
+        );
+
+        // const reports = await Promise.all(
+        //   reportIds.map((id) => getChatHistory(id)),
+        // );
+        // const summary = generateReportSummary(reports);
+
+        reply.done(<div>summary</div>);
+
+        aiState.done([
+          ...aiState.get(),
+          {
+            role: "function",
+            name: "generate_report_summary",
+            content: JSON.stringify("user got report summary"),
+          },
+        ]);
+      },
+    );
+  }
 
   return {
     messageID: Date.now(),
     display: reply.value,
   };
-} 
-
-export async function getAIStateAction(id: string): Promise<AIState[]> {
-  "use server";
-  return getAIState(id);
-
 }
+
+
 
 export async function handleSendMessage(message: string): Promise<Message> {
   "use server";
@@ -251,7 +264,10 @@ export async function handleSendMessage(message: string): Promise<Message> {
 
   return responseMessage;
 }
-
+export async function getAIStateAction(id: string): Promise<AIState[]> {
+  "use server";
+  return getAIState(id);
+}
 //Chat
 const defaultValue = [
   {
@@ -282,7 +298,6 @@ async function removeHistory(id: string) {
   "use server";
   const updatedHistory = Chathistory.filter((history) => history.id !== id);
   cookies().set("chatHistory", JSON.stringify(updatedHistory));
-  
 }
 
 async function updateHistoryLabel(
@@ -308,7 +323,6 @@ async function addMessages(id: string, message: MessageType) {
     return history;
   });
   cookies().set("chatHistory", JSON.stringify(updatedHistory));
-  
 }
 
 async function updateMessages(
@@ -325,7 +339,6 @@ async function updateMessages(
   cookies().set("chatHistory", JSON.stringify(updatedHistory));
 }
 
-
 export async function searchDocuments(query: string, filters: any) {
   try {
     const { date, country, title } = filters;
@@ -333,7 +346,7 @@ export async function searchDocuments(query: string, filters: any) {
       {
         multi_match: {
           query: query,
-          fields: ['title', 'content'],
+          fields: ["title", "content"],
         },
       },
     ];
@@ -342,7 +355,7 @@ export async function searchDocuments(query: string, filters: any) {
       must.push({
         multi_match: {
           query: date,
-          fields: ['date'],
+          fields: ["date"],
         },
       });
     }
@@ -351,7 +364,7 @@ export async function searchDocuments(query: string, filters: any) {
       must.push({
         multi_match: {
           query: country,
-          fields: ['country'],
+          fields: ["country"],
         },
       });
     }
@@ -360,15 +373,15 @@ export async function searchDocuments(query: string, filters: any) {
       must.push({
         multi_match: {
           query: title,
-          fields: ['title'],
+          fields: ["title"],
         },
       });
     }
 
     const response = await fetch(`${process.env.HOST_URL}/api/search`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         query: {
@@ -384,59 +397,76 @@ export async function searchDocuments(query: string, filters: any) {
       }),
     });
 
-    console.log('Response Status:', response.status);
-    console.log('Response Headers:', response.headers);
+    console.log("Response Status:", response.status);
+    console.log("Response Headers:", response.headers);
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Search request failed with status ${response.status}: ${errorText}`);
+      throw new Error(
+        `Search request failed with status ${response.status}: ${errorText}`,
+      );
     }
 
     const data = await response.json();
     return data.hits.hits.map((hit: any) => hit._source);
   } catch (error) {
-    console.error('Error searching documents:', error);
-    throw new Error('An error occurred while searching documents. Please try again later.');
+    console.error("Error searching documents:", error);
+    throw new Error(
+      "An error occurred while searching documents. Please try again later.",
+    );
   }
 }
-
-const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
-const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
-const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
 
 async function fetchChatHistory() {
   "use server";
 
   const response = await fetch(`${process.env.HOST_URL}/api/chathistory/r`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ elasticsearchUrl, elasticsearchUsername, elasticsearchPassword }),
+    body: JSON.stringify({
+      elasticsearchUrl,
+      elasticsearchUsername,
+      elasticsearchPassword,
+    }),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Fetch chat history failed with status ${response.status}: ${errorText}`);
+    throw new Error(
+      `Fetch chat history failed with status ${response.status}: ${errorText}`,
+    );
   }
   const chatHistory = await response.json();
   return chatHistory;
 }
 
-async function insertChatHistory(data: { user: string; message: string; timestamp: string }) {
+async function insertChatHistory(data: {
+  user: string;
+  message: string;
+  timestamp: string;
+}) {
   "use server";
 
   const response = await fetch(`${process.env.HOST_URL}/api/chathistory/c`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ ...data, elasticsearchUrl, elasticsearchUsername, elasticsearchPassword }),
+    body: JSON.stringify({
+      ...data,
+      elasticsearchUrl,
+      elasticsearchUsername,
+      elasticsearchPassword,
+    }),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Insert chat history failed with status ${response.status}: ${errorText}`);
+    throw new Error(
+      `Insert chat history failed with status ${response.status}: ${errorText}`,
+    );
   }
   const { id } = await response.json();
   return id;
@@ -446,16 +476,23 @@ async function deleteChatHistory(id: string) {
   "use server";
 
   const response = await fetch(`${process.env.HOST_URL}/api/chathistory/d`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ id, elasticsearchUrl, elasticsearchUsername, elasticsearchPassword }),
+    body: JSON.stringify({
+      id,
+      elasticsearchUrl,
+      elasticsearchUsername,
+      elasticsearchPassword,
+    }),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Delete chat history failed with status ${response.status}: ${errorText}`);
+    throw new Error(
+      `Delete chat history failed with status ${response.status}: ${errorText}`,
+    );
   }
 }
 

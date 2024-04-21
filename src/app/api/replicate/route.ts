@@ -1,19 +1,23 @@
-import MistralClient from '@mistralai/mistralai';
-import { MistralStream, StreamingTextResponse } from 'ai';
+import MistralClient from "@mistralai/mistralai";
+import { MistralStream, StreamingTextResponse } from "ai";
 
-export const runtime = 'edge';
+export const runtime = "edge";
 
 const apiKey = process.env.MISTRAL_API_KEY;
 
 // Assuming we have the following data
 const data = {
-  transactionId: ['T1001', 'T1002', 'T1003', 'T1004', 'T1005'],
-  customerId: ['C001', 'C002', 'C003', 'C002', 'C001'],
-  paymentAmount: [125.50, 89.99, 120.00, 54.30, 210.20],
+  transactionId: ["T1001", "T1002", "T1003", "T1004", "T1005"],
+  customerId: ["C001", "C002", "C003", "C002", "C001"],
+  paymentAmount: [125.5, 89.99, 120.0, 54.3, 210.2],
   paymentDate: [
-    '2021-10-05', '2021-10-06', '2021-10-07', '2021-10-05', '2021-10-08',
+    "2021-10-05",
+    "2021-10-06",
+    "2021-10-07",
+    "2021-10-05",
+    "2021-10-08",
   ],
-  paymentStatus: ['Paid', 'Unpaid', 'Paid', 'Paid', 'Pending'],
+  paymentStatus: ["Paid", "Unpaid", "Paid", "Paid", "Pending"],
 };
 
 /**
@@ -27,7 +31,7 @@ function retrievePaymentStatus({ data, transactionId }) {
   if (transactionIndex !== -1) {
     return JSON.stringify({ status: data.paymentStatus[transactionIndex] });
   } else {
-    return JSON.stringify({ status: 'error - transaction id not found.' });
+    return JSON.stringify({ status: "error - transaction id not found." });
   }
 }
 
@@ -42,7 +46,7 @@ function retrievePaymentDate({ data, transactionId }) {
   if (transactionIndex !== -1) {
     return JSON.stringify({ status: data.paymentDate[transactionIndex] });
   } else {
-    return JSON.stringify({ status: 'error - transaction id not found.' });
+    return JSON.stringify({ status: "error - transaction id not found." });
   }
 }
 
@@ -55,42 +59,42 @@ const namesToFunctions = {
 
 const tools = [
   {
-    type: 'function',
+    type: "function",
     function: {
-      name: 'retrievePaymentStatus',
-      description: 'Get payment status of a transaction id',
+      name: "retrievePaymentStatus",
+      description: "Get payment status of a transaction id",
       parameters: {
-        type: 'object',
-        required: ['transactionId'],
+        type: "object",
+        required: ["transactionId"],
         properties: {
-          transactionId: { type: 'string', description: 'The transaction id.' },
+          transactionId: { type: "string", description: "The transaction id." },
         },
       },
     },
   },
   {
-    type: 'function',
+    type: "function",
     function: {
-      name: 'retrievePaymentDate',
-      description: 'Get payment date of a transaction id',
+      name: "retrievePaymentDate",
+      description: "Get payment date of a transaction id",
       parameters: {
-        type: 'object',
-        required: ['transactionId'],
+        type: "object",
+        required: ["transactionId"],
         properties: {
-          transactionId: { type: 'string', description: 'The transaction id.' },
+          transactionId: { type: "string", description: "The transaction id." },
         },
       },
     },
   },
 ];
 
-const client = new MistralClient(apiKey, 'https://api-2.aurocloud.net');
+const client = new MistralClient(apiKey, "https://api-2.aurocloud.net");
 
 export async function POST(req: Request) {
   // Extract the `messages` from the body of the request
   const { messages } = await req.json();
 
-  const model = 'mistral-large';
+  const model = "mistral-large";
   let response = await client.chat({
     model: model,
     messages: messages,
