@@ -66,8 +66,8 @@ export default function TabSelector() {
         Object.entries(filterState).reduce((acc, [key, value]) => {
           acc.append(key, value);
           return acc;
-        }, new FormData())
-      )
+        }, new FormData()),
+      ),
     );
   };
 

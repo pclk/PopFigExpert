@@ -1,6 +1,6 @@
 // page.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { use, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,71 +20,58 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import TextareaAutosize from "react-textarea-autosize";
-import { useSelectedLayoutSegment } from "next/navigation";
 import ChatInput from "@/components/ChatInput";
-import { useUIState, useActions } from "ai/rsc";
-import { type AI } from "@/app/action";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { nanoid } from "ai";
-import { Chat } from "@/app/action";
+import {
+  useRouter,
+  useSearchParams,
+  useSelectedLayoutSegment,
+} from "next/navigation";
+import { useUIState, useActions } from "ai/rsc";
+import { AI, Chat } from "./action";
+import { useQueryState, parseAsStringEnum } from "nuqs";
+
+enum tabs {
+  chat = "chat",
+  search = "search",
+}
+
+enum models {
+  gpt35 = "gpt-3.5-turbo",
+  mixtral = "mixtral-8x7b-instruct-v0.1",
+}
 
 export default function Home() {
   const router = useRouter();
-  const [_, setChat] = useUIState<typeof AI>();
-  const [modelType, setModelType] = useState("gpt-3.5-turbo");
+
+  const searchParams = useSearchParams();
+  const [chat, setChat] = useUIState<typeof AI>();
   const { changeModel } = useActions();
-  const selectedTab = useSelectedLayoutSegment() || "chat";
+  // const selectedTab = useSelectedLayoutSegment() || "chat";
+  const [tab, setTab] = useQueryState(
+    "tab",
+    parseAsStringEnum<tabs>(Object.values(tabs)).withDefault(tabs.chat),
+  );
+  const [model, setModel] = useQueryState(
+    "model",
+    parseAsStringEnum<models>(Object.values(models)).withDefault(models.gpt35),
+  );
+  const [URL, setURL] = useQueryState("urlfilter");
+  const [date, setDate] = useQueryState("datefilter");
+  const [title, setTitle] = useQueryState("titlefilter");
+  const [country, setCountry] = useQueryState("countryfilter");
 
-  const [tabState, setTabState] = useState({
-    tab: selectedTab,
-    placeholder:
-      selectedTab === "chat" ? "Chat with Eve..." : "Enter a search term...",
+  const modelType = searchParams.get("model") || "gpt-3.5-turbo";
+  // const selectedTab = searchParams.get("tab") || "chat";
+
+  const tabState = {
+    tab: tab,
+    placeholder: tab === "chat" ? "Chat with Eve..." : "Enter a search term...",
     description:
-      selectedTab === "chat"
-        ? "Eve can make mistakes. Please check her responses."
-        : "Showing results x of xx...",
-  });
-
-  const [filterState, setFilterState] = useState({
-    content: "",
-    date: "",
-    title: "",
-    country: "",
-  });
-
-  useEffect(() => {
-    changeModel(modelType);
-  }, [modelType, changeModel]);
-
-  const handleModelChange = (model: string) => {
-    setModelType(model);
-  };
-
-  const handleTabChange = (tab: string) => {
-    const placeholder =
-      tab === "chat" ? "Chat with Eve..." : "Enter a search term...";
-    const description =
       tab === "chat"
         ? "Eve can make mistakes. Please check her responses."
-        : "Showing results x of xx...";
-    setTabState({ tab, placeholder, description });
-  };
-
-  const handleFilterChange = (formData: FormData) => {
-    const content = formData.get("content") as string;
-    const date = formData.get("date") as string;
-    const title = formData.get("title") as string;
-    const country = formData.get("country") as string;
-    setFilterState({ content, date, title, country });
-  };
-
-  const handleTabClick = (tab: string) => {
-    handleTabChange(tab);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFilterState((prevState) => ({ ...prevState, [name]: value }));
+        : "Showing results x of xx...",
   };
 
   const encodeFilterURI = (filterStateURI: typeof filterState) => {
@@ -92,7 +79,7 @@ export default function Home() {
       .filter(([_, value]) => value !== "")
       .map(
         ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
       )
       .join("&");
     return encodedFilters ? `?${encodedFilters}` : "";
@@ -113,19 +100,18 @@ export default function Home() {
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Your model of choice</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup
-              value={modelType}
-              onValueChange={handleModelChange}
-            >
+            <DropdownMenuRadioGroup value={modelType}>
               <DropdownMenuRadioItem
                 value="gpt-3.5-turbo"
                 className="hover:bg-secondary active:bg-primary active:text-white"
+                onClick={(e) => setModel(models.gpt35)}
               >
                 GPT 3.5 Turbo
               </DropdownMenuRadioItem>
               <DropdownMenuRadioItem
                 value="mistralai/mixtral-8x7b-instruct-v0.1"
                 className="text hover:bg-secondary active:bg-primary active:text-white"
+                onClick={(e) => setModel(models.mixtral)}
               >
                 Mixtral 7x8b
               </DropdownMenuRadioItem>
@@ -134,14 +120,14 @@ export default function Home() {
         </DropdownMenu>
       </div>
       <Tabs
-        defaultValue={selectedTab}
+        defaultValue={tab}
         className="flex h-full grow flex-col justify-center"
       >
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="chat" onClick={() => handleTabClick("chat")}>
+          <TabsTrigger value="chat" onClick={(e) => setTab(tabs.chat)}>
             Chat with Eve
           </TabsTrigger>
-          <TabsTrigger value="search" onClick={() => handleTabClick("search")}>
+          <TabsTrigger value="search" onClick={(e) => setTab(tabs.search)}>
             Manual Document Search
           </TabsTrigger>
         </TabsList>
@@ -207,31 +193,31 @@ export default function Home() {
             <CardContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <TextareaAutosize
                 className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
-                placeholder="Content"
-                name="content"
-                value={filterState.content}
-                onChange={handleInputChange}
+                placeholder="URL"
+                name="url"
+                value={URL || ""}
+                onChange={(e) => setURL(e.target.value)}
               />
               <TextareaAutosize
                 className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
                 placeholder="Date"
                 name="date"
-                value={filterState.date}
-                onChange={handleInputChange}
+                value={date || ""}
+                onChange={(e) => setDate(e.target.value)}
               />
               <TextareaAutosize
                 className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
                 placeholder="Title"
                 name="title"
-                value={filterState.title}
-                onChange={handleInputChange}
+                value={title || ""}
+                onChange={(e) => setTitle(e.target.value)}
               />
               <TextareaAutosize
                 className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
                 placeholder="Country"
                 name="country"
-                value={filterState.country}
-                onChange={handleInputChange}
+                value={country || ""}
+                onChange={(e) => setCountry(e.target.value)}
               />
             </CardContent>
           </Card>
@@ -256,8 +242,7 @@ export default function Home() {
                 ],
               },
             ]);
-
-            router.push(`/chat/${chatId}`);
+            router.push(`/chat/${chatId}?model=${model}`);
           } else if (tabState.tab === "search") {
             const filterURI = encodeFilterURI(filterState);
             router.push(`/document${filterURI}`);

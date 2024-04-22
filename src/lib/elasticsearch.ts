@@ -2,16 +2,16 @@
 // lib/elasticsearch.ts
 // import { Client } from '@elastic/elasticsearch';
 
-const createClient = async () =>{
-    const {Client} = require('@elastic/elasticsearch');
-    return new Client({
-  node: process.env.ELASTICSEARCH_URL ?? "",
-  auth: {
-    username: process.env.ELASTICSEARCH_USER ?? "elastic",
-    password: process.env.ELASTICSEARCH_PASSWORD ?? "",
-  },
-  tls: {
-    ca: `-----BEGIN CERTIFICATE-----
+const createClient = async () => {
+  const { Client } = require("@elastic/elasticsearch");
+  return new Client({
+    node: process.env.ELASTICSEARCH_URL ?? "",
+    auth: {
+      username: process.env.ELASTICSEARCH_USER ?? "elastic",
+      password: process.env.ELASTICSEARCH_PASSWORD ?? "",
+    },
+    tls: {
+      ca: `-----BEGIN CERTIFICATE-----
     MIIFWjCCA0KgAwIBAgIVAL2F/tJ0VqgZQRGPr91i38TLkVzbMA0GCSqGSIb3DQEB
     CwUAMDwxOjA4BgNVBAMTMUVsYXN0aWNzZWFyY2ggc2VjdXJpdHkgYXV0by1jb25m
     aWd1cmF0aW9uIEhUVFAgQ0EwHhcNMjQwMzE0MDYyNDQ0WhcNMjcwMzE0MDYyNDQ0
@@ -43,9 +43,9 @@ const createClient = async () =>{
     CsdL5hahi/FDSYrPHbcwfSg0wPAdqgLjTuOjfBya
     -----END CERTIFICATE-----
     `,
-    rejectUnauthorized: false,
-  },
-});
-}
+      rejectUnauthorized: false,
+    },
+  });
+};
 
 export default createClient;

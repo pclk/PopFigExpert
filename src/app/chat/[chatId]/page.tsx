@@ -1,5 +1,3 @@
-// pages/chat/[chatId]/page.tsx
-
 "use client";
 
 import { useParams } from "next/navigation";
@@ -16,7 +14,7 @@ export default function ChatPage() {
   const params = useParams()!;
   const chatId = params.chatId as string;
   const [chat, setChat] = useUIState<typeof AI>();
-  const { handleSendMessage } = useActions();
+  const { handleSendMessage, insertChatHistory } = useActions();
   const {modelType, setModelType} = useModelContext();
 
   useEffect(() => {
@@ -41,6 +39,17 @@ export default function ChatPage() {
               return chat;
             }),
           ]);
+          await insertChatHistory({
+            chatID: chatId,
+            messages: [
+              ...currentChat.messages,
+              {
+                messageID: responseMessage.messageID,
+                display: responseMessage.display,
+              },
+            ],
+            aiState: chat.find((chat: Chat) => chat.chatID === chatId)?.aiState || [],
+          });
         }
       }
     };
