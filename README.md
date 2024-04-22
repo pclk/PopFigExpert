@@ -12,15 +12,23 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
 - [x] Basic chatbot functionality with OpenAI API and Mixtral model support
 - [x] Set up Vercel AI SDK 
 - [x] UI for interacting with the chatbot
-- [ ] Navigation Bar
+- [ ] Navigation Bar with Chat history and Document search history
+  - [ ] Create tabs
+  - [ ] Populate and save fields to ES
+  - [ ] Bookmark fields
 - [x] Function calling capabilities with OpenAI
 - [ ] Function calling capabilities with Mixtral (dunno if still possible)
 https://www.reddit.com/r/LocalLLaMA/comments/17kdby3/dolphin_or_mistral_function_calling/
 - [ ] Function calling with Llama if not possible with Mixtral.
 - [ ] UI for interacting with Elasticsearch
   - [ ] Search Input, Sorting and Filters
-  - [ ] Infinite scrolling
+  - [ ] Implement date handling functionality for date debuging
+  - [ ] Search for documents on key press
+  - [ ] Include reset button to clear all filters and search results
+  - [ ] Display errors.
+  - [ ] Load 10 documents, load 10 next when scroll
   - [ ] Right sidebar for more info
+
 - [ ] Integrate model's Function calling with Elasticsearch:
   - [ ] Implement chatbot's ability to generate Elasticsearch queries based on user input
   - [ ] Process and present Elasticsearch results to the user within the chat interface
@@ -45,21 +53,10 @@ Extras:
 
 The application follows a client-server architecture, with the frontend built using Next.js and React, and the backend powered by Next.js API routes. The key components of the architecture include:
 
-- [Next.js](https://nextjs.org/)
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [OpenAI](https://www.openai.com/)
-- [Anthropic](https://www.anthropic.com/)
-- [Mixtral](https://mistral.ai/)
-- [Elasticsearch](https://www.elastic.co/elasticsearch/)
-- [Zod](https://github.com/colinhacks/zod)
-- **Next.js**: A React framework that enables server-side rendering, routing, and API route handling.
-- **React**: A JavaScript library for building user interfaces.
-- **Tailwind CSS**: A utility-first CSS framework for rapidly building custom user interfaces.
-- **OpenAI GPT-3.5 Turbo**: An AI model from OpenAI used for generating chatbot responses and summaries.
-- **Anthropic Mixtral 7x8b**: An alternative AI model from Anthropic, providing a different perspective for chatbot interactions.
-- **Elasticsearch**: A distributed search and analytics engine used for storing and querying the document database.
-- **Zod**: A TypeScript-first schema validation library used for validating user input and API responses.
+| **[Next.js](https://nextjs.org/)** | **[React](https://reactjs.org/)** | **[Tailwind CSS](https://tailwindcss.com/)** | **[OpenAI](https://www.openai.com/)** | **[Anthropic](https://www.anthropic.com/)** | **[Mixtral](https://mistral.ai/)** | **[Elasticsearch](https://www.elastic.co/elasticsearch/)** | **[Zod](https://github.com/colinhacks/zod)** |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Next.js: A React framework that enables server-side rendering, routing, and API route handling. | React: A JavaScript library for building user interfaces. | Tailwind CSS: A utility-first CSS framework for rapidly building custom user interfaces. | OpenAI GPT-3.5 Turbo: An AI model from OpenAI used for generating chatbot responses and summaries. | Anthropic Mixtral 7x8b: An alternative AI model from Anthropic, providing a different perspective for chatbot interactions. | Elasticsearch: A distributed search and analytics engine used for storing and querying the document database. | Zod: A TypeScript-first schema validation library used for validating user input and API responses. | |
+
 
 ## Folder Structure
 

@@ -6,12 +6,14 @@ import TextareaAutosize from "react-textarea-autosize";
 interface ChatInputProps {
   placeholder?: string;
   description?: string;
+  clearInput?: boolean;
   submitMessage: (message: string) => void;
 }
 
 export default function ChatInput({
   placeholder,
   description,
+  clearInput=true,
   submitMessage,
 }: ChatInputProps) {
   const [userInput, setUserInput] = useState("");
@@ -30,7 +32,9 @@ export default function ChatInput({
   const handleSendMessage = () => {
     if (userInput.trim() !== "") {
       submitMessage(userInput);
-      setUserInput("");
+      if (clearInput) {
+        setUserInput("");
+      }
     }
   };
 

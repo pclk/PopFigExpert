@@ -36,7 +36,7 @@ export default function NavigationBar({
       />
 
       <nav
-        className={`fixed left-0 top-0 z-20 box-border h-full w-72 transform bg-secondary p-4 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+        className={`fixed left-0 top-0 flex-shrink-0 z-20 box-border h-full w-72 transform bg-secondary p-4 transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
           isNavBarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

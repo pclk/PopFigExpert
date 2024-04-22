@@ -5,11 +5,26 @@ import { useSearchParams } from "next/navigation";
 
 import ChatInput from "@/components/ChatInput";
 import { useActions } from "ai/rsc";
+import TextareaAutosize from "react-textarea-autosize";
+import Highlighter from "react-highlight-words";
+import { type FindChunks, Chunk } from 'react-highlight-words';
+import { DatePickerWithRange } from "@/components/DateRangePicker";
+import { format } from "date-fns";
 
-interface GroupedDocuments {
+
+
+interface SearchResult {
+  date: string;
+  title: string;
+  url: string;
+  country: string;
+  content: string;
+}
+
+interface GroupedDocument {
+  title: string;
   date: string;
   country: string;
-  title: string;
   url: string;
   multiple_chunks: string[];
 }
@@ -17,9 +32,9 @@ interface GroupedDocuments {
 export default function DocumentSearch() {
   const searchParams = useSearchParams()!;
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<GroupedDocuments[]>([]);
-  const [placeholder, _] = useState("Enter a search term...");
+  const [results, setResults] = useState<GroupedDocument[]>([]);
   const [description, setDescription] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     content: "",
     date: "",
@@ -37,14 +52,25 @@ export default function DocumentSearch() {
   }, [searchParams]);
 
   const handleSearch = (searchTerm: string, filters: any) => {
-    console.log("called searchDocuments", searchTerm, filters)
-    searchDocuments(searchTerm, filters)
-      .then((results) => {
-        const groupedDocuments = groupDocumentsByUrl(results);
-        setResults(groupedDocuments);
-        setDescription(`Showing ${groupedDocuments.length} document(s)`);
+    const { dateRange, ...otherFilters } = filters;
+    const searchFilters = {
+      ...otherFilters,
+      dateFrom: dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined,
+      dateTo: dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined,
+    };
+  
+    searchDocuments(searchTerm, searchFilters)
+      .then((results: SearchResult[]) => {
+        const groupedDocuments: GroupedDocument[] = groupDocumentsByUrl(results);
+        if (groupedDocuments.length === 0) {
+          setResults(groupedDocuments);
+          setDescription("No documents found.");
+        } else {
+          setResults(groupedDocuments);
+          setDescription(`Showing ${groupedDocuments.length} document(s)`);
+        }
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         console.error("Error searching documents:", error);
         // Handle the error state if needed
       });
@@ -55,9 +81,9 @@ export default function DocumentSearch() {
     handleSearch(userInput, filters);
   };
 
-  const groupDocumentsByUrl = (results: any[]): GroupedDocuments[] => {
-    const groupedDocuments: GroupedDocuments[] = [];
-    const urlMap: { [url: string]: GroupedDocuments } = {};
+  const groupDocumentsByUrl = (results: any[]): GroupedDocument[] => {
+    const groupedDocuments: GroupedDocument[] = [];
+    const urlMap: { [url: string]: GroupedDocument } = {};
 
     results.forEach((doc) => {
       const { date, title, url, country, content } = doc;
@@ -81,38 +107,88 @@ export default function DocumentSearch() {
     return groupedDocuments;
   };
 
+  const findWholeWordMatches = (options: FindChunks): Chunk[] => {
+    const { autoEscape, caseSensitive, sanitize, searchWords, textToHighlight } = options;
+    const chunks: Chunk[] = [];
+    const words = textToHighlight.split(/[\s"']+/);
+  
+    words.forEach((word: string, index: number) => {
+      const startIndex = textToHighlight.indexOf(
+        word,
+        index === 0 ? 0 : chunks[chunks.length - 1]?.end || 0
+      );
+      const endIndex = startIndex + word.length;
+  
+      const matches = searchWords.some((searchWord) => {
+        if (searchWord instanceof RegExp) {
+          return searchWord.test(word);
+        } else {
+          return caseSensitive
+            ? searchWord === word
+            : searchWord.toLowerCase() === word.toLowerCase();
+        }
+      });
+  
+      if (matches) {
+        chunks.push({ start: startIndex, end: endIndex });
+      }
+    });
+  
+    return chunks;
+  };
   return (
-    <div>
-      <div className="mb-4">
-        <div className="mb-2 text-xl font-bold">
-          Let's look through some documents ourselves
-        </div>
-        <div className="mb-4 text-sm text-gray-500">
-          These are the fields available to search by:
-        </div>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <textarea
-            className="w-full resize-none overflow-hidden rounded-sm border border-primary p-2 text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
-            placeholder="Content"
-            value={filters.content}
-            onChange={(e) =>
-              setFilters({ ...filters, content: e.target.value })
-            }
+    <div className="flex flex-col h-full">
+      <div className="flex-grow overflow-y-auto">
+        {results.map((doc, index) => (
+          <div key={index} className="mb-4 rounded-md bg-white p-4 shadow-md">
+            <div>
+          <Highlighter
+          searchWords={query.split(' ')}
+          textToHighlight={doc.title}
+          autoEscape={true}
+          className="text-lg font-bold"
+          highlightClassName="bg-darkprim text-white"
+          findChunks={findWholeWordMatches}
           />
-          <textarea
-            className="w-full resize-none overflow-hidden rounded-sm border border-primary p-2 text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
-            placeholder="Date"
-            value={filters.date}
-            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-          />
-          <textarea
-            className="w-full resize-none overflow-hidden rounded-sm border border-primary p-2 text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+          </div>
+          <p className="m-0 text-md ">Date: {`${doc.date}`}</p>
+          <p className="m-0 text-md ">Country: {doc.country}</p>
+          {doc.multiple_chunks.map((chunk, chunkIndex) => (
+  <pre key={chunkIndex} className="m-0 text-sm font-inter whitespace-pre-wrap overflow-hidden text-ellipsis">
+    <Highlighter
+      searchWords={query.split(' ')}
+      textToHighlight={chunk.slice(0, 200)}
+      autoEscape={true}
+      highlightClassName="bg-darkprim text-white"
+      findChunks={findWholeWordMatches}
+    />    {chunk.length > 500 && "..."}
+  </pre>
+))}
+          <a href={`${doc.url}`} target="_blank" rel="noopener noreferrer" className="text-sm">
+            🔗 {`${doc.url}`}
+          </a>
+        </div>))}
+        <div className="sticky bottom-0 left-0 w-full bg-white">
+        <div className="mb-2">
+          <button
+            className="text-sm border-0 bg-secondary text-darkprim p-2 rounded-sm transition-all duration-75 hover:bg-primary  active:text-white"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            {showFilters ? "Hide Filters" : "Show Filters"}
+          </button>
+        </div>
+        {showFilters && (
+          <div className="mb-4">
+            <div className="grid grid-rows-1 gap-4 lg:grid-cols-3">
+          <DatePickerWithRange className="font-inter rounded-sm border border-primary text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary" onDateRangeChange={(e) => setFilters({ ...filters, content: e.target.value })}/>
+          <TextareaAutosize
+            className="font-inter resize-none overflow-hidden rounded-sm border border-primary p-2 text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
             placeholder="Title"
             value={filters.title}
             onChange={(e) => setFilters({ ...filters, title: e.target.value })}
           />
-          <textarea
-            className="w-full resize-none overflow-hidden rounded-sm border border-primary p-2 text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+          <TextareaAutosize
+            className="font-inter resize-none overflow-hidden rounded-sm border border-primary p-2 text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
             placeholder="Country"
             value={filters.country}
             onChange={(e) =>
@@ -120,27 +196,16 @@ export default function DocumentSearch() {
             }
           />
         </div>
-      </div>
+            </div>
+        )}
       <ChatInput
         submitMessage={handleSendMessage}
-        placeholder={placeholder}
+        placeholder={"Enter your content..."}
         description={description}
+        clearInput={false}
       />
-      {results.map((doc, index) => (
-        <div key={index} className="mb-4 rounded-md bg-white p-4 shadow-md">
-          <h3 className="mb-2 text-lg font-bold">{doc.title}</h3>
-          <p className="text-md mb-1">Date: {`${doc.date}`}</p>
-          <p className="text-md mb-2">Country: {doc.country}</p>
-          {doc.multiple_chunks.map((chunk, chunkIndex) => (
-            <pre key={chunkIndex} className="text-sm">
-              {chunk}
-            </pre>
-          ))}
-          <a href={`${doc.url}`} target="_blank" rel="noopener noreferrer">
-            🔗
-          </a>
-        </div>
-      ))}
     </div>
-  );
+    </div>
+    </div>
+  )
 }
