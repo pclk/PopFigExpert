@@ -4,7 +4,7 @@ import { IconMenu2 } from "@tabler/icons-react";
 import React from "react";
 import NavigationBar from "../components/NavigationBar";
 import "@/app/globals.css";
-import { AI } from "./action";
+import { AI } from "./ai_sdk_action";
 import { ModelProvider } from "@/context/ModelContext";
 import { headers } from "next/headers";
 import type { Metadata } from "next";

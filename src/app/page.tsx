@@ -29,7 +29,7 @@ import {
   useSelectedLayoutSegment,
 } from "next/navigation";
 import { useUIState, useActions } from "ai/rsc";
-import { AI, Chat } from "./action";
+import { AI, Chat } from "./ai_sdk_action";
 import { useQueryState, parseAsStringEnum } from "nuqs";
 
 enum tabs {
