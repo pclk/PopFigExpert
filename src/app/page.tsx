@@ -87,38 +87,6 @@ export default function Home() {
 
   return (
     <>
-      <div className="sticky left-0 top-0">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="border-none font-inter text-darkprim hover:bg-secondary active:bg-primary active:text-white"
-            >
-              {modelType}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Your model of choice</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={modelType}>
-              <DropdownMenuRadioItem
-                value="gpt-3.5-turbo"
-                className="hover:bg-secondary active:bg-primary active:text-white"
-                onClick={(e) => setModel(models.gpt35)}
-              >
-                GPT 3.5 Turbo
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem
-                value="mistralai/mixtral-8x7b-instruct-v0.1"
-                className="text hover:bg-secondary active:bg-primary active:text-white"
-                onClick={(e) => setModel(models.mixtral)}
-              >
-                Mixtral 7x8b
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
       <Tabs
         defaultValue={tab}
         className="flex h-full grow flex-col justify-center"
@@ -242,7 +210,7 @@ export default function Home() {
                 ],
               },
             ]);
-            router.push(`/chat/${chatId}?model=${model}`);
+            router.push(`/chat/${chatId}`);
           } else if (tabState.tab === "search") {
             const filterURI = encodeFilterURI(filterState);
             router.push(`/document${filterURI}`);

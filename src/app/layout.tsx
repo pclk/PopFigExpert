@@ -39,7 +39,7 @@ export default function RootLayout({
                 isDocumentPage={isDocumentPage}
                 chatHistory={chatHistory}
               />
-              <main className="relative grow overflow-y-hidden p-4">
+              <main className="relative grow overflow-y-auto p-4">
                 {children}
               </main>
             </ModelProvider>

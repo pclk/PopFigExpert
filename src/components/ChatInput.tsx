@@ -13,7 +13,7 @@ interface ChatInputProps {
 export default function ChatInput({
   placeholder,
   description,
-  clearInput=true,
+  clearInput = true,
   submitMessage,
 }: ChatInputProps) {
   const [userInput, setUserInput] = useState("");

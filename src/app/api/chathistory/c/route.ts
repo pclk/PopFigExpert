@@ -17,14 +17,17 @@ export async function POST(request: Request) {
       aiState,
     };
 
-    const response = await fetch(`${elasticsearchUrl}/chat-history/_doc/${chatID}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
+    const response = await fetch(
+      `${elasticsearchUrl}/chat-history/_doc/${chatID}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${btoa(`${elasticsearchUsername}:${elasticsearchPassword}`)}`,
+        },
+        body: JSON.stringify(chatHistoryDocument),
       },
-      body: JSON.stringify(chatHistoryDocument),
-    });
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -35,7 +38,10 @@ export async function POST(request: Request) {
 
     const data = await response.json();
 
-    console.log("Chat history inserted successfully:", { id: data._id, ...chatHistoryDocument });
+    console.log("Chat history inserted successfully:", {
+      id: data._id,
+      ...chatHistoryDocument,
+    });
 
     return NextResponse.json({ id: data._id });
   } catch (error) {
