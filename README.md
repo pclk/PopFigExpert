@@ -53,9 +53,9 @@ Extras:
 
 The application follows a client-server architecture, with the frontend built using Next.js and React, and the backend powered by Next.js API routes. The key components of the architecture include:
 
-| **[Next.js](https://nextjs.org/)** | **[React](https://reactjs.org/)** | **[Tailwind CSS](https://tailwindcss.com/)** | **[OpenAI](https://www.openai.com/)** | **[Anthropic](https://www.anthropic.com/)** | **[Mixtral](https://mistral.ai/)** | **[Elasticsearch](https://www.elastic.co/elasticsearch/)** | **[Zod](https://github.com/colinhacks/zod)** |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Next.js: A React framework that enables server-side rendering, routing, and API route handling. | React: A JavaScript library for building user interfaces. | Tailwind CSS: A utility-first CSS framework for rapidly building custom user interfaces. | OpenAI GPT-3.5 Turbo: An AI model from OpenAI used for generating chatbot responses and summaries. | Anthropic Mixtral 7x8b: An alternative AI model from Anthropic, providing a different perspective for chatbot interactions. | Elasticsearch: A distributed search and analytics engine used for storing and querying the document database. | Zod: A TypeScript-first schema validation library used for validating user input and API responses. | |
+| **[Next.js](https://nextjs.org/)** | **[React](https://reactjs.org/)** | **[Tailwind CSS](https://tailwindcss.com/)** | **[OpenAI](https://www.openai.com/)** | **[Mixtral](https://mistral.ai/)** | **[Elasticsearch](https://www.elastic.co/elasticsearch/)** | **[Zod](https://github.com/colinhacks/zod)** |
+| --- | --- | --- | --- | --- | --- | --- |
+| Next.js: A React framework that enables server-side rendering, routing, and API route handling. | React: A JavaScript library for building user interfaces. | Tailwind CSS: A utility-first CSS framework for rapidly building custom user interfaces. | OpenAI GPT-3.5 Turbo: An AI model from OpenAI used for generating chatbot responses and summaries. | Mixtral 7x8b: An open source Mixture of Experts model, suitable to run on premises, providing privacy who appreciate it, like CSIT. | Elasticsearch: A distributed search and analytics engine used for storing and querying the document database. | Zod: A TypeScript-first schema validation library used for validating user input and API responses. | |
 
 
 ## Folder Structure
