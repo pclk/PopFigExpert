@@ -20,12 +20,7 @@ interface ReportSummaryProps {
   articles: Article[];
 }
 
-const suggestions = {
-  "Explain Article 1": "Could you explain the first article?",
-  "Explain Article 2": "Could you explain the second article?",
-  "Explain Article 3": "Could you explain the third article?",
-  "Explain Article 4": "Could you explain the fourth article?",
-}
+
 
 const ReportSummary: React.FC<ReportSummaryProps> = ({ articles }) => {
   const [skinnedArticles, setSkinnedArticles] = useState<number[]>([]);
@@ -38,6 +33,12 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles }) => {
     }
   };
 
+    // Generate suggestions based on article titles
+    const suggestions = articles.reduce((acc, article, index) => {
+      acc[`Explain article ${index+1}`] = `Could you explain the article titled "${article.title}"?`;
+      return acc;
+    }, {} as { [key: string]: string });
+
   return (
     <>
     <Card className="shadow-lg bg-secondary text-darkprim">
@@ -47,11 +48,11 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles }) => {
           I found {articles.length} articles for you:
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex rounded-md">
+      <CardContent className="flex rounded-md overflow-y-auto">
         {articles.map((article, index) => (
           <div
             key={index}
-            className={`cursor-pointer h-96 overflow-y-clip hover:text-accent basis-1/4 mr-2 rounded-lg transition-all ease-in-out duration-500 ${
+            className={`cursor-pointer h-96 hover:text-primary basis-1/4 mr-2 rounded-lg transition-all ease-in-out duration-500 ${
               skinnedArticles.includes(index) ? "basis-2/3 h-auto" : ""
             }`}
             onClick={() => toggleArticle(index)}

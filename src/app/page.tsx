@@ -21,15 +21,9 @@ import {
 } from "@/components/ui/card";
 import TextareaAutosize from "react-textarea-autosize";
 import ChatInput from "@/components/ChatInput";
-import Link from "next/link";
-import { nanoid } from "ai";
 import {
   useRouter,
-  useSearchParams,
-  useSelectedLayoutSegment,
 } from "next/navigation";
-import { useUIState, useActions } from "ai/rsc";
-import { AI, Chat } from "./ai_sdk_action";
 import { useQueryState, parseAsStringEnum } from "nuqs";
 
 enum tabs {
@@ -37,33 +31,23 @@ enum tabs {
   search = "search",
 }
 
-enum models {
-  gpt35 = "gpt-3.5-turbo",
-  mixtral = "mixtral-8x7b-instruct-v0.1",
-}
+const examplePrompts = {
+  "Report summary of Singapore AI": "Could you generate a report summary on Singapore AI?",
+  "Report summary of Australia's Prime Minister": "Could you generate a report summary on Australia's Prime Minister?",
+  "Report summary of China's economy": "Could you generate a report summary on China's economy?",
+  "Report summary of the Covid-19 in US": "Could you generate a report summary on the Covid-19 in the United States?",
+} 
 
 export default function Home() {
   const router = useRouter();
-
-  const searchParams = useSearchParams();
-  const [chat, setChat] = useUIState<typeof AI>();
-  const { changeModel } = useActions();
-  // const selectedTab = useSelectedLayoutSegment() || "chat";
   const [tab, setTab] = useQueryState(
     "tab",
     parseAsStringEnum<tabs>(Object.values(tabs)).withDefault(tabs.chat),
-  );
-  const [model, setModel] = useQueryState(
-    "model",
-    parseAsStringEnum<models>(Object.values(models)).withDefault(models.gpt35),
   );
   const [URL, setURL] = useQueryState("urlfilter");
   const [date, setDate] = useQueryState("datefilter");
   const [title, setTitle] = useQueryState("titlefilter");
   const [country, setCountry] = useQueryState("countryfilter");
-
-  const modelType = searchParams.get("model") || "gpt-3.5-turbo";
-  // const selectedTab = searchParams.get("tab") || "chat";
 
   const tabState = {
     tab: tab,
@@ -87,21 +71,24 @@ export default function Home() {
 
   return (
     <>
+    <div className="flex flex-col h-[calc(100%-20px-1.25rem-20px-2px)] justify-center grow">
+      {/* 100% - text-description -(text-description marginbottom-1, textarea-padding-4) - textarea - textarea border */}
+    <Card className="p-10 drop-shadow-xl">
       <Tabs
         defaultValue={tab}
-        className="flex h-full grow flex-col justify-center"
+        className=""
       >
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="chat" onClick={(e) => setTab(tabs.chat)}>
+        <TabsList className="grid w-full grid-cols-2 drop-shadow-xl">
+          <TabsTrigger className="py-2 border-hidden bg-white hover:bg-secondary" value="chat" onClick={() => setTab(tabs.chat)}>
             Chat with Eve
           </TabsTrigger>
-          <TabsTrigger value="search" onClick={(e) => setTab(tabs.search)}>
+          <TabsTrigger className="py-2 border-hidden bg-white hover:bg-secondary" value="search" onClick={() => setTab(tabs.search)}>
             Manual Document Search
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="chat">
-          <Card className="shadow-none">
+          <Card className="shadow-none  h-92">
             <CardHeader>
               <div className="flex items-center justify-center">
                 <img
@@ -122,36 +109,25 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <Button
-                className="hover:bg-secondary active:bg-primary active:text-white"
-                variant="ghost"
-              >
-                I want a report summary of [xxx]
-              </Button>
-              <Button
-                className="hover:bg-secondary active:bg-primary active:text-white"
-                variant="ghost"
-              >
-                I want a report summary of [xxx]
-              </Button>
-              <Button
-                className="hover:bg-secondary active:bg-primary active:text-white"
-                variant="ghost"
-              >
-                I want a report summary of [xxx]
-              </Button>
-              <Button
-                className="hover:bg-secondary active:bg-primary active:text-white"
-                variant="ghost"
-              >
-                I want a report summary of [xxx]
-              </Button>
+              {Object.entries(examplePrompts).map(([key, prompt]) => (
+                <Button
+                  key={key}
+                  className="hover:bg-secondary active:bg-primary active:text-white"
+                  variant="ghost"
+                  onClick={() => {
+                    const chatId = Date.now();
+                    router.push(`/chat/${chatId}?startingMessage=${encodeURIComponent(prompt)}`);
+                  }}
+                >
+                  {key}
+                </Button>
+              ))}
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="search">
-          <Card>
+          <Card className="shadow-none h-92">
             <CardHeader>
               <CardTitle>Let's look through some documents ourselves</CardTitle>
               <CardDescription>
@@ -191,26 +167,15 @@ export default function Home() {
           </Card>
         </TabsContent>
       </Tabs>
+      </Card>
+      </div>
       <ChatInput
         placeholder={tabState.placeholder}
         description={tabState.description}
         submitMessage={async (message) => {
           if (tabState.tab === "chat") {
-            const chatId = nanoid(); // Generate a unique chatId
-
-            setChat((currentChat: Chat[]) => [
-              ...currentChat,
-              {
-                chatID: chatId,
-                messages: [
-                  {
-                    messageID: Date.now(),
-                    display: <div>{message}</div>,
-                  },
-                ],
-              },
-            ]);
-            router.push(`/chat/${chatId}`);
+            const chatId = Date.now();
+            router.push(`/chat/${chatId}?startingMessage=${encodeURIComponent(message)}`);
           } else if (tabState.tab === "search") {
             const filterURI = encodeFilterURI(filterState);
             router.push(`/document${filterURI}`);

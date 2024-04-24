@@ -17,9 +17,7 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
   - [ ] Populate and save fields to ES
   - [ ] Bookmark fields
 - [x] Function calling capabilities with OpenAI
-- [ ] Function calling capabilities with Mixtral (dunno if still possible)
-https://www.reddit.com/r/LocalLLaMA/comments/17kdby3/dolphin_or_mistral_function_calling/
-- [ ] Function calling with Llama if not possible with Mixtral.
+- [x] Function calling capabilities with Mixtral
 - [ ] UI for interacting with Elasticsearch
   - [ ] Search Input, Sorting and Filters
   - [ ] Implement date handling functionality for date debuging
@@ -28,12 +26,13 @@ https://www.reddit.com/r/LocalLLaMA/comments/17kdby3/dolphin_or_mistral_function
   - [ ] Display errors.
   - [ ] Load 10 documents, load 10 next when scroll
   - [ ] Right sidebar for more info
-
-- [ ] Integrate model's Function calling with Elasticsearch:
-  - [ ] Implement chatbot's ability to generate Elasticsearch queries based on user input
-  - [ ] Process and present Elasticsearch results to the user within the chat interface
+- [x] Integrate model's Function calling with Elasticsearch:
+  - [x] Implement chatbot's ability to generate Elasticsearch queries based on user input
+  - [x] Process and present Elasticsearch results to the user within the chat interface
   - [ ] UI for displaying and sending inputs within the genUI. 
 - [ ] Deploy on Vercel
+
+Generate news article component scroll behaviour
 
 Extras:
 - [ ] Integrate Clerk for user authentication and authorization

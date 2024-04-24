@@ -7,16 +7,17 @@ export const metadata = {
 };
 
 export interface ChatPageProps {
-  params: {
-    chatId: string;
-  };
+  searchParams: { startingMessage: string | undefined,
+    chatId: string | undefined,
+   };
 }
 
-export default async function IndexPage({ params }: ChatPageProps) {
-  const id = params.chatId as string;
+export default async function IndexPage({searchParams }: ChatPageProps) {
+  const id = searchParams.chatId as string
+  const startingMessageString = searchParams.startingMessage as string
 
   return (
-    <AI initialAIState={{ chatID: id, interactions: [], messages: [] }}>
+    <AI initialAIState={{ chatID: id, interactions: [], messages: [{role: 'user', content: startingMessageString, id: nanoid()}] }}>
       <Chat id={id} />
     </AI>
   );
