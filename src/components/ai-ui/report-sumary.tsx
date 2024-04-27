@@ -18,11 +18,12 @@ interface Article {
 
 interface ReportSummaryProps {
   articles: Article[];
+  query: string;
 }
 
 
 
-const ReportSummary: React.FC<ReportSummaryProps> = ({ articles }) => {
+const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, query }) => {
   const [skinnedArticles, setSkinnedArticles] = useState<number[]>([]);
 
   const toggleArticle = (index: number) => {
@@ -35,17 +36,17 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles }) => {
 
     // Generate suggestions based on article titles
     const suggestions = articles.reduce((acc, article, index) => {
-      acc[`Explain article ${index+1}`] = `Could you explain the article titled "${article.title}"?`;
+      acc[`Summarize article ${index+1}`] = `Could you summarize the article titled "${article.title}", in your own words, without using the generate news articles function??`;
       return acc;
     }, {} as { [key: string]: string });
 
   return (
-    <>
+    <div className="space-y-4">
     <Card className="shadow-lg bg-secondary text-darkprim">
       <CardHeader className="">
         <CardTitle className="my-0">Great news!</CardTitle>
         <CardDescription>
-          I found {articles.length} articles for you:
+          I found the top {articles.length} relevant articles for you, based on the query: "{query}".
         </CardDescription>
       </CardHeader>
       <CardContent className="flex rounded-md overflow-y-auto">
@@ -72,7 +73,7 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles }) => {
       </CardContent>
     </Card>
     <Suggestions suggestions={suggestions} />
-    </>
+    </div>
   );
 };
 

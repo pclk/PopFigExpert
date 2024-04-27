@@ -3,6 +3,7 @@ import { useActions, useUIState } from "ai/rsc";
 import type { AI } from "@/app/ai_sdk_action";
 import { nanoid } from "ai";
 import TextareaAutosize from "react-textarea-autosize";
+import {UserMessage} from "@/components/ai-ui/message";
 
 export interface ChatInputProps {
   id?: string;
@@ -39,7 +40,7 @@ export function ChatInput2({ id, title, input, setInput }: ChatInputProps) {
                 ...currentMessages,
                 {
                   id: nanoid(),
-                  display: <div>{value}</div>,
+                  display: (<UserMessage>{value}</UserMessage>)
                 },
               ]);
 
@@ -63,7 +64,27 @@ export function ChatInput2({ id, title, input, setInput }: ChatInputProps) {
           type="button"
           className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-secondary active:bg-primary"
           onClick={async (e) => {
-            handleSendMessage();
+            const value = input.trim();
+            setInput("");
+            if (!value) return;
+
+            setMessages((currentMessages) => [
+              ...currentMessages,
+              {
+                id: nanoid(),
+                display: <div>{value}</div>,
+              },
+            ]);
+
+            try {
+              const response = await submitUserMessage(value, "mixtral");
+              setMessages((currentMessages) => [
+                ...currentMessages,
+                response,
+              ]);
+            } catch (e) {
+              console.error(e);
+            }
           }}
         >
           <div className="text-white group-hover:text-darkprim">Send</div>

@@ -1,4 +1,7 @@
 import ReportSummary from "@/components/ai-ui/report-sumary";
+import {UserMessage} from "@/components/ai-ui/message";
+import { BotMessage } from "@/components/ai-ui/message";
+
 
 export default function IndexPage() {
   const example = [
@@ -30,5 +33,11 @@ export default function IndexPage() {
     },
   ];
 
-  return <ReportSummary articles={example} />;
+  return (
+    <div className="flex flex-col h-[calc(100%-20px-1.25rem-20px-2px)] grow space-y-6">
+    <UserMessage>"Hello can i get ai summary"</UserMessage>
+   <ReportSummary articles={example} query="AI summary" />
+   <BotMessage content="Hello i am AI, and i have `markdown` lol" />
+   </div>
+  )
 }

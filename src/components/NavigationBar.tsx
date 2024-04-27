@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { HistoryType } from "../lib/validators/HistoryType";
 import { useActions } from "ai/rsc";
 import { useState } from "react";
+import Image from 'next/image'
 
 interface NavigationBarProps {
   isDocumentPage: boolean;
@@ -53,12 +54,13 @@ export default function NavigationBar({
             <>
               <div className="flex justify-between rounded-sm">
                 <button
-                  className="group w-full rounded-md border-0 bg-secondary p-2 text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
+                  className="group w-full rounded-md border-0 bg-secondary text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
                   onClick={handleNewChat}
                 >
                   <div className="flex items-center group-active:text-white">
-                    <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" />
-                    New Chat
+                    <Image src="/ProcoLink.png" alt="Chatbot" width={40} height={40} className="mr-4"/>
+                    {/* <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" /> */}
+                    <div className="font-inter font-semibold text-lg">New Chat</div>
                   </div>
                 </button>
               </div>

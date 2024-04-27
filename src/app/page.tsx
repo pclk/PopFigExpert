@@ -25,6 +25,7 @@ import {
   useRouter,
 } from "next/navigation";
 import { useQueryState, parseAsStringEnum } from "nuqs";
+import Image from "next/image";
 
 enum tabs {
   chat = "chat",
@@ -90,11 +91,12 @@ export default function Home() {
         <TabsContent value="chat">
           <Card className="shadow-none  h-92">
             <CardHeader>
-              <div className="flex items-center justify-center">
-                <img
-                  src="/chatbot.png"
+              <div className="flex items-center justify-center space-x-2">
+                <Image
+                  src="/chatbot.jpg"
                   alt="Chatbot Avatar"
-                  className="mr-2 size-16 rounded-full align-middle"
+                  width={50}
+                  height={50}
                 />
                 <CardTitle>
                   Hey there! I'm{" "}

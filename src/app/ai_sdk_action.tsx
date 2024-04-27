@@ -9,12 +9,9 @@ import {
 } from "ai/rsc";
 import OpenAI from "openai";
 
-import { BotCard, BotMessage, SpinnerMessage, UserMessage } from "@/components/ai-ui/message";
-import { HistoryType } from "@/lib/validators/HistoryType";
-import { experimental_generateText, experimental_streamText, nanoid } from "ai";
-import { MessageType } from "../lib/validators/MessageType";
-import { cookies } from "next/headers";
-import { runOpenAICompletion } from "@/lib/utils";
+import { BotMessage, SpinnerMessage } from "@/components/ai-ui/message";
+import { experimental_streamText, nanoid } from "ai";
+
 import { z } from "zod";
 import { Mistral } from "@ai-sdk/mistral";
 import { searchDocuments } from "./elastic_action";
@@ -119,17 +116,15 @@ async function submitUserMessage(
             const { query } = args;
 
             uiStream.update(
-              <BotCard>
-                <p>{`Searching for news articles about ${query}...`}</p>
-              </BotCard>
+              <BotMessage content={`Searching for news articles about ${query}`}/>
             );
 
             const articles = await searchDocuments(query, {}, 4);
-            uiStream.done(<ReportSummary articles={articles} />);
-            let AISummary = "";
+            uiStream.done(<ReportSummary articles={articles} query={query} />);
+            let AISummary = "My summary of all articles: ";
             const summary = await experimental_streamText({
               model: mistral.chat("mistral-large-latest"),
-              prompt: `Could you summarize this articles? ${articles.map((article) => (article.title, article.content.slice(0, 500) + "..."))}
+              prompt: `Could you summarize this articles? ${articles.map((article: any) => (article.title, article.content.slice(0, 500) + "..."))}
             `,
             });
             for await (const delta of summary.fullStream) {
@@ -137,7 +132,7 @@ async function submitUserMessage(
               if (type === 'text-delta') {
                 const {textDelta} = delta;
                 AISummary += textDelta;
-                messageStream.update(<div>{AISummary}</div>);
+                messageStream.update(<BotMessage content={AISummary}/>);
               }
             }
 
@@ -154,31 +149,6 @@ async function submitUserMessage(
                     name: "search_news_articles",
                     props: {
                       query,
-                    },
-                  },
-                },
-              ],
-            });
-          } else if (toolName === "yeah you're never going to reach me") {
-            uiStream.update(
-              <div>
-                <p>Sorry this feature isn't available yet 💩...</p>
-              </div>,
-            );
-
-            aiState.done({
-              ...aiState.get(),
-              interactions: [],
-              messages: [
-                ...aiState.get().messages,
-                {
-                  id: nanoid(),
-                  role: "assistant",
-                  content: `Here is a summary of the reports: ${reportIds.join(", ")}`,
-                  display: {
-                    name: "generate_report_summary",
-                    props: {
-                      reportIds,
                     },
                   },
                 },
