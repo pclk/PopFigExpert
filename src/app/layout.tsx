@@ -51,7 +51,8 @@ export default function RootLayout({
 }
 export const runtime = "edge";
 
-{/* <main className="relative grow overflow-y-auto p-4">
+{
+  /* <main className="relative grow overflow-y-auto p-4">
   <div className="flex justify-center flex-col grow h-full">
   </div>
   <div className="sticky bottom-0 left-0 flex w-full bg-white"/>
@@ -60,4 +61,5 @@ export const runtime = "edge";
 <main>
   <div></div>
    <div></div>
-</main> */}
+</main> */
+}

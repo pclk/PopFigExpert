@@ -3,40 +3,21 @@
 import { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
-interface ChatInputProps {
+interface ChatInputProps extends React.ComponentPropsWithoutRef<"input"> {
   placeholder?: string;
   description?: string;
   clearInput?: boolean;
   submitMessage: (message: string) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement> | React.KeyboardEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
-
-export default function ChatInput({
+export default function Input({
   placeholder,
   description,
   clearInput = true,
   submitMessage,
+  onChange,
 }: ChatInputProps) {
   const [userInput, setUserInput] = useState("");
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setUserInput(e.target.value);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const handleSendMessage = () => {
-    if (userInput.trim() !== "") {
-      submitMessage(userInput);
-      if (clearInput) {
-        setUserInput("");
-      }
-    }
-  };
 
   return (
     <div className="sticky bottom-0 left-0 flex w-full bg-white">
@@ -49,15 +30,34 @@ export default function ChatInput({
             className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
             placeholder={placeholder}
             value={userInput}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
+            onChange={(e) => {
+              setUserInput(e.target.value);
+              onChange?.(e); // directly use the event's value
+            }}
+            onKeyDown={async (e) => {
+              onChange?.(e);
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (userInput.trim() !== "") {
+                  submitMessage(userInput);
+                  if (clearInput) {
+                    setUserInput("");
+                  }
+                }
+              }
+            }}
           ></TextareaAutosize>
         </div>
         <button
           type="button"
           className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-secondary active:bg-primary"
           onClick={async (e) => {
-            handleSendMessage();
+            if (userInput.trim() !== "") {
+              submitMessage(userInput);
+              if (clearInput) {
+                setUserInput("");
+              }
+            }
           }}
         >
           <div className="text-white group-hover:text-darkprim">Send</div>

@@ -1,31 +1,27 @@
 "use server";
 
+import { Message } from "ai";
+
 const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
 const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
 const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
 
 export async function searchDocuments(
-  query: string | string[],
-  filters: any,
+  content?: string,
+  startDate?: string,
+  endDate?: string,
+  country?: string,
+  title?: string,
   top_k?: number,
 ) {
   try {
-    const { date, country, title } = filters;
-    const queryString = Array.isArray(query) ? query.join(" ") : query;
-    const must = [
-      {
-        multi_match: {
-          query: queryString,
-          fields: ["title", "content"],
-        },
-      },
-    ];
+    const must = []
 
-    if (date) {
+    if (content) {
       must.push({
         multi_match: {
-          query: date,
-          fields: ["date"],
+          query: content,
+          fields: ["content"],
         },
       });
     }
@@ -54,16 +50,28 @@ export async function searchDocuments(
           must: must,
         },
       },
-      highlight: {
-        fields: {
-          content: {},
-        },
-      },
     };
 
     if (top_k !== undefined) {
       requestBody.size = top_k; // Add the size parameter only if top_k is provided
     }
+
+    if (startDate) {
+      requestBody.query = 
+      {bool: {
+        must: [
+          {
+            range: {
+              date: {
+                gte: startDate,
+                lte: endDate,
+              },
+            },
+          },
+          ...must,
+        ],
+      },}}
+        
 
     const response = await fetch(`${process.env.HOST_URL}/api/search`, {
       method: "POST",

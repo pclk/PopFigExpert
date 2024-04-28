@@ -7,6 +7,7 @@ export async function POST(request: Request) {
 
   try {
     const requestBody = await request.json();
+    console.log("requstbody:", requestBody)
 
     const response = await fetch(`${elasticsearchUrl}/mfa-press/_search`, {
       method: "POST",

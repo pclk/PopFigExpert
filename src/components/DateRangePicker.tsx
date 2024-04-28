@@ -13,14 +13,9 @@ import {
 } from "@/components/ui/popover";
 import { useQueryState } from "nuqs";
 
-interface DatePickerWithRangeProps
-  extends React.HTMLAttributes<HTMLDivElement> {
-  onDateRangeChange: (dateRange: DateRange | undefined) => void;
-}
-
 export function DatePickerWithRange({
   className,
-}: DatePickerWithRangeProps) {
+}: React.HTMLAttributes<HTMLDivElement>) {
   const [startDate, _1] = useQueryState("startDate");
   const [endDate, _2] = useQueryState("endDate");
 
@@ -37,7 +32,7 @@ export function DatePickerWithRange({
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {startDate? (
+            {startDate ? (
               endDate ? (
                 <>
                   {format(startDate, "LLL dd, y")} -{" "}
@@ -52,8 +47,7 @@ export function DatePickerWithRange({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-          />
+          <Calendar />
         </PopoverContent>
       </Popover>
     </div>

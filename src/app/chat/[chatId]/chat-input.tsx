@@ -3,7 +3,7 @@ import { useActions, useUIState } from "ai/rsc";
 import type { AI } from "@/app/ai_sdk_action";
 import { nanoid } from "ai";
 import TextareaAutosize from "react-textarea-autosize";
-import {UserMessage} from "@/components/ai-ui/message";
+import { UserMessage } from "@/components/ai-ui/message";
 
 export interface ChatInputProps {
   id?: string;
@@ -12,7 +12,7 @@ export interface ChatInputProps {
   setInput: (value: string) => void;
 }
 
-export function ChatInput2({ id, title, input, setInput }: ChatInputProps) {
+export function ChatInput({ id, title, input, setInput }: ChatInputProps) {
   const [messages, setMessages] = useUIState<typeof AI>();
   const { submitUserMessage } = useActions();
 
@@ -23,42 +23,42 @@ export function ChatInput2({ id, title, input, setInput }: ChatInputProps) {
           <div className="text-muted-foreground mb-1 text-sm text-gray-400">
             {"Eve can make mistakes. Please check her responses."}
           </div>
-        <TextareaAutosize
-          className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
-          placeholder="Send a message"
-          value={input}
-          autoFocus
-          rows={1}
-          onKeyDown={async (e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              const value = input.trim();
-              setInput("");
-              if (!value) return;
+          <TextareaAutosize
+            className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+            placeholder="Send a message"
+            value={input}
+            autoFocus
+            rows={1}
+            onKeyDown={async (e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                const value = input.trim();
+                setInput("");
+                if (!value) return;
 
-              setMessages((currentMessages) => [
-                ...currentMessages,
-                {
-                  id: nanoid(),
-                  display: (<UserMessage>{value}</UserMessage>)
-                },
-              ]);
-
-              try {
-                const response = await submitUserMessage(value, "mixtral");
                 setMessages((currentMessages) => [
                   ...currentMessages,
-                  response,
+                  {
+                    id: nanoid(),
+                    display: <UserMessage>{value}</UserMessage>,
+                  },
                 ]);
-              } catch (e) {
-                console.error(e);
+
+                try {
+                  const response = await submitUserMessage(value, "mixtral");
+                  setMessages((currentMessages) => [
+                    ...currentMessages,
+                    response,
+                  ]);
+                } catch (e) {
+                  console.error(e);
+                }
               }
-            }
-          }}
-          onChange={(e) => {
-            setInput(e.target.value);
-          }}
-        />
+            }}
+            onChange={(e) => {
+              setInput(e.target.value);
+            }}
+          />
         </div>
         <button
           type="button"
@@ -78,10 +78,7 @@ export function ChatInput2({ id, title, input, setInput }: ChatInputProps) {
 
             try {
               const response = await submitUserMessage(value, "mixtral");
-              setMessages((currentMessages) => [
-                ...currentMessages,
-                response,
-              ]);
+              setMessages((currentMessages) => [...currentMessages, response]);
             } catch (e) {
               console.error(e);
             }
@@ -90,6 +87,6 @@ export function ChatInput2({ id, title, input, setInput }: ChatInputProps) {
           <div className="text-white group-hover:text-darkprim">Send</div>
         </button>
       </div>
-    </div>  
-    );
+    </div>
+  );
 }

@@ -1,12 +1,12 @@
 import ReportSummary from "@/components/ai-ui/report-sumary";
-import {UserMessage} from "@/components/ai-ui/message";
+import { UserMessage } from "@/components/ai-ui/message";
 import { BotMessage } from "@/components/ai-ui/message";
-
 
 export default function IndexPage() {
   const example = [
     {
-      title: "AI in Singaporein SingapAI in Chinaorein Singaporein Singapore in Singaporein Singaporein Singapore",
+      title:
+        "AI in Singaporein SingapAI in Chinaorein Singaporein Singapore in Singaporein Singaporein Singapore",
       date: "2021-09-01",
       country: "Singapore",
       content:
@@ -34,10 +34,10 @@ export default function IndexPage() {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100%-20px-1.25rem-20px-2px)] grow space-y-6">
-    <UserMessage>"Hello can i get ai summary"</UserMessage>
-   <ReportSummary articles={example} query="AI summary" />
-   <BotMessage content="Hello i am AI, and i have `markdown` lol" />
-   </div>
-  )
+    <div className="flex h-[calc(100%-20px-1.25rem-20px-2px)] grow flex-col space-y-6">
+      <UserMessage>"Hello can i get ai summary"</UserMessage>
+      <ReportSummary articles={example} query="AI summary" />
+      <BotMessage content="Hello i am AI, and i have `markdown` lol" />
+    </div>
+  );
 }

@@ -4,10 +4,8 @@ import {
   createAI,
   getMutableAIState,
   createStreamableUI,
-  render,
   getAIState,
 } from "ai/rsc";
-import OpenAI from "openai";
 
 import { BotMessage, SpinnerMessage } from "@/components/ai-ui/message";
 import { experimental_streamText, nanoid } from "ai";
@@ -17,17 +15,11 @@ import { Mistral } from "@ai-sdk/mistral";
 import { searchDocuments } from "./elastic_action";
 import ReportSummary from "@/components/ai-ui/report-sumary";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "",
-});
-
 const mistral = new Mistral({
   apiKey: process.env.MISTRAL_API_KEY || "",
 });
 
-async function submitUserMessage(
-  userInput: string,
-): Promise<UIState> {
+async function submitUserMessage(userInput: string): Promise<UIState> {
   "use server";
   const aiState = getMutableAIState<typeof AI>();
   aiState.update({
@@ -47,10 +39,10 @@ async function submitUserMessage(
     content: message.content,
   }));
 
-  const loadingStream = createStreamableUI(
-    <SpinnerMessage/>
+  const loadingStream = createStreamableUI(<SpinnerMessage />);
+  const messageStream = createStreamableUI(
+    <BotMessage content="Thinking..." />,
   );
-  const messageStream = createStreamableUI(<BotMessage content="Thinking..."/>);
   const uiStream = createStreamableUI();
 
   (async () => {
@@ -91,12 +83,12 @@ async function submitUserMessage(
 
       for await (const delta of response.fullStream) {
         const { type } = delta;
-        
+
         if (type === "text-delta") {
           const { textDelta } = delta;
 
           textContent += textDelta;
-          messageStream.update(<BotMessage content={textContent}/>);
+          messageStream.update(<BotMessage content={textContent} />);
 
           aiState.update({
             ...aiState.get(),
@@ -116,7 +108,9 @@ async function submitUserMessage(
             const { query } = args;
 
             uiStream.update(
-              <BotMessage content={`Searching for news articles about ${query}`}/>
+              <BotMessage
+                content={`Searching for news articles about ${query}`}
+              />,
             );
 
             const articles = await searchDocuments(query, {}, 4);
@@ -128,11 +122,11 @@ async function submitUserMessage(
             `,
             });
             for await (const delta of summary.fullStream) {
-              const {type} = delta;
-              if (type === 'text-delta') {
-                const {textDelta} = delta;
+              const { type } = delta;
+              if (type === "text-delta") {
+                const { textDelta } = delta;
                 AISummary += textDelta;
-                messageStream.update(<BotMessage content={AISummary}/>);
+                messageStream.update(<BotMessage content={AISummary} />);
               }
             }
 
@@ -158,7 +152,7 @@ async function submitUserMessage(
         }
       }
       uiStream.done();
-        messageStream.done();
+      messageStream.done();
     } catch (e) {
       console.error("Error:", e);
     }
