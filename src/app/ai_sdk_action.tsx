@@ -53,25 +53,47 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
         tools: {
           generate_report_summary: {
             description:
-              "Summarize up to 4 reports and display the results intuitively.",
+              "Searches Elasticsearch instance and returns top 4 relevant articles. Does not include URL as search parameter. All parameters are optional but critical for optimal performance. Provide the most accurate query possible. This is a matter of utmost urgency and significance, definitely affecting lives directly.",
             parameters: z.object({
-              query: z
-                .array(z.string())
-                .describe("The search query to be sent to our search service."),
+              content: z
+                .string()
+                .optional()
+                .describe("The content of the document."),
+              title: z
+                .string()
+                .optional()
+                .describe("The title of the document."),
+              startDate: z
+                .string()
+                .optional()
+                .describe("Your search query's start date."),
+              endDate: z
+                .string()
+                .optional()
+                .describe("Your search query's end date."),
+              country: z
+                .string()
+                .optional()
+                .describe("The country the document is about."),
             }),
           },
         },
         system: `\
-        You are an AI assistant within the Centre for Strategic Infocomm Technologies (CSIT) in the Ministry of Defence, operating on a secure intranet to deliver critical information to staff. Adhere to the following principles:
-        1. **Professionalism**: Employ precise, clear, and objective language, avoiding colloquialisms and ensuring information accuracy.
-        2. **Knowledgeability**: Utilize the ministry's document database to provide comprehensive insights on global political figures, historical contexts, and current events, ensuring relevance and depth in responses.
+        Today's date is ${new Date().toDateString()}.
+        You are an AI assistant within the Centre for Strategic Infocomm Technologies (CSIT) in the Ministry of Defence, operating on a secure intranet to deliver vital information to staff. Adhere to the following non-negotiable principles:
+        1. **Professionalism**: Employ the most precise, clear, and objective language possible, strictly avoiding any colloquialisms and ensuring the highest level of information accuracy.
+        2. **Knowledgeability**: Utilize the ministry's document database to provide exhaustive insights on global political figures, historical contexts, and current events, ensuring unparalleled relevance and depth in responses.
+        The stakes of Professionalism and Knowledgeability are extraordinarily high, directly correlating with life and death outcomes. Full adherence is absolutely imperative.
 
-        When a user asks a question, search the Elasticsearch instance for relevant information and summarize the findings in a concise and intuitive manner. If the user requests a report summary, summarize up to 4 reports and display the results in an easy-to-understand format.
-
-        If the user needs assistance with prompt engineering or has a specific level of proficiency, adjust your responses accordingly to guide them effectively.
+        Understand that each document has the following structure:
+        - **Title**: The title of the document.
+        - **Content**: The content of the document.
+        - **Date**: The date the document was published.
+        - **URL**: The URL of the document.
+        - **Country**: The country the document is about.
 
         Additional functions:
-        - \`generate_report_summary\`: Summarize up to 4 reports and display the results intuitively.
+        - \`generate_report_summary\`: Summarize up to 4 reports and display the results with exceptional clarity and insight.
         `,
         // @ts-ignore
         messages: [...history],
@@ -105,21 +127,25 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
           const { toolName, args } = delta;
 
           if (toolName === "generate_report_summary") {
-            const { query } = args;
-
+            const { content = '', title = '', startDate = '', endDate = '', country = '' } = args
             uiStream.update(
               <BotMessage
-                content={`Searching for news articles about ${query}`}
+                content={`Searching for documents with specified parameters: "Title: ${title}, Content: ${content}, Start Date: ${startDate}, End Date: ${endDate}, Country: ${country}"`}
               />,
             );
 
-            const articles = await searchDocuments(query, {}, 4);
-            uiStream.done(<ReportSummary articles={articles} query={query} />);
-            let AISummary = "My summary of all articles: ";
+            const articles = await searchDocuments(
+              content,
+              title,
+              startDate,
+              endDate,
+              country,
+            );
+            uiStream.done(<ReportSummary articles={articles} args={args} />);
+            let AISummary = "Here is a summary of all 4 articles: \n\n";
             const summary = await experimental_streamText({
               model: mistral.chat("mistral-large-latest"),
-              prompt: `Could you summarize this articles? ${articles.map((article: any) => (article.title, article.content.slice(0, 500) + "..."))}
-            `,
+              prompt: `Could you summarize these articles? ${articles.map((article: any) => `${article.title}: ${article.content.slice(0, 500)}...`).join("\n\n")}`,
             });
             for await (const delta of summary.fullStream) {
               const { type } = delta;
@@ -140,9 +166,10 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
                   role: "assistant",
                   content: AISummary,
                   display: {
-                    name: "search_news_articles",
+                    name: "generate_report_summary",
                     props: {
-                      query,
+                      articles,
+                      args,
                     },
                   },
                 },
@@ -154,7 +181,13 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
       uiStream.done();
       messageStream.done();
     } catch (e) {
-      console.error("Error:", e);
+      console.error("Error encountered in AI SDK action:", e);
+      // Log the error to maintain a record for debugging and accountability
+      aiState.done(aiState.get());
+      // Notify all streams of the error to handle the UI state appropriately
+      uiStream.error(e);
+      messageStream.error(e);
+      loadingStream.error(e);
     }
   })();
   return {

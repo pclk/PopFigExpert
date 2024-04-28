@@ -14,21 +14,30 @@ interface Article {
   date?: string;
   country?: string;
   content?: string;
+  highlight_title?: string;
+  highlight_content?: string;
 }
 
 interface ReportSummaryProps {
   articles: Article[];
-  query: string;
+  args: {
+    content?: string;
+    title?: string;
+    startDate?: string;
+    endDate?: string;
+    country?: string;
+  };
 }
 
-const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, query }) => {
-  const [skinnedArticles, setSkinnedArticles] = useState<number[]>([]);
+const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, args }) => {
+  const [enlargedArticles, setEnlargedArticles] = useState<number[]>([]);
+  const { content, title, startDate, endDate, country } = args;
 
   const toggleArticle = (index: number) => {
-    if (skinnedArticles.includes(index)) {
-      setSkinnedArticles(skinnedArticles.filter((i) => i !== index));
+    if (enlargedArticles.includes(index)) {
+      setEnlargedArticles(enlargedArticles.filter((i) => i !== index));
     } else {
-      setSkinnedArticles([...skinnedArticles, index]);
+      setEnlargedArticles([...enlargedArticles, index]);
     }
   };
 
@@ -49,7 +58,8 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, query }) => {
           <CardTitle className="my-0">Great news!</CardTitle>
           <CardDescription>
             I found the top {articles.length} relevant articles for you, based
-            on the query: "{query}".
+            on the following query: "Title: {title}, Content: {content}, Start
+            Date: {startDate}, End Date: {endDate}, Country: {country}".
           </CardDescription>
         </CardHeader>
         <CardContent className="flex overflow-y-auto rounded-md">
@@ -57,18 +67,22 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, query }) => {
             <div
               key={index}
               className={`mr-2 h-96 basis-1/4 cursor-pointer rounded-lg transition-all duration-500 ease-in-out hover:text-primary ${
-                skinnedArticles.includes(index) ? "h-auto basis-2/3" : ""
+                enlargedArticles.includes(index) ? "h-auto basis-2/3" : ""
               }`}
               onClick={() => toggleArticle(index)}
             >
-              <h3 className="mt-0">{article.title}</h3>
+              <h3 className="mt-0">
+                {article.highlight_title ?? article.title}
+              </h3>
               <div className="text-muted-foreground text-sm">
                 {article.date && <span>({article.date})</span>}
                 {article.country && <span> - {article.country}</span>}
               </div>
               {article.content && (
                 <>
-                  <p className="mt-2 ">{article.content}</p>
+                  <p className="mt-2 ">
+                    {article.highlight_content ?? article.content}
+                  </p>
                 </>
               )}
             </div>

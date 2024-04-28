@@ -1,14 +1,8 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import DatePicker from "react-datepicker";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 import { DayPicker } from "react-day-picker";
-import { useState } from "react";
 import { useQueryState } from "nuqs";
-import { format } from 'date-fns';
-
 
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -18,8 +12,12 @@ function Calendar({ className, classNames }: CalendarProps) {
   const [startDate, setStartDate] = useQueryState("startDate");
   const [endDate, setEndDate] = useQueryState("endDate");
 
+  // Convert ISO string to Date object or null
+  const startDateDate = startDate ? new Date(startDate) : null;
+  const endDateDate = endDate ? new Date(endDate) : null;
+
   const handleDateChange = (date: Date | null, start: boolean) => {
-    const dateString = date ? format(date, "LLL dd, y") : "";
+    const dateString = date ? date.toISOString() : "";
     if (start) {
       setStartDate(dateString);
     } else {
@@ -32,22 +30,22 @@ function Calendar({ className, classNames }: CalendarProps) {
       <div>
         <p>Start Date</p>
         <DatePicker
-          selected={startDate as Date|null}
+          selected={startDateDate}
           onChange={(date) => handleDateChange(date, true)}
           selectsStart
-          startDate={startDate as Date|null}
-          endDate={endDate as Date|null}
+          startDate={startDateDate}
+          endDate={endDateDate}
         />
       </div>
       <div>
         <p>End Date</p>
         <DatePicker
-          selected={endDate as Date|null}
+          selected={endDateDate}
           onChange={(date) => handleDateChange(date, false)}
           selectsEnd
-          startDate={startDate as Date|null}
-          endDate={endDate as Date|null}
-          minDate={startDate as Date|null}
+          startDate={startDateDate}
+          endDate={endDateDate}
+          minDate={startDateDate}
         />
       </div>
     </div>

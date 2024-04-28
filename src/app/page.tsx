@@ -20,10 +20,11 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import TextareaAutosize from "react-textarea-autosize";
-import { ChatInput } from "@/app/chat/[chatId]/chat-input";
+import Input from "@/components/Input";
 import { useRouter } from "next/navigation";
 import { useQueryState, parseAsStringEnum } from "nuqs";
 import Image from "next/image";
+import { DatePickerWithRange } from "@/components/DateRangePicker";
 
 enum tabs {
   chat = "chat",
@@ -47,10 +48,10 @@ export default function Home() {
     "tab",
     parseAsStringEnum<tabs>(Object.values(tabs)).withDefault(tabs.chat),
   );
-  const [URL, setURL] = useQueryState("urlfilter");
-  const [date, setDate] = useQueryState("datefilter");
-  const [title, setTitle] = useQueryState("titlefilter");
-  const [country, setCountry] = useQueryState("countryfilter");
+  const [titleFilter, setTitleFilter] = useQueryState("title");
+  const [countryFilter, setCountryFilter] = useQueryState("country");
+  const [startDateFilter, setStartDateFilter] = useQueryState("startDate");
+  const [endDateFilter, setEndDateFilter] = useQueryState("endDate");
 
   const tabState = {
     tab: tab,
@@ -61,23 +62,12 @@ export default function Home() {
         : "Showing results x of xx...",
   };
 
-  const encodeFilterURI = (filterStateURI: typeof filterState) => {
-    const encodedFilters = Object.entries(filterStateURI)
-      .filter(([_, value]) => value !== "")
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-      )
-      .join("&");
-    return encodedFilters ? `?${encodedFilters}` : "";
-  };
-
   return (
     <>
       <div className="flex h-[calc(100%-20px-1.25rem-20px-2px)] grow flex-col justify-center">
         {/* 100% - text-description -(text-description marginbottom-1, textarea-padding-4) - textarea - textarea border */}
         <Card className="p-10 drop-shadow-xl">
-          <Tabs defaultValue={tab} className="">
+          <Tabs defaultValue={tab} className="h-[400px]">
             <TabsList className="grid w-full grid-cols-2 drop-shadow-xl">
               <TabsTrigger
                 className="border-hidden bg-white py-2 hover:bg-secondary"
@@ -137,7 +127,7 @@ export default function Home() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="search">
+            <TabsContent value="search" className="h-[400px]">
               <Card className="h-92 shadow-none">
                 <CardHeader>
                   <CardTitle>
@@ -147,34 +137,55 @@ export default function Home() {
                     These are the fields available to search by:
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <CardContent className="grid grid-cols-1 gap-4 ">
+                  <DatePickerWithRange className="rounded-sm border border-primary font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary" />
                   <TextareaAutosize
-                    className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
-                    placeholder="URL"
-                    name="url"
-                    value={URL || ""}
-                    onChange={(e) => setURL(e.target.value)}
-                  />
-                  <TextareaAutosize
-                    className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
-                    placeholder="Date"
-                    name="date"
-                    value={date || ""}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                  <TextareaAutosize
-                    className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Title"
-                    name="title"
-                    value={title || ""}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={titleFilter ? titleFilter : ""}
+                    onChange={(e) => setTitleFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        let searchParams = "";
+                        if (titleFilter) {
+                          searchParams += `title=${titleFilter.replace(/ /g, "+")}&`;
+                        }
+                        if (countryFilter) {
+                          searchParams += `country=${countryFilter.replace(/ /g, "+")}&`;
+                        }
+                        if (startDateFilter) {
+                          searchParams += `startDate=${startDateFilter}&`;
+                        }
+                        if (endDateFilter) {
+                          searchParams += `endDate=${endDateFilter}&`;
+                        }
+                        router.push(`/document?${searchParams}`);
+                      }
+                    }}
                   />
                   <TextareaAutosize
-                    className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Country"
-                    name="country"
-                    value={country || ""}
-                    onChange={(e) => setCountry(e.target.value)}
+                    value={countryFilter ? countryFilter : ""}
+                    onChange={(e) => setCountryFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        let searchParams = "";
+                        if (titleFilter) {
+                          searchParams += `title=${titleFilter.replace(/ /g, "+")}&`;
+                        }
+                        if (countryFilter) {
+                          searchParams += `country=${countryFilter.replace(/ /g, "+")}&`;
+                        }
+                        if (startDateFilter) {
+                          searchParams += `startDate=${startDateFilter}&`;
+                        }
+                        if (endDateFilter) {
+                          searchParams += `endDate=${endDateFilter}&`;
+                        }
+                        router.push(`/document?${searchParams}`);
+                      }
+                    }}
                   />
                 </CardContent>
               </Card>
@@ -182,7 +193,7 @@ export default function Home() {
           </Tabs>
         </Card>
       </div>
-      <ChatInput
+      <Input
         placeholder={tabState.placeholder}
         description={tabState.description}
         submitMessage={async (message) => {
@@ -192,8 +203,23 @@ export default function Home() {
               `/chat/${chatId}?startingMessage=${encodeURIComponent(message)}`,
             );
           } else if (tabState.tab === "search") {
-            const filterURI = encodeFilterURI(filterState);
-            router.push(`/document${filterURI}`);
+            let searchParams = "";
+            if (titleFilter) {
+              searchParams += `title=${titleFilter.replace(/ /g, "+")}&`;
+            }
+            if (countryFilter) {
+              searchParams += `country=${countryFilter.replace(/ /g, "+")}&`;
+            }
+            if (message) {
+              searchParams += `content=${message.replace(/ /g, "+")}&`;
+            }
+            if (startDateFilter) {
+              searchParams += `startDate=${startDateFilter}&`;
+            }
+            if (endDateFilter) {
+              searchParams += `endDate=${endDateFilter}&`;
+            }
+            router.push(`/document?${searchParams}`);
           }
         }}
       />

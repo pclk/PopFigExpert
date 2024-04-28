@@ -15,63 +15,68 @@ export async function searchDocuments(
   top_k?: number,
 ) {
   try {
-    const must = []
-
-    if (content) {
-      must.push({
-        multi_match: {
-          query: content,
-          fields: ["content"],
-        },
-      });
-    }
-
-    if (country) {
-      must.push({
-        multi_match: {
-          query: country,
-          fields: ["country"],
-        },
-      });
-    }
-
-    if (title) {
-      must.push({
-        multi_match: {
-          query: title,
-          fields: ["title"],
-        },
-      });
-    }
-
-    const requestBody: any = {
+    const requestBody = {
       query: {
         bool: {
-          must: must,
+          must: [] as { match: { [key: string]: string } }[],
+          filter: [] as { term?: { [key: string]: string }; range?: { [key: string]: { gte?: string; lte?: string } } }[],
         },
       },
+      highlight: {
+        require_field_match: false,
+        pre_tags: ["<mark class='bg-darkprim text-white'>"],
+        post_tags: ["</mark>"],
+        fields: {},
+      },
+      size: 10,
     };
+
+    if (country) {
+      requestBody.query.bool.filter.push({ term: { country: country } });
+    }
 
     if (top_k !== undefined) {
       requestBody.size = top_k; // Add the size parameter only if top_k is provided
     }
 
-    if (startDate) {
-      requestBody.query = 
-      {bool: {
-        must: [
-          {
-            range: {
-              date: {
-                gte: startDate,
-                lte: endDate,
-              },
-            },
-          },
-          ...must,
-        ],
-      },}}
-        
+    if (startDate && endDate) {
+      requestBody.query.bool.filter.push({
+        range: { date: { gte: startDate, lte: endDate } },
+      });
+    } else if (startDate) {
+      requestBody.query.bool.filter.push({
+        range: { date: { gte: startDate } },
+      });
+    } else if (endDate) {
+      requestBody.query.bool.filter.push({
+        range: { date: { lte: endDate } },
+      });
+    } else {
+      throw new Error("Both startDate and endDate must be provided for a range query, or at least one must be specified for a boundary query.");
+    }
+
+    if (content) {
+      requestBody.query.bool.must.push({ match: { content: content } });
+      requestBody.highlight.fields = {
+        ...requestBody.highlight.fields,
+        content: {
+          highlight_query: { match: { content: content } },
+          number_of_fragments: 0,
+        },
+      };
+    }
+
+    if (title) {
+      requestBody.query.bool.must.push({ match: { title: title } });
+      requestBody.highlight.fields = {
+        ...requestBody.highlight.fields,
+        title: {
+          highlight_query: { match: { title: title } },
+          number_of_fragments: 0,
+        },
+      };
+    }
+
 
     const response = await fetch(`${process.env.HOST_URL}/api/search`, {
       method: "POST",
@@ -80,6 +85,15 @@ export async function searchDocuments(
       },
       body: JSON.stringify(requestBody),
     });
+
+    let parsedData;
+    try {
+      parsedData = await response.json();
+      console.log("Elastic Response Data:", parsedData.hits.hits);
+    } catch (jsonParseError) {
+      console.error("Failed to parse JSON response:", jsonParseError);
+      throw new Error("Failed to parse the response from the server. The server might be experiencing issues or the response format may have changed.");
+    }
 
     console.log("Elastic Response Status:", response.status);
 
@@ -90,8 +104,8 @@ export async function searchDocuments(
       );
     }
 
-    const data = await response.json();
-    return data.hits.hits.map((hit: any) => hit._source);
+    // Return the parsed data if the response was successful
+    return parsedData.hits.hits;
   } catch (error) {
     console.error("Error searching documents:", error);
     throw new Error(
