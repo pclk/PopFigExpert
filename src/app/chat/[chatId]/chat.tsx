@@ -63,8 +63,9 @@ export function Chat({ id }: ChatProps) {
             {message.display}
           </div>
         ))}
+        <div className="mb-4"></div>
       </div>
-      <ChatInput id={id} input={input} setInput={setInput} />
+        <ChatInput id={id} input={input} setInput={setInput} />
     </>
   );
 }

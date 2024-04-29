@@ -39,7 +39,7 @@ export function UserMessage({ children }: { children: React.ReactNode }) {
         </svg>
       </div>
       <div className="p-auto ml-4 flex-1 space-y-2 overflow-hidden">
-        <div className="flex h-full items-center text-lg">{children}</div>
+        <div className="flex h-full items-center text-lg tracking-tight">{children}</div>
       </div>
     </div>
   );
@@ -68,7 +68,7 @@ export function BotMessage({
       <div className="p-auto ml-4 flex-1 space-y-2 overflow-hidden">
         <div className="mt-0 flex h-full items-center">
           <MemoizedReactMarkdown
-            className="prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 mt-0 break-words text-lg"
+            className="prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 mt-0 text-lg tracking-tight "
             remarkPlugins={[remarkGfm]}
             components={{
               p({ children }) {

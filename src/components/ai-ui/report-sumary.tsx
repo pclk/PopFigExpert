@@ -57,9 +57,14 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, args }) => {
         <CardHeader className="">
           <CardTitle className="my-0">Great news!</CardTitle>
           <CardDescription>
-            I found the top {articles.length} relevant articles for you, based
-            on the following query: "Title: {title}, Content: {content}, Start
-            Date: {startDate}, End Date: {endDate}, Country: {country}".
+            I found the top {articles.length} relevant articles for you{args && `, based on the following query: "${[
+              title && `Title: ${title}`,
+              content && `Content: ${content}`,
+              startDate && endDate && `Date Range: ${startDate} to ${endDate}`,
+              startDate && !endDate && `Start Date: ${startDate}`,
+              !startDate && endDate && `End Date: ${endDate}`,
+              country && `Country: ${country}`
+            ].filter(Boolean).join(', ')}"`}.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex overflow-y-auto rounded-md">
@@ -71,19 +76,13 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, args }) => {
               }`}
               onClick={() => toggleArticle(index)}
             >
-              <h3 className="mt-0">
-                {article.highlight_title ?? article.title}
-              </h3>
+              <h3 className="mt-0" dangerouslySetInnerHTML={{ __html: article.highlight_title ?? article.title }}></h3>
               <div className="text-muted-foreground text-sm">
                 {article.date && <span>({article.date})</span>}
                 {article.country && <span> - {article.country}</span>}
               </div>
               {article.content && (
-                <>
-                  <p className="mt-2 ">
-                    {article.highlight_content ?? article.content}
-                  </p>
-                </>
+                <pre className="mt-2 text-sm overflow-hidden text-ellipsis whitespace-pre-wrap rounded-md bg-secondary p-2 font-inter shadow-lg" dangerouslySetInnerHTML={{ __html: article.highlight_content ?? article.content }}></pre>
               )}
             </div>
           ))}

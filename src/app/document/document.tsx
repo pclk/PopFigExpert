@@ -62,16 +62,7 @@ export default function Document({
       countryFilter ?? country ?? undefined,
       titleFilter ?? title ?? undefined,
     )
-      .then((results: any) => {
-        const combinedResults: SearchResult[] = results.map((result: any) => ({
-          ...result._source, // Spread the non-highlighted data
-          highlight_title: result.highlight.title,
-          highlight_content: result.highlight.content,
-        }));
-
-        console.log("combinedResults", combinedResults);
-        const groupedDocuments: GroupedDocument[] =
-          groupDocumentsByUrl(combinedResults);
+      .then((groupedDocuments: GroupedDocument[]) => {
         if (groupedDocuments.length === 0) {
           setResults(groupedDocuments);
           setDescription("No documents found.");

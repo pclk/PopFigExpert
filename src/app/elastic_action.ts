@@ -8,10 +8,10 @@ const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
 
 export async function searchDocuments(
   content?: string,
+  title?: string,
   startDate?: string,
   endDate?: string,
   country?: string,
-  title?: string,
   top_k?: number,
 ) {
   try {
@@ -51,8 +51,6 @@ export async function searchDocuments(
       requestBody.query.bool.filter.push({
         range: { date: { lte: endDate } },
       });
-    } else {
-      throw new Error("Both startDate and endDate must be provided for a range query, or at least one must be specified for a boundary query.");
     }
 
     if (content) {
@@ -76,6 +74,7 @@ export async function searchDocuments(
         },
       };
     }
+    console.log("sending request body", requestBody)
 
 
     const response = await fetch(`${process.env.HOST_URL}/api/search`, {
@@ -104,8 +103,19 @@ export async function searchDocuments(
       );
     }
 
-    // Return the parsed data if the response was successful
-    return parsedData.hits.hits;
+    // Format the parsed data as seen in document.tsx
+    const formattedResults = parsedData.hits.hits.map((hit: any) => ({
+      date: hit._source.date,
+      title: hit._source.title,
+      url: hit._source.url,
+      country: hit._source.country,
+      content: hit._source.content,
+      highlight_title: hit.highlight.title,
+      highlight_content: hit.highlight.content,
+    }));
+
+    // Return the formatted data if the response was successful
+    return formattedResults;
   } catch (error) {
     console.error("Error searching documents:", error);
     throw new Error(

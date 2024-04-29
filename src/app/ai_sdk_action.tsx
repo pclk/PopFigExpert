@@ -74,7 +74,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               country: z
                 .string()
                 .optional()
-                .describe("The country the document is about."),
+                .describe("The country the document is about. Use this sparingly, most document's countries are not labelled. Using this may result in no results."),
             }),
           },
         },
@@ -127,10 +127,19 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
           const { toolName, args } = delta;
 
           if (toolName === "generate_report_summary") {
-            const { content = '', title = '', startDate = '', endDate = '', country = '' } = args
+            const { content = undefined, title = undefined, startDate = undefined, endDate = undefined, country = undefined } = args
+            console.log('args', args)
             uiStream.update(
               <BotMessage
-                content={`Searching for documents with specified parameters: "Title: ${title}, Content: ${content}, Start Date: ${startDate}, End Date: ${endDate}, Country: ${country}"`}
+                content={`Searching for documents with specified parameters: ${
+                  [
+                    title && `Title: ${title}`,
+                    content && `Content: ${content}`,
+                    startDate && `Start Date: ${startDate}`,
+                    endDate && `End Date: ${endDate}`,
+                    country && `Country: ${country}`
+                  ].filter(Boolean).join(", ")
+                }`}
               />,
             );
 
@@ -140,19 +149,27 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               startDate,
               endDate,
               country,
+              4
             );
+
             uiStream.done(<ReportSummary articles={articles} args={args} />);
             let AISummary = "Here is a summary of all 4 articles: \n\n";
-            const summary = await experimental_streamText({
-              model: mistral.chat("mistral-large-latest"),
-              prompt: `Could you summarize these articles? ${articles.map((article: any) => `${article.title}: ${article.content.slice(0, 500)}...`).join("\n\n")}`,
-            });
-            for await (const delta of summary.fullStream) {
-              const { type } = delta;
-              if (type === "text-delta") {
-                const { textDelta } = delta;
-                AISummary += textDelta;
-                messageStream.update(<BotMessage content={AISummary} />);
+            if (articles.length === 0) {
+              AISummary = "I'm sorry, but I couldn't find any articles matching your query. Could you please rephrase your request or provide more specific details?";
+              messageStream.update(<BotMessage content={AISummary} />);
+            } else {
+              const summary = await experimental_streamText({
+                model: mistral.chat("mistral-large-latest"),
+                prompt: `Could you summarize these articles, with the Title: ${articles.map((article: any) => `${article.title}, and the content: ${article.content.slice(0, 500)}...`).join("\n\n")}`,
+              });
+
+              for await (const delta of summary.fullStream) {
+                const { type } = delta;
+                if (type === "text-delta") {
+                  const { textDelta } = delta;
+                  AISummary += textDelta;
+                  messageStream.update(<BotMessage content={AISummary} />);
+                }
               }
             }
 
