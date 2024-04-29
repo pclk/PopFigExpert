@@ -3,27 +3,41 @@ import { IconMenu2, IconMessages } from "@tabler/icons-react";
 import { nanoid } from "nanoid";
 import { HistoryType } from "../lib/validators/HistoryType";
 import { useActions } from "ai/rsc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { fetchChatHistory, insertChatHistory } from "../app/elastic_action";
+import { Message } from "ai";
+import { AIState } from "@/app/ai_sdk_action";
 
 interface NavigationBarProps {
   isDocumentPage: boolean;
-  chatHistory: HistoryType[];
 }
 
 export default function NavigationBar({
   isDocumentPage,
-  chatHistory,
 }: NavigationBarProps) {
   const { addHistory } = useActions();
+  const [chatHistory, setChatHistory] = useState<AIState[]>([]);
 
-  const handleNewChat = () => {
-    const newHistory: HistoryType = {
-      id: nanoid(),
-      label: "New Chat",
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      const history = await fetchChatHistory();
+      setChatHistory(history);
+    };
+    loadChatHistory();
+  }, []);
+
+  const handleNewChat = async () => {
+    const newHistory: AIState = {
+      chatID: nanoid(),
       messages: [],
     };
+    await insertChatHistory({
+      chatID: newHistory.chatID,
+      messages: newHistory.messages,
+    });
     addHistory(newHistory);
+    setChatHistory([...chatHistory, newHistory]);
   };
   const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 

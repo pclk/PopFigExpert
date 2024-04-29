@@ -152,7 +152,6 @@ export async function fetchChatHistory() {
 export async function insertChatHistory(data: {
   chatID: string;
   messages: Message[];
-  aiStateID: string;
 }) {
   "use server";
 

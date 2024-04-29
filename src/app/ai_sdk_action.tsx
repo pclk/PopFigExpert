@@ -7,7 +7,7 @@ import {
   getAIState,
 } from "ai/rsc";
 
-import { BotMessage, SpinnerMessage } from "@/components/ai-ui/message";
+import { BotMessage, SpinnerMessage, UserMessage } from "@/components/ai-ui/message";
 import { experimental_streamText, nanoid } from "ai";
 
 import { z } from "zod";
@@ -29,7 +29,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
       {
         id: nanoid(),
         role: "user",
-        content: `${aiState.get().interactions?.join("\n\n")}\n\n${userInput}`,
+        content: userInput,
       },
     ],
   });
@@ -161,6 +161,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               const summary = await experimental_streamText({
                 model: mistral.chat("mistral-large-latest"),
                 prompt: `Could you summarize these articles, with the Title: ${articles.map((article: any) => `${article.title}, and the content: ${article.content.slice(0, 500)}...`).join("\n\n")}`,
+                maxTokens: 1000,
               });
 
               for await (const delta of summary.fullStream) {
@@ -175,7 +176,6 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
 
             aiState.done({
               ...aiState.get(),
-              interactions: [],
               messages: [
                 ...aiState.get().messages,
                 {
@@ -243,7 +243,6 @@ export type Message = {
 
 export type AIState = {
   chatID: string;
-  interactions?: string[];
   messages: Message[];
 };
 
@@ -259,7 +258,7 @@ export const AI = createAI<AIState, UIState[]>({
     submitUserMessage,
   },
   initialUIState: [],
-  initialAIState: { chatID: nanoid(), interactions: [], messages: [] },
+  initialAIState: { chatID: nanoid(), messages: [] },
   unstable_onGetUIState: async () => {
     "use server";
     const aiState = getAIState();
@@ -286,15 +285,16 @@ export function getUIStateFromAIState(aiState: Chat) {
       id: `${aiState.chatID}-${index}`,
       display:
         message.role === "assistant" ? (
-          message.display?.name === "search_news_articles" ? (
-            <div>searching...</div>
-          ) : message.display?.name === "generate_report_summary" ? (
-            <div>Generating report summary...</div>
+          message.display?.name === "generate_report_summary" ? (
+            <>
+            <ReportSummary articles={message.display?.props.articles} args={message.display?.props.args} />
+            <BotMessage content={message.content}/>
+            </>
           ) : (
-            <div>{message.content}</div>
+            <BotMessage content={message.content} />
           )
         ) : (
-          <div>{message.content}</div>
-        ),
+          <UserMessage>{message.content}</UserMessage>
+        )
     }));
 }
