@@ -19,7 +19,10 @@ export async function searchDocuments(
       query: {
         bool: {
           must: [] as { match: { [key: string]: string } }[],
-          filter: [] as { term?: { [key: string]: string }; range?: { [key: string]: { gte?: string; lte?: string } } }[],
+          filter: [] as {
+            term?: { [key: string]: string };
+            range?: { [key: string]: { gte?: string; lte?: string } };
+          }[],
         },
       },
       highlight: {
@@ -74,8 +77,7 @@ export async function searchDocuments(
         },
       };
     }
-    console.log("sending request body", requestBody)
-
+    console.log("sending request body", requestBody);
 
     const response = await fetch(`${process.env.HOST_URL}/api/search`, {
       method: "POST",
@@ -91,7 +93,9 @@ export async function searchDocuments(
       console.log("Elastic Response Data:", parsedData.hits.hits);
     } catch (jsonParseError) {
       console.error("Failed to parse JSON response:", jsonParseError);
-      throw new Error("Failed to parse the response from the server. The server might be experiencing issues or the response format may have changed.");
+      throw new Error(
+        "Failed to parse the response from the server. The server might be experiencing issues or the response format may have changed.",
+      );
     }
 
     console.log("Elastic Response Status:", response.status);

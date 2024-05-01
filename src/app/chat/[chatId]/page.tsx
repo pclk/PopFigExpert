@@ -21,7 +21,6 @@ export default async function IndexPage({ searchParams }: ChatPageProps) {
     <AI
       initialAIState={{
         chatID: id,
-        interactions: [],
         messages: [
           { role: "user", content: startingMessageString, id: nanoid() },
         ],

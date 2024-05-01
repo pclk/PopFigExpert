@@ -33,7 +33,8 @@ export default function Input({
   }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (value === undefined) { // Only update state if operating in uncontrolled mode
+    if (value === undefined) {
+      // Only update state if operating in uncontrolled mode
       setUserInput(e.target.value);
     }
     onChange?.(e);
@@ -70,7 +71,7 @@ export default function Input({
         </div>
         <button
           type="button"
-          className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-secondary active:bg-primary"
+          className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-darkprim active:bg-secondary"
           onClick={async (e) => {
             const messageToSend = value !== undefined ? value : userInput;
             if (messageToSend.trim() !== "") {
@@ -81,7 +82,7 @@ export default function Input({
             }
           }}
         >
-          <div className="text-white group-hover:text-darkprim">Send</div>
+          <div className="text-darkprim group-hover:text-white group-active:text-darkprim">Send</div>
         </button>
       </div>
     </div>
