@@ -32,7 +32,15 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
   - [ ] UI for displaying and sending inputs within the genUI. 
 - [ ] Deploy on Vercel
 
-Generate news article component scroll behaviour
+- [] Wikipedia:
+  - [] retrieve list of countries from ES
+  - [] go to https://everypolitician.org/countries.html to get names of politicians for each relevant country
+  - [] go to https://en.wikipedia.org/wiki/List_of_historical_figures and scrape top, and image
+  - [] build genUi for image + personality summary
+- [] classify chunks underneath the same title, like the manual document search. return doc.title.length for article length.
+- [] No need chatid, navigation bar becomes homepage's details. homepage becomes chat.
+ 
+
 
 Extras:
 - [ ] Integrate Clerk for user authentication and authorization

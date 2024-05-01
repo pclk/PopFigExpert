@@ -23,7 +23,7 @@ export function Chat({ id }: ChatProps) {
     if (messages.length === 1) {
       const initialMessage = messages[0].display as string;
       setMessages([
-        { id: nanoid(), display: <UserMessage>{initialMessage}</UserMessage> },
+        { id: nanoid(), display: <>{initialMessage}</> },
       ]);
     }
   }, []);
@@ -37,7 +37,8 @@ export function Chat({ id }: ChatProps) {
   useEffect(() => {
     const sendInitialMessage = async () => {
       if (messages.length === 1) {
-        const initialMessage = messages[0].display as string;
+        const initialMessage = messages[0].display.props.children as string;
+        console.log("initialMessage", initialMessage);
         try {
           const response = await submitUserMessage(initialMessage, "mixtral");
           setMessages((currentMessages) => [...currentMessages, response]);

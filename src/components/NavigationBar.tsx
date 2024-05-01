@@ -16,29 +16,6 @@ interface NavigationBarProps {
 export default function NavigationBar({
   isDocumentPage,
 }: NavigationBarProps) {
-  const { addHistory } = useActions();
-  const [chatHistory, setChatHistory] = useState<AIState[]>([]);
-
-  useEffect(() => {
-    const loadChatHistory = async () => {
-      const history = await fetchChatHistory();
-      setChatHistory(history);
-    };
-    loadChatHistory();
-  }, []);
-
-  const handleNewChat = async () => {
-    const newHistory: AIState = {
-      chatID: nanoid(),
-      messages: [],
-    };
-    await insertChatHistory({
-      chatID: newHistory.chatID,
-      messages: newHistory.messages,
-    });
-    addHistory(newHistory);
-    setChatHistory([...chatHistory, newHistory]);
-  };
   const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 
   const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
@@ -69,7 +46,6 @@ export default function NavigationBar({
               <div className="flex justify-between rounded-sm">
                 <button
                   className="group w-full rounded-md border-0 bg-secondary text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
-                  onClick={handleNewChat}
                 >
                   <div className="flex items-center group-active:text-white">
                     <Image
@@ -81,21 +57,13 @@ export default function NavigationBar({
                     />
                     {/* <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" /> */}
                     <div className="font-inter text-lg font-semibold">
-                      New Chat
+                      ProcoLink
                     </div>
                   </div>
                 </button>
               </div>
               <hr className="w-full border-[-1px] border-solid border-darkprim" />
-              {chatHistory.map((history, index) => (
-                <a
-                  key={index}
-                  href={`/chat/${history.id}`}
-                  className="mb-2 truncate rounded-md p-2 no-underline transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
-                >
-                  {String(history.label)}
-                </a>
-              ))}
+
             </>
           )}
         </div>
