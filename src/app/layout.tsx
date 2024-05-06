@@ -4,8 +4,7 @@ import React from "react";
 import NavigationBar from "../components/NavigationBar";
 import "@/app/globals.css";
 import { AI } from "./ai_sdk_action";
-import { ModelProvider } from "@/context/ModelContext";
-
+import { headers } from "next/headers";
 import type { Metadata } from "next";
 import Providers from "@/components/Providers";
 
@@ -26,13 +25,11 @@ export default function RootLayout({
       <body className={`m-0 flex ${inter.className}`}>
         <AI>
           <Providers>
-            <ModelProvider>
               <NavigationBar
               />
               <main className="relative grow overflow-y-auto p-4">
                 {children}
               </main>
-            </ModelProvider>
           </Providers>
         </AI>
       </body>
