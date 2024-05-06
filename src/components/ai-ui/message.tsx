@@ -39,7 +39,9 @@ export function UserMessage({ children }: { children: React.ReactNode }) {
         </svg>
       </div>
       <div className="p-auto ml-4 flex-1 space-y-2 overflow-hidden">
-        <div className="flex h-full items-center text-lg tracking-tight">{children}</div>
+        <div className="flex h-full items-center text-lg tracking-tight">
+          {children}
+        </div>
       </div>
     </div>
   );

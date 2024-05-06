@@ -1,8 +1,6 @@
 // DateRangePicker.tsx
 import * as React from "react";
 import { addDays, format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -27,11 +25,10 @@ export function DatePickerWithRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "justify-start text-left font-normal",
+              "justify-start text-left font-normal border-solid p-2 border-primary rounded-sm",
               !startDate && "text-muted-foreground",
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
             {startDate ? (
               endDate ? (
                 <>
@@ -42,7 +39,7 @@ export function DatePickerWithRange({
                 format(startDate, "LLL dd, y")
               )
             ) : (
-              <span>Pick a date</span>
+              <span className="text-slate-500">Pick a date range</span>
             )}
           </Button>
         </PopoverTrigger>

@@ -36,8 +36,6 @@ export default function RootLayout({
           <Providers>
             <ModelProvider>
               <NavigationBar
-                isDocumentPage={isDocumentPage}
-                chatHistory={chatHistory}
               />
               <main className="relative grow overflow-y-auto p-4">
                 {children}

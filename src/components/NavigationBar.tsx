@@ -1,47 +1,52 @@
 "use client";
 import { IconMenu2, IconMessages } from "@tabler/icons-react";
-import { nanoid } from "nanoid";
-import { HistoryType } from "../lib/validators/HistoryType";
-import { useActions } from "ai/rsc";
+
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { fetchChatHistory, insertChatHistory } from "../app/elastic_action";
-import { Message } from "ai";
-import { AIState } from "@/app/ai_sdk_action";
+import { Button } from "@/components/ui/button";
+import { DatePickerWithRange } from "@/components/DateRangePicker";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { examplePrompts } from "@/app/page";
+import TextareaAutosize from "react-textarea-autosize";
+import { useQueryState } from "nuqs";
+import { useRouter } from "next/navigation";
 
-interface NavigationBarProps {
-  isDocumentPage: boolean;
-}
-
-export default function NavigationBar({
-  isDocumentPage,
-}: NavigationBarProps) {
-  const { addHistory } = useActions();
-  const [chatHistory, setChatHistory] = useState<AIState[]>([]);
-
-  useEffect(() => {
-    const loadChatHistory = async () => {
-      const history = await fetchChatHistory();
-      setChatHistory(history);
-    };
-    loadChatHistory();
-  }, []);
-
-  const handleNewChat = async () => {
-    const newHistory: AIState = {
-      chatID: nanoid(),
-      messages: [],
-    };
-    await insertChatHistory({
-      chatID: newHistory.chatID,
-      messages: newHistory.messages,
-    });
-    addHistory(newHistory);
-    setChatHistory([...chatHistory, newHistory]);
-  };
+export default function NavigationBar() {
+  const router = useRouter();
   const [isNavBarOpen, setIsNavBarOpen] = useState(false);
+  const [titleFilter, setTitleFilter] = useQueryState("title");
+  const [countryFilter, setCountryFilter] = useQueryState("country");
+  const [startDateFilter, setStartDateFilter] = useQueryState("startDate");
+  const [endDateFilter, setEndDateFilter] = useQueryState("endDate");
+  const [contentFilter, setContentFilter] = useQueryState("content");
 
   const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
+
+  const handleFilterEnter = () => {
+    let searchParams = "";
+    if (titleFilter) {
+      searchParams += `title=${titleFilter.replace(/ /g, "+")}&`;
+    }
+    if (countryFilter) {
+      searchParams += `country=${countryFilter.replace(/ /g, "+")}&`;
+    }
+    if (startDateFilter) {
+      searchParams += `startDate=${startDateFilter}&`;
+    }
+    if (endDateFilter) {
+      searchParams += `endDate=${endDateFilter}&`;
+    }
+    if (contentFilter) {
+      searchParams += `content=${contentFilter.replace(/ /g, "+")}&`;
+    }
+    router.push(`/document?${searchParams}`);
+  };
 
   return (
     <>
@@ -51,53 +56,138 @@ export default function NavigationBar({
       />
 
       <nav
-        className={`fixed left-0 top-0 z-20 box-border h-full w-72 flex-shrink-0 transform bg-secondary p-4 text-darkprim shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+        className={`fixed left-0 top-0 z-20 box-border h-full w-80 overflow-y-auto flex-shrink-0 transform bg-secondary p-4 text-darkprim shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
           isNavBarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex h-full flex-col">
-          {isDocumentPage ? (
-            // Render the navigation bar for the document page
-            <div>
-              {/* Display previous searches performed on the document page */}
-              <h3>Previous Searches</h3>
-              {/* Render the list of previous searches */}
-            </div>
-          ) : (
-            // Render the navigation bar for other pages
-            <>
-              <div className="flex justify-between rounded-sm">
-                <button
-                  className="group w-full rounded-md border-0 bg-secondary text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
-                  onClick={handleNewChat}
-                >
-                  <div className="flex items-center group-active:text-white">
-                    <Image
-                      src="/ProcoLink.png"
-                      alt="Chatbot"
-                      width={40}
-                      height={40}
-                      className="mr-4"
-                    />
-                    {/* <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" /> */}
-                    <div className="font-inter text-lg font-semibold">
-                      New Chat
+          <>
+            <div className="flex justify-between rounded-sm">
+              <button
+                className="group w-full rounded-md border-0 bg-secondary text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
+                onClick={() => router.push("/")}
+              >
+                <div className="flex items-center group-active:text-white">
+                  <Image
+                    src="/ProcoLink.png"
+                    alt="Chatbot"
+                    width={40}
+                    height={40}
+                    className="mr-4"
+                  />
+                  {/* <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" /> */}
+                  <div className="font-inter text-lg font-semibold">
+                    ProcoLink{" "}
+                    <div className="hidden group-hover:inline">
+                      (Home button)
                     </div>
                   </div>
-                </button>
-              </div>
-              <hr className="w-full border-[-1px] border-solid border-darkprim" />
-              {chatHistory.map((history, index) => (
-                <a
-                  key={index}
-                  href={`/chat/${history.id}`}
-                  className="mb-2 truncate rounded-md p-2 no-underline transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
-                >
-                  {String(history.label)}
-                </a>
-              ))}
-            </>
-          )}
+                </div>
+              </button>
+            </div>
+            <hr className="w-full border-[-1px] border-solid border-darkprim" />
+            <div className="flex flex-col gap-8 mt-8">
+              <Card className="shadow-none">
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Image
+                      src="/chatbot.jpg"
+                      alt="Chatbot Avatar"
+                      width={50}
+                      height={50}
+                    />
+                    <CardTitle className="m-0">
+                      Chat with
+                      <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      {" "}Eve
+                      </span>
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-4">
+                  {Object.entries(examplePrompts).map(([key, prompt]) => (
+                    <Button
+                      key={key}
+                      className="h-auto text-wrap hover:bg-secondary active:bg-primary active:text-white"
+                      variant="ghost"
+                      onClick={() => {
+                        const chatId = Date.now();
+                        router.push(
+                          `/chat/${chatId}?startingMessage=${encodeURIComponent(prompt)}`,
+                        );
+                      }}
+                    >
+                      {key}
+                    </Button>
+                  ))}
+                </CardContent>
+              </Card>
+              <Card className="shadow-none">
+                <CardHeader>
+                  <CardTitle className="m-0">Manually Search Documents</CardTitle>
+                  <CardDescription>
+                    These are the fields available to search by:
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1">
+                  <label className="mb-1">Date Range</label>
+                  <DatePickerWithRange className="rounded-sm border border-primary font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary" />
+                  <label className="mt-5 mb-1">Title</label>
+                  <TextareaAutosize
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    placeholder="Title"
+                    value={titleFilter ? titleFilter : ""}
+                    minRows={1}
+                    cacheMeasurements={true}
+                    onChange={(e) => setTitleFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleFilterEnter();
+                      }
+                    }}
+                  />
+                  <label className="mt-5 mb-1">Country</label>
+                  <TextareaAutosize
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    placeholder="Country"
+                    value={countryFilter ? countryFilter : ""}
+                    minRows={1}
+                    cacheMeasurements={true}
+                    onChange={(e) => setCountryFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleFilterEnter();
+                      }
+                    }}
+                  />
+                  <label className="mt-5 mb-1">Content</label>
+                  <TextareaAutosize
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    placeholder="Content"
+                    value={contentFilter ? contentFilter : ""}
+                    minRows={1}
+                    cacheMeasurements={true}
+                    onChange={(e) => setContentFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleFilterEnter();
+                      }
+                    }}
+                  />
+                  <div className="mt-5 mb-1"></div>
+                  <Button
+                    onClick={handleFilterEnter}
+                    className="border-none bg-primary text-darkprim hover:bg-darkprim hover:text-white active:bg-secondary active:text-darkprim"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+</svg>
+                    Search
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </>
         </div>
       </nav>
     </>

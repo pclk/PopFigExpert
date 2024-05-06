@@ -26,15 +26,14 @@ function Calendar({ className, classNames }: CalendarProps) {
   };
 
   return (
-    <div className="flex space-x-2 bg-white p-6">
+    <div className="flex space-x-2 bg-white pl-10 px-6 pb-6">
       <div>
         <p>Start Date</p>
         <DatePicker
           selected={startDateDate}
           onChange={(date) => handleDateChange(date, true)}
           selectsStart
-          startDate={startDateDate}
-          endDate={endDateDate}
+          className="w-20"
         />
       </div>
       <div>
@@ -46,6 +45,7 @@ function Calendar({ className, classNames }: CalendarProps) {
           startDate={startDateDate}
           endDate={endDateDate}
           minDate={startDateDate}
+          className="w-20"
         />
       </div>
     </div>

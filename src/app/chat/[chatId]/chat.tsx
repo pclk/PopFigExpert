@@ -22,9 +22,7 @@ export function Chat({ id }: ChatProps) {
   useEffect(() => {
     if (messages.length === 1) {
       const initialMessage = messages[0].display as string;
-      setMessages([
-        { id: nanoid(), display: <UserMessage>{initialMessage}</UserMessage> },
-      ]);
+      setMessages([{ id: nanoid(), display: <>{initialMessage}</> }]);
     }
   }, []);
 
@@ -36,8 +34,10 @@ export function Chat({ id }: ChatProps) {
 
   useEffect(() => {
     const sendInitialMessage = async () => {
-      if (messages.length === 1) {
-        const initialMessage = messages[0].display as string;
+      if (messages.length === 1 && messages[0].display) {
+        const initialMessage = (messages[0].display as React.ReactElement).props
+          .children as string;
+        console.log("initialMessage", initialMessage);
         try {
           const response = await submitUserMessage(initialMessage, "mixtral");
           setMessages((currentMessages) => [...currentMessages, response]);
@@ -65,7 +65,7 @@ export function Chat({ id }: ChatProps) {
         ))}
         <div className="mb-4"></div>
       </div>
-        <ChatInput id={id} input={input} setInput={setInput} />
+      <ChatInput id={id} input={input} setInput={setInput} />
     </>
   );
 }

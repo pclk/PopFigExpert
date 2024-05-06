@@ -7,7 +7,11 @@ import {
   getAIState,
 } from "ai/rsc";
 
-import { BotMessage, SpinnerMessage, UserMessage } from "@/components/ai-ui/message";
+import {
+  BotMessage,
+  SpinnerMessage,
+  UserMessage,
+} from "@/components/ai-ui/message";
 import { experimental_streamText, nanoid } from "ai";
 
 import { z } from "zod";
@@ -74,7 +78,9 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               country: z
                 .string()
                 .optional()
-                .describe("The country the document is about. Use this sparingly, most document's countries are not labelled. Using this may result in no results."),
+                .describe(
+                  "The country the document is about. Use this sparingly, most document's countries are not labelled. Using this may result in no results.",
+                ),
             }),
           },
         },
@@ -127,19 +133,25 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
           const { toolName, args } = delta;
 
           if (toolName === "generate_report_summary") {
-            const { content = undefined, title = undefined, startDate = undefined, endDate = undefined, country = undefined } = args
-            console.log('args', args)
+            const {
+              content = undefined,
+              title = undefined,
+              startDate = undefined,
+              endDate = undefined,
+              country = undefined,
+            } = args;
+            console.log("args", args);
             uiStream.update(
               <BotMessage
-                content={`Searching for documents with specified parameters: ${
-                  [
-                    title && `Title: ${title}`,
-                    content && `Content: ${content}`,
-                    startDate && `Start Date: ${startDate}`,
-                    endDate && `End Date: ${endDate}`,
-                    country && `Country: ${country}`
-                  ].filter(Boolean).join(", ")
-                }`}
+                content={`Searching for documents with specified parameters: ${[
+                  title && `Title: ${title}`,
+                  content && `Content: ${content}`,
+                  startDate && `Start Date: ${startDate}`,
+                  endDate && `End Date: ${endDate}`,
+                  country && `Country: ${country}`,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}`}
               />,
             );
 
@@ -149,13 +161,14 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               startDate,
               endDate,
               country,
-              4
+              4,
             );
 
             uiStream.done(<ReportSummary articles={articles} args={args} />);
             let AISummary = "Here is a summary of all 4 articles: \n\n";
             if (articles.length === 0) {
-              AISummary = "I'm sorry, but I couldn't find any articles matching your query. Could you please rephrase your request or provide more specific details?";
+              AISummary =
+                "I'm sorry, but I couldn't find any articles matching your query. Could you please rephrase your request or provide more specific details?";
               messageStream.update(<BotMessage content={AISummary} />);
             } else {
               const summary = await experimental_streamText({
@@ -287,14 +300,17 @@ export function getUIStateFromAIState(aiState: Chat) {
         message.role === "assistant" ? (
           message.display?.name === "generate_report_summary" ? (
             <>
-            <ReportSummary articles={message.display?.props.articles} args={message.display?.props.args} />
-            <BotMessage content={message.content}/>
+              <ReportSummary
+                articles={message.display?.props.articles}
+                args={message.display?.props.args}
+              />
+              <BotMessage content={message.content} />
             </>
           ) : (
             <BotMessage content={message.content} />
           )
         ) : (
           <UserMessage>{message.content}</UserMessage>
-        )
+        ),
     }));
 }
