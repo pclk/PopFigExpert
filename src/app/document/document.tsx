@@ -4,16 +4,8 @@ import { useEffect, useState } from "react";
 import DocumentSearch from "./document-search";
 import { useQueryState } from "nuqs";
 import { searchDocuments } from "@/app/elastic_action";
+import { useArticleSearch } from "@/app/stores";
 
-interface SearchResult {
-  date: string;
-  title: string;
-  url: string;
-  country: string;
-  content: string;
-  highlight_title: string;
-  highlight_content: string;
-}
 
 interface GroupedDocument {
   title: string;
@@ -44,23 +36,19 @@ export default function Document({
   const [description, setDescription] = useState(
     "Start entering your search query...",
   );
-  const [startDateFilter, setStartDate] = useQueryState("startDate");
-  const [endDateFilter, setEndDate] = useQueryState("endDate");
-  const [contentFilter, setContentFilter] = useQueryState("content");
-  const [titleFilter, setTitleFilter] = useQueryState("title");
-  const [countryFilter, setCountryFilter] = useQueryState("country");
+  
 
   useEffect(() => {
     handleSearch();
-  }, []);
+  }, [content, startDate, endDate, country, title]);
 
   function handleSearch() {
     searchDocuments(
-      contentFilter ?? content ?? undefined,
-      startDateFilter ?? startDate ?? undefined,
-      endDateFilter ?? endDate ?? undefined,
-      countryFilter ?? country ?? undefined,
-      titleFilter ?? title ?? undefined,
+      content ?? undefined,
+      title ?? undefined,
+      startDate ?? undefined,
+      endDate ?? undefined,
+      country ?? undefined,
     )
       .then((groupedDocuments: GroupedDocument[]) => {
         if (groupedDocuments.length === 0) {
@@ -68,6 +56,7 @@ export default function Document({
           setDescription("No documents found.");
         } else {
           setResults(groupedDocuments);
+          console.log(results)
           setDescription(`Showing ${groupedDocuments.length} document(s)`);
         }
       })
@@ -76,45 +65,9 @@ export default function Document({
       });
   }
 
-  const groupDocumentsByUrl = (results: any[]): GroupedDocument[] => {
-    const groupedDocuments: GroupedDocument[] = [];
-    const urlMap: { [url: string]: GroupedDocument } = {};
-
-    results.forEach((doc) => {
-      const {
-        date,
-        title,
-        url,
-        country,
-        content,
-        highlight_content,
-        highlight_title,
-      } = doc;
-      if (urlMap[url]) {
-        urlMap[url].multiple_chunks.push(content);
-        urlMap[url].multiple_highlight_chunks.push(highlight_content);
-      } else {
-        urlMap[url] = {
-          title: title,
-          highlight_title: highlight_title,
-          date: date,
-          country: country,
-          url: url,
-          multiple_highlight_chunks: [highlight_content],
-          multiple_chunks: [content],
-        };
-      }
-    });
-
-    Object.values(urlMap).forEach((doc) => {
-      groupedDocuments.push(doc);
-    });
-
-    return groupedDocuments;
-  };
-
   return (
     <div className="flex h-full flex-col">
+      <h2>{description}</h2>
       <div className="flex-grow overflow-y-auto">
         {results.map((doc, index) => (
           <div key={index} className="mb-4 rounded-md bg-white p-4 shadow-md">
@@ -126,8 +79,8 @@ export default function Document({
                 }}
               ></div>
             </div>
-            <p className="m-0 text-lg ">Date: {`${doc.date}`}</p>
-            <p className="mb-2 mt-0 text-lg ">Country: {doc.country}</p>
+            {doc.date && <p className="mb-2 mt-0 text-lg ">Date: {`${doc.date}`}</p>}
+            {doc.country && <p className="mb-2 mt-0 text-lg ">Country: {doc.country}</p>}
             {doc.multiple_chunks.map((chunk, chunkIndex) => (
               <pre
                 key={chunkIndex}
@@ -148,7 +101,6 @@ export default function Document({
           </div>
         ))}
       </div>
-      <DocumentSearch description={description} handleSubmit={handleSearch} />
     </div>
   );
 }

@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function IndexPage({ searchParams }: Props) {
-  // Filter out undefined values
+  console.log("doc searchParams", searchParams);
 
   return (
     <Document

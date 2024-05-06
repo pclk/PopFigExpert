@@ -16,39 +16,37 @@ import { examplePrompts } from "@/app/page";
 import TextareaAutosize from "react-textarea-autosize";
 import { useQueryState } from "nuqs";
 import { useRouter } from "next/navigation";
-import { useUserInput } from "@/app/stores";
+import { useUserInput, useArticleSearch, useProfileSearch } from "@/app/stores";
 
 export default function NavigationBar() {
   const router = useRouter();
   const [isNavBarOpen, setIsNavBarOpen] = useState(false);
-  const [titleFilter, setTitleFilter] = useQueryState("title");
-  const [countryFilter, setCountryFilter] = useQueryState("country");
-  const [startDateFilter, setStartDateFilter] = useQueryState("startDate");
-  const [endDateFilter, setEndDateFilter] = useQueryState("endDate");
-  const [contentFilter, setContentFilter] = useQueryState("content");
   const {userInput, setUserInput} = useUserInput()
+  const {articleSearch, setArticleSearch} = useArticleSearch()
+  const {profileSearch, setProfileSearch} = useProfileSearch()
 
   const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
 
   const handleFilterEnter = () => {
     let searchParams = "";
-    if (titleFilter) {
-      searchParams += `title=${titleFilter.replace(/ /g, "+")}&`;
+    if (articleSearch.title) {
+      searchParams += `title=${articleSearch.title}&`;
     }
-    if (countryFilter) {
-      searchParams += `country=${countryFilter.replace(/ /g, "+")}&`;
+    if (articleSearch.startDate) {
+      searchParams += `startDate=${articleSearch.startDate}&`;
     }
-    if (startDateFilter) {
-      searchParams += `startDate=${startDateFilter}&`;
+    if (articleSearch.endDate) {
+      searchParams += `endDate=${articleSearch.endDate}&`;
     }
-    if (endDateFilter) {
-      searchParams += `endDate=${endDateFilter}&`;
+    if (articleSearch.country) {
+      searchParams += `country=${articleSearch.country}&`;
     }
-    if (contentFilter) {
-      searchParams += `content=${contentFilter.replace(/ /g, "+")}&`;
+    if (articleSearch.content) {
+      searchParams += `content=${articleSearch.content}&`;
     }
     router.push(`/document?${searchParams}`);
   };
+
 
   return (
     <>
@@ -132,10 +130,10 @@ export default function NavigationBar() {
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Title"
-                    value={titleFilter ? titleFilter : ""}
+                    value={articleSearch.title ? articleSearch.title : ""}
                     minRows={1}
                     cacheMeasurements={true}
-                    onChange={(e) => setTitleFilter(e.target.value)}
+                    onChange={(e) => setArticleSearch({...articleSearch, title: e.target.value})}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleFilterEnter();
@@ -146,10 +144,10 @@ export default function NavigationBar() {
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Country"
-                    value={countryFilter ? countryFilter : ""}
+                    value={articleSearch.country ? articleSearch.country : ""}
                     minRows={1}
                     cacheMeasurements={true}
-                    onChange={(e) => setCountryFilter(e.target.value)}
+                    onChange={(e) => setArticleSearch({...articleSearch, country: e.target.value})}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleFilterEnter();
@@ -160,10 +158,10 @@ export default function NavigationBar() {
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Content"
-                    value={contentFilter ? contentFilter : ""}
+                    value={articleSearch.content ? articleSearch.content : ""}
                     minRows={1}
                     cacheMeasurements={true}
-                    onChange={(e) => setContentFilter(e.target.value)}
+                    onChange={(e) => setArticleSearch({...articleSearch, content: e.target.value})}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleFilterEnter();
@@ -187,45 +185,17 @@ export default function NavigationBar() {
                   <CardTitle className="m-0">Profile Search</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1">
-                  <label className="mb-1">Title</label>
+                  <label className="mb-1">Name</label>
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
-                    placeholder="Title"
-                    value={titleFilter ? titleFilter : ""}
+                    placeholder="Name"
+                    value={profileSearch ? profileSearch : ""}
                     minRows={1}
                     cacheMeasurements={true}
-                    onChange={(e) => setTitleFilter(e.target.value)}
+                    onChange={(e) => setProfileSearch(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        handleFilterEnter();
-                      }
-                    }}
-                  />
-                  <label className="mt-3 mb-1">Country</label>
-                  <TextareaAutosize
-                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
-                    placeholder="Country"
-                    value={countryFilter ? countryFilter : ""}
-                    minRows={1}
-                    cacheMeasurements={true}
-                    onChange={(e) => setCountryFilter(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleFilterEnter();
-                      }
-                    }}
-                  />
-                  <label className="mt-3 mb-1">Content</label>
-                  <TextareaAutosize
-                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
-                    placeholder="Content"
-                    value={contentFilter ? contentFilter : ""}
-                    minRows={1}
-                    cacheMeasurements={true}
-                    onChange={(e) => setContentFilter(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleFilterEnter();
+                        // handleProfileSearch();
                       }
                     }}
                   />

@@ -44,7 +44,6 @@ export default function Home() {
     "tab",
     parseAsStringEnum<tabs>(Object.values(tabs)).withDefault(tabs.chat),
   );
-  const [message, setMessage] = useQueryState("message");
 
   const tabState = {
     tab: tab,

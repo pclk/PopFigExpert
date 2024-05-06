@@ -6,6 +6,28 @@ const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
 const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
 const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
 
+type GroupedDocument ={
+  title: string;
+  highlight_title: string;
+  date: string;
+  country: string;
+  url: string;
+  multiple_chunks: string[];
+  multiple_highlight_chunks: string[];
+}
+
+type SearchResult = {
+  title: string;
+  url: string;
+  date: string;
+  country: string;
+  content: string;
+  highlight?: {
+    title?: string;
+    content?: string;
+  }
+}
+
 export async function searchDocuments(
   content?: string,
   title?: string,
@@ -20,7 +42,6 @@ export async function searchDocuments(
         bool: {
           must: [] as { match: { [key: string]: string } }[],
           filter: [] as {
-            term?: { [key: string]: string };
             range?: { [key: string]: { gte?: string; lte?: string } };
           }[],
         },
@@ -35,7 +56,7 @@ export async function searchDocuments(
     };
 
     if (country) {
-      requestBody.query.bool.filter.push({ term: { country: country } });
+      requestBody.query.bool.must.push({ match: { country: country } });
     }
 
     if (top_k !== undefined) {
@@ -77,7 +98,7 @@ export async function searchDocuments(
         },
       };
     }
-    console.log("sending request body", requestBody);
+    // console.log("sending request body", requestBody);
 
     const response = await fetch(`${process.env.HOST_URL}/api/search`, {
       method: "POST",
@@ -90,7 +111,6 @@ export async function searchDocuments(
     let parsedData;
     try {
       parsedData = await response.json();
-      console.log("Elastic Response Data:", parsedData.hits.hits);
     } catch (jsonParseError) {
       console.error("Failed to parse JSON response:", jsonParseError);
       throw new Error(
@@ -99,6 +119,7 @@ export async function searchDocuments(
     }
 
     console.log("Elastic Response Status:", response.status);
+    console.log("Elastic body", parsedData)
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -106,20 +127,44 @@ export async function searchDocuments(
         `Search request failed with status ${response.status}: ${errorText}`,
       );
     }
+    const groupedDocuments: GroupedDocument[] = [];
+    const urlMap: { [url: string]: GroupedDocument} = {};
 
     // Format the parsed data as seen in document.tsx
-    const formattedResults = parsedData.hits.hits.map((hit: any) => ({
-      date: hit._source.date,
-      title: hit._source.title,
-      url: hit._source.url,
-      country: hit._source.country,
-      content: hit._source.content,
-      highlight_title: hit.highlight.title,
-      highlight_content: hit.highlight.content,
-    }));
+    parsedData.hits.hits.forEach((hit: any) => {
+      const {
+        title,
+        url,
+        date,
+        country,
+        content
+      }: SearchResult = hit._source;
+      const {
+        title: highlight_title,
+        content: highlight_content
+      } = hit.highlight ?? {}
+      if (urlMap[url]) {
+        urlMap[url].multiple_chunks.push(content);
+        urlMap[url].multiple_highlight_chunks.push(highlight_content);
+      } else {
+        urlMap[url] = {
+          title: title,
+          highlight_title: highlight_title,
+          date: date,
+          url: url,
+          country: country,
+          multiple_chunks: [content],
+          multiple_highlight_chunks: [highlight_content]
+        }
+      }
+
+      Object.values(urlMap).forEach((doc) => {
+        groupedDocuments.push(doc);
+      });
+    });
 
     // Return the formatted data if the response was successful
-    return formattedResults;
+    return groupedDocuments;
   } catch (error) {
     console.error("Error searching documents:", error);
     throw new Error(
