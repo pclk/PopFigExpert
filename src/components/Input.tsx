@@ -2,6 +2,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
+import { useQueryState } from "nuqs";
+import { useRouter } from "next/navigation";
 
 interface ChatInputProps extends React.ComponentPropsWithoutRef<"input"> {
   placeholder?: string;
@@ -20,35 +22,25 @@ export default function Input({
   placeholder,
   description,
   clearInput = true,
-  value,
   submitMessage,
-  onChange,
 }: ChatInputProps) {
-  const [userInput, setUserInput] = useState(value || "");
-
-  useEffect(() => {
-    if (value !== undefined) {
-      setUserInput(value);
-    }
-  }, [value]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (value === undefined) {
-      // Only update state if operating in uncontrolled mode
-      setUserInput(e.target.value);
-    }
-    onChange?.(e);
-  };
+  const [message, setMessage] = useQueryState("message")
+  const router = useRouter();
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    onChange?.(e);
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      const messageToSend = value !== undefined ? value : userInput;
+      const messageToSend = message!;
       if (messageToSend.trim() !== "") {
         submitMessage(messageToSend);
+        const chatId = Date.now();
+        const url = `/chat/${chatId}?message=${encodeURIComponent(message!)}`
+        console.log(`url: ${url}`)
+        console.log(`router: ${router.push(url)}`)
+        router.push(url);
+
         if (clearInput) {
-          setUserInput("");
+          setMessage("");
         }
       }
     }
@@ -64,20 +56,20 @@ export default function Input({
           <TextareaAutosize
             className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
             placeholder={placeholder}
-            value={value !== undefined ? value : userInput}
-            onChange={handleChange}
+            value={message!}
+            onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
           ></TextareaAutosize>
         </div>
         <button
           type="button"
           className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-darkprim active:bg-secondary"
-          onClick={async (e) => {
-            const messageToSend = value !== undefined ? value : userInput;
+          onClick={async () => {
+            const messageToSend = message!;
             if (messageToSend.trim() !== "") {
               submitMessage(messageToSend);
               if (clearInput) {
-                setUserInput("");
+                setMessage("");
               }
             }
           }}

@@ -37,7 +37,8 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
   - [] go to https://everypolitician.org/countries.html to get names of politicians for each relevant country
   - [] go to https://en.wikipedia.org/wiki/List_of_historical_figures and scrape top, and image
   - [] build genUi for image + personality summary
-- [] classify chunks underneath the same title, like the manual document search. return doc.title.length for article length.
+**- [] classify chunks underneath the same title, like the manual document search. return doc.title.length for article length.**
+**- [] prompt template in page.tsx and navigation**
 - [] No need chatid, navigation bar becomes homepage's details. homepage becomes chat.
  
 

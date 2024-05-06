@@ -32,14 +32,10 @@ enum tabs {
 }
 
 export const examplePrompts = {
-  "Report summary of Singapore AI":
-    "Could you generate a report summary on Singapore AI?",
-  "Report summary of Australia's Prime Minister":
-    "Could you generate a report summary on Australia's Prime Minister?",
-  "Report summary of China's economy":
-    "Could you generate a report summary on China's economy?",
-  "Report summary of the Covid-19 in US":
-    "Could you generate a report summary on the Covid-19 in the United States?",
+  "Article summary of [xxx]":
+    "Could you generate a report summary on [xxx]?",
+  "Personality summary of [xxx]":
+    "Could you generate a personality summary on [xxx]?",
 };
 
 export default function Home() {
@@ -48,6 +44,7 @@ export default function Home() {
     "tab",
     parseAsStringEnum<tabs>(Object.values(tabs)).withDefault(tabs.chat),
   );
+  const [message, setMessage] = useQueryState("message");
 
   const tabState = {
     tab: tab,
@@ -154,11 +151,11 @@ export default function Home() {
               <Input
               placeholder={tabState.placeholder}
               description={tabState.description}
-              submitMessage={async (message) => {
-                  const chatId = Date.now();
-                  router.push(
-                    `/chat/${chatId}?startingMessage=${encodeURIComponent(message)}`,
-                  );
+              submitMessage={async () => {
+                  // const chatId = Date.now();
+                  // const url = `/chat/${chatId}?message=${encodeURIComponent(message!)}`
+                  // console.log(`url: ${url}`)
+                  // router.push(url);
                   }}
             />
         

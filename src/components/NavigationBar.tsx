@@ -25,6 +25,7 @@ export default function NavigationBar() {
   const [startDateFilter, setStartDateFilter] = useQueryState("startDate");
   const [endDateFilter, setEndDateFilter] = useQueryState("endDate");
   const [contentFilter, setContentFilter] = useQueryState("content");
+  const [message, setMessage] = useQueryState("message");
 
   const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
 
@@ -111,10 +112,12 @@ export default function NavigationBar() {
                       className="h-auto text-wrap hover:bg-secondary active:bg-primary active:text-white"
                       variant="ghost"
                       onClick={() => {
-                        const chatId = Date.now();
-                        router.push(
-                          `/chat/${chatId}?startingMessage=${encodeURIComponent(prompt)}`,
-                        );
+                        setMessage(prompt);
+
+                        // const chatId = Date.now();
+                        // router.push(
+                        //   `/chat/${chatId}?startingMessage=${encodeURIComponent(prompt)}`,
+                        // );
                       }}
                     >
                       {key}
@@ -124,15 +127,12 @@ export default function NavigationBar() {
               </Card>
               <Card className="shadow-none">
                 <CardHeader>
-                  <CardTitle className="m-0">Manually Search Documents</CardTitle>
-                  <CardDescription>
-                    These are the fields available to search by:
-                  </CardDescription>
+                  <CardTitle className="m-0">Article search</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1">
                   <label className="mb-1">Date Range</label>
                   <DatePickerWithRange className="rounded-sm border border-primary font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary" />
-                  <label className="mt-5 mb-1">Title</label>
+                  <label className="mt-3 mb-1">Title</label>
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Title"
@@ -146,7 +146,7 @@ export default function NavigationBar() {
                       }
                     }}
                   />
-                  <label className="mt-5 mb-1">Country</label>
+                  <label className="mt-3 mb-1">Country</label>
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Country"
@@ -160,7 +160,7 @@ export default function NavigationBar() {
                       }
                     }}
                   />
-                  <label className="mt-5 mb-1">Content</label>
+                  <label className="mt-3 mb-1">Content</label>
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Content"
@@ -174,7 +174,66 @@ export default function NavigationBar() {
                       }
                     }}
                   />
-                  <div className="mt-5 mb-1"></div>
+                  <div className="mt-3 mb-1"></div>
+                  <Button
+                    onClick={handleFilterEnter}
+                    className="border-none bg-primary text-darkprim hover:bg-darkprim hover:text-white active:bg-secondary active:text-darkprim"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+</svg>
+                    Search
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card className="shadow-none">
+                <CardHeader>
+                  <CardTitle className="m-0">Profile Search</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1">
+                  <label className="mb-1">Title</label>
+                  <TextareaAutosize
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    placeholder="Title"
+                    value={titleFilter ? titleFilter : ""}
+                    minRows={1}
+                    cacheMeasurements={true}
+                    onChange={(e) => setTitleFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleFilterEnter();
+                      }
+                    }}
+                  />
+                  <label className="mt-3 mb-1">Country</label>
+                  <TextareaAutosize
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    placeholder="Country"
+                    value={countryFilter ? countryFilter : ""}
+                    minRows={1}
+                    cacheMeasurements={true}
+                    onChange={(e) => setCountryFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleFilterEnter();
+                      }
+                    }}
+                  />
+                  <label className="mt-3 mb-1">Content</label>
+                  <TextareaAutosize
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    placeholder="Content"
+                    value={contentFilter ? contentFilter : ""}
+                    minRows={1}
+                    cacheMeasurements={true}
+                    onChange={(e) => setContentFilter(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleFilterEnter();
+                      }
+                    }}
+                  />
+                  <div className="mt-3 mb-1"></div>
                   <Button
                     onClick={handleFilterEnter}
                     className="border-none bg-primary text-darkprim hover:bg-darkprim hover:text-white active:bg-secondary active:text-darkprim"

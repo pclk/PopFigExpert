@@ -4,15 +4,15 @@ import { useActions, useUIState } from "ai/rsc";
 import { useEffect, useRef, useState } from "react";
 import { ChatInput } from "./chat-input";
 import type { AI } from "@/app/ai_sdk_action";
-import { UserMessage } from "@/components/ai-ui/message";
 import { nanoid } from "ai";
+import { useQueryState } from "nuqs";
 
 export interface ChatProps extends React.ComponentProps<"div"> {
   id?: string;
 }
 
 export function Chat({ id }: ChatProps) {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useQueryState("message");
 
   const [messages, setMessages] = useUIState<typeof AI>();
 
@@ -65,7 +65,7 @@ export function Chat({ id }: ChatProps) {
         ))}
         <div className="mb-4"></div>
       </div>
-      <ChatInput id={id} input={input} setInput={setInput} />
+      <ChatInput id={id} input={input!} setInput={setInput} />
     </>
   );
 }
