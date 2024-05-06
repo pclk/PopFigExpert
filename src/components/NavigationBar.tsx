@@ -16,6 +16,7 @@ import { examplePrompts } from "@/app/page";
 import TextareaAutosize from "react-textarea-autosize";
 import { useQueryState } from "nuqs";
 import { useRouter } from "next/navigation";
+import { useUserInput } from "@/app/stores";
 
 export default function NavigationBar() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function NavigationBar() {
   const [startDateFilter, setStartDateFilter] = useQueryState("startDate");
   const [endDateFilter, setEndDateFilter] = useQueryState("endDate");
   const [contentFilter, setContentFilter] = useQueryState("content");
-  const [message, setMessage] = useQueryState("message");
+  const {userInput, setUserInput} = useUserInput()
 
   const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
 
@@ -112,12 +113,7 @@ export default function NavigationBar() {
                       className="h-auto text-wrap hover:bg-secondary active:bg-primary active:text-white"
                       variant="ghost"
                       onClick={() => {
-                        setMessage(prompt);
-
-                        // const chatId = Date.now();
-                        // router.push(
-                        //   `/chat/${chatId}?startingMessage=${encodeURIComponent(prompt)}`,
-                        // );
+                        setUserInput(prompt);
                       }}
                     >
                       {key}

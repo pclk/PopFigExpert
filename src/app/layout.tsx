@@ -4,7 +4,6 @@ import React from "react";
 import NavigationBar from "../components/NavigationBar";
 import "@/app/globals.css";
 import { AI } from "./ai_sdk_action";
-import { headers } from "next/headers";
 import type { Metadata } from "next";
 import Providers from "@/components/Providers";
 

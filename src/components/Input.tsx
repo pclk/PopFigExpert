@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { useQueryState } from "nuqs";
 import { useRouter } from "next/navigation";
+import { useUserInput } from "@/app/stores";
 
 interface ChatInputProps extends React.ComponentPropsWithoutRef<"input"> {
   placeholder?: string;
@@ -24,23 +25,16 @@ export default function Input({
   clearInput = true,
   submitMessage,
 }: ChatInputProps) {
-  const [message, setMessage] = useQueryState("message")
-  const router = useRouter();
+  const {userInput, setUserInput} = useUserInput()
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      const messageToSend = message!;
+      const messageToSend = userInput;
       if (messageToSend.trim() !== "") {
         submitMessage(messageToSend);
-        const chatId = Date.now();
-        const url = `/chat/${chatId}?message=${encodeURIComponent(message!)}`
-        console.log(`url: ${url}`)
-        console.log(`router: ${router.push(url)}`)
-        router.push(url);
-
         if (clearInput) {
-          setMessage("");
+          setUserInput("");
         }
       }
     }
@@ -56,8 +50,8 @@ export default function Input({
           <TextareaAutosize
             className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
             placeholder={placeholder}
-            value={message!}
-            onChange={(e) => setMessage(e.target.value)}
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}
           ></TextareaAutosize>
         </div>
@@ -65,11 +59,11 @@ export default function Input({
           type="button"
           className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-darkprim active:bg-secondary"
           onClick={async () => {
-            const messageToSend = message!;
+            const messageToSend = userInput!;
             if (messageToSend.trim() !== "") {
               submitMessage(messageToSend);
               if (clearInput) {
-                setMessage("");
+                setUserInput("");
               }
             }
           }}

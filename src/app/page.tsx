@@ -151,11 +151,11 @@ export default function Home() {
               <Input
               placeholder={tabState.placeholder}
               description={tabState.description}
-              submitMessage={async () => {
-                  // const chatId = Date.now();
-                  // const url = `/chat/${chatId}?message=${encodeURIComponent(message!)}`
-                  // console.log(`url: ${url}`)
-                  // router.push(url);
+              submitMessage={async (message) => {
+                  const chatId = Date.now();
+                  const url = `/chat/${chatId}?message=${encodeURIComponent(message!)}`
+                  console.log(`url: ${url}`)
+                  router.push(url);
                   }}
             />
         
