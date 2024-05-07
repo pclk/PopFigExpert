@@ -14,10 +14,8 @@ export interface ChatPageProps {
 }
 
 export default async function IndexPage({ searchParams }: ChatPageProps) {
-  console.log('search params: ', searchParams)
   const id = searchParams.chatId as string;
   const messageString = searchParams.message as string;
-  console.log(`message: ${messageString}`);
 
   return (
     <AI

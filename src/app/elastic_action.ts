@@ -38,6 +38,8 @@ export async function searchDocuments(
 ) {
   try {
     const requestBody = {
+      from: 0,
+      size: 10,
       query: {
         bool: {
           must: [] as { match: { [key: string]: string } }[],
@@ -52,7 +54,6 @@ export async function searchDocuments(
         post_tags: ["</mark>"],
         fields: {},
       },
-      size: 10,
     };
 
     if (country) {
@@ -129,6 +130,7 @@ export async function searchDocuments(
     }
     const groupedDocuments: GroupedDocument[] = [];
     const urlMap: { [url: string]: GroupedDocument} = {};
+    console.log('parsedData length', parsedData.hits.hits.length)
 
     // Format the parsed data as seen in document.tsx
     parsedData.hits.hits.forEach((hit: any) => {
@@ -143,7 +145,7 @@ export async function searchDocuments(
         title: highlight_title,
         content: highlight_content
       } = hit.highlight ?? {}
-      if (urlMap[url]) {
+      if (url in urlMap) {
         urlMap[url].multiple_chunks.push(content);
         urlMap[url].multiple_highlight_chunks.push(highlight_content);
       } else {
@@ -157,11 +159,12 @@ export async function searchDocuments(
           multiple_highlight_chunks: [highlight_content]
         }
       }
-
-      Object.values(urlMap).forEach((doc) => {
-        groupedDocuments.push(doc);
-      });
     });
+
+    Object.values(urlMap).forEach((doc) => {
+      groupedDocuments.push(doc);
+    });
+    // console.log('groupedDocuments in elastic_action', groupedDocuments)
 
     // Return the formatted data if the response was successful
     return groupedDocuments;

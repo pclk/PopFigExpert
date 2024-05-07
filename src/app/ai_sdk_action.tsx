@@ -18,6 +18,8 @@ import { z } from "zod";
 import { Mistral } from "@ai-sdk/mistral";
 import { searchDocuments } from "./elastic_action";
 import ReportSummary from "@/components/ai-ui/report-sumary";
+import type { GroupedDocument } from "@/app/document/document";
+
 
 const mistral = new Mistral({
   apiKey: process.env.MISTRAL_API_KEY || "",
@@ -62,11 +64,11 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               content: z
                 .string()
                 .optional()
-                .describe("The content of the document."),
+                .describe("The content of the document. This is what you should use 95% of the time, unless otherwise specified, to search in the database."),
               title: z
                 .string()
                 .optional()
-                .describe("The title of the document."),
+                .describe("The title of the document. Instead of using this, you should use content instead, unless specified by the user."),
               startDate: z
                 .string()
                 .optional()
@@ -111,7 +113,6 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
 
       for await (const delta of response.fullStream) {
         const { type } = delta;
-
         if (type === "text-delta") {
           const { textDelta } = delta;
 
@@ -162,10 +163,10 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               endDate,
               country,
               4,
-            );
-
+            )
+            console.log('passing articles to report-summary', articles)
             uiStream.done(<ReportSummary articles={articles} args={args} />);
-            let AISummary = "Here is a summary of all 4 articles: \n\n";
+            let AISummary = `Here is a summary of all ${articles.length} articles: \n\n`;
             if (articles.length === 0) {
               AISummary =
                 "I'm sorry, but I couldn't find any articles matching your query. Could you please rephrase your request or provide more specific details?";
@@ -173,7 +174,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
             } else {
               const summary = await experimental_streamText({
                 model: mistral.chat("mistral-large-latest"),
-                prompt: `Could you summarize these articles, with the Title: ${articles.map((article: any) => `${article.title}, and the content: ${article.content.slice(0, 500)}...`).join("\n\n")}`,
+                prompt: `Could you summarize these articles, with the Title: ${articles.map((article: any) => `${article.title}, and the content: ${article.multiple_chunks.join(" ").substring(0, 500)}...`).join("\n\n")}`,
                 maxTokens: 1000,
               });
 

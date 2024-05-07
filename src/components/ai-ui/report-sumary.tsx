@@ -8,18 +8,11 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import Suggestions from "./suggestions";
+import type { GroupedDocument } from "@/app/document/document";
 
-interface Article {
-  title: string;
-  date?: string;
-  country?: string;
-  content?: string;
-  highlight_title?: string;
-  highlight_content?: string;
-}
 
 interface ReportSummaryProps {
-  articles: Article[];
+  articles: GroupedDocument[];
   args: {
     content?: string;
     title?: string;
@@ -44,7 +37,7 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, args }) => {
   // Generate suggestions based on article titles
   const suggestions = articles.reduce(
     (acc, article, index) => {
-      acc[`Summarize article ${index + 1}`] =
+      acc[`Summarize ${article.title.substring(0, 10)}..`] =
         `Could you summarize the article titled "${article.title}", in your own words, without using the generate news articles function??`;
       return acc;
     },
@@ -75,14 +68,19 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, args }) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex overflow-y-auto rounded-md">
-          {articles.map((article, index) => (
-            <div
-              key={index}
-              className={`mr-2 h-96 basis-1/4 cursor-pointer rounded-lg transition-all duration-500 ease-in-out hover:text-primary ${
-                enlargedArticles.includes(index) ? "h-auto basis-2/3" : ""
-              }`}
-              onClick={() => toggleArticle(index)}
-            >
+        {articles.map((article, index) => {
+    const isEnlarged = enlargedArticles.includes(index);
+    const flexBasis = isEnlarged ? '100%' : `${100 / articles.length}%`;
+
+    return (
+      <div
+        key={index}
+        className={`mb-2 h-96 cursor-pointer rounded-lg p-2 transition-all duration-500 ease-in-out hover:text-primary ${
+          isEnlarged ? 'h-auto' : ''
+        }`}
+        style={{ flexBasis }}
+        onClick={() => toggleArticle(index)}
+      >
               <h3
                 className="mt-0"
                 dangerouslySetInnerHTML={{
@@ -93,16 +91,17 @@ const ReportSummary: React.FC<ReportSummaryProps> = ({ articles, args }) => {
                 {article.date && <span>({article.date})</span>}
                 {article.country && <span> - {article.country}</span>}
               </div>
-              {article.content && (
+              {article.multiple_chunks.map((chunk, index) => (
                 <pre
+                  key={index}
                   className="mt-2 overflow-hidden text-ellipsis whitespace-pre-wrap rounded-md bg-secondary p-2 font-inter text-sm shadow-lg"
                   dangerouslySetInnerHTML={{
-                    __html: article.highlight_content ?? article.content,
+                    __html: article.multiple_highlight_chunks[index] ?? chunk,
                   }}
                 ></pre>
-              )}
+              ))}
             </div>
-          ))}
+          )})}
         </CardContent>
       </Card>
       <Suggestions suggestions={suggestions} />

@@ -4,17 +4,17 @@ import type { AI } from "@/app/ai_sdk_action";
 import { nanoid } from "ai";
 import TextareaAutosize from "react-textarea-autosize";
 import { UserMessage } from "@/components/ai-ui/message";
+import { useUserInput } from "@/app/stores";
 
 export interface ChatInputProps {
   id?: string;
   title?: string;
-  input: string;
-  setInput: (value: string) => void;
 }
 
-export function ChatInput({ id, title, input, setInput }: ChatInputProps) {
+export function ChatInput({ id, title }: ChatInputProps) {
   const [messages, setMessages] = useUIState<typeof AI>();
   const { submitUserMessage } = useActions();
+  const {userInput, setUserInput} = useUserInput();
 
   return (
     <div className="sticky bottom-0 left-0 flex w-full bg-white">
@@ -26,14 +26,14 @@ export function ChatInput({ id, title, input, setInput }: ChatInputProps) {
           <TextareaAutosize
             className="box-border w-full grow resize-none overflow-hidden rounded-sm border-primary p-2 font-inter text-sm text-darkprim caret-primary outline-0 transition-all duration-75 focus:ring-2 focus:ring-primary"
             placeholder="Send a message"
-            value={input}
+            value={userInput}
             autoFocus
             rows={1}
             onKeyDown={async (e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                const value = input.trim();
-                setInput("");
+                const value = userInput.trim();
+                setUserInput("");
                 if (!value) return;
 
                 setMessages((currentMessages) => [
@@ -56,7 +56,7 @@ export function ChatInput({ id, title, input, setInput }: ChatInputProps) {
               }
             }}
             onChange={(e) => {
-              setInput(e.target.value);
+              setUserInput(e.target.value);
             }}
           />
         </div>
@@ -64,8 +64,8 @@ export function ChatInput({ id, title, input, setInput }: ChatInputProps) {
           type="button"
           className="group rounded-sm border-none bg-primary px-4 py-2 text-sm transition-all hover:bg-secondary active:bg-primary"
           onClick={async (e) => {
-            const value = input.trim();
-            setInput("");
+            const value = userInput.trim();
+            setUserInput("");
             if (!value) return;
 
             setMessages((currentMessages) => [

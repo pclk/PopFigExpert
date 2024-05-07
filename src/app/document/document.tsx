@@ -7,7 +7,7 @@ import { searchDocuments } from "@/app/elastic_action";
 import { useArticleSearch } from "@/app/stores";
 
 
-interface GroupedDocument {
+export type GroupedDocument = {
   title: string;
   highlight_title: string;
   date: string;
@@ -75,7 +75,7 @@ export default function Document({
               <div
                 className="text-xl font-bold"
                 dangerouslySetInnerHTML={{
-                  __html: doc.highlight_title ? doc.highlight_title : doc.title,
+                  __html: doc.highlight_title ?? doc.title,
                 }}
               ></div>
             </div>
@@ -84,6 +84,7 @@ export default function Document({
             {doc.multiple_chunks.map((chunk, chunkIndex) => (
               <pre
                 key={chunkIndex}
+                id={chunkIndex.toString()}
                 className="text-md mt-2 overflow-hidden text-ellipsis whitespace-pre-wrap rounded-md bg-secondary p-2 font-inter shadow-lg"
                 dangerouslySetInnerHTML={{
                   __html: doc.multiple_highlight_chunks[chunkIndex] ?? chunk,

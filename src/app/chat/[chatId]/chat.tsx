@@ -12,8 +12,6 @@ export interface ChatProps extends React.ComponentProps<"div"> {
 }
 
 export function Chat({ id }: ChatProps) {
-  const [input, setInput] = useQueryState("message");
-
   const [messages, setMessages] = useUIState<typeof AI>();
 
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -65,7 +63,7 @@ export function Chat({ id }: ChatProps) {
         ))}
         <div className="mb-4"></div>
       </div>
-      <ChatInput id={id} input={input!} setInput={setInput} />
+      <ChatInput id={id} />
     </>
   );
 }
