@@ -4,19 +4,27 @@ import { IconMenu2, IconMessages } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { DatePickerWithRange } from "@/components/DateRangePicker";
 import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { examplePrompts } from "@/app/page";
 import TextareaAutosize from "react-textarea-autosize";
-import { useQueryState } from "nuqs";
 import { useRouter } from "next/navigation";
 import { useUserInput, useArticleSearch, useProfileSearch } from "@/app/stores";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export default function NavigationBar() {
   const router = useRouter();
@@ -27,26 +35,6 @@ export default function NavigationBar() {
 
   const toggleNavBar = () => setIsNavBarOpen((prevState) => !prevState);
 
-  const handleFilterEnter = () => {
-    let searchParams = "";
-    if (articleSearch.title) {
-      searchParams += `title=${articleSearch.title}&`;
-    }
-    if (articleSearch.startDate) {
-      searchParams += `startDate=${articleSearch.startDate}&`;
-    }
-    if (articleSearch.endDate) {
-      searchParams += `endDate=${articleSearch.endDate}&`;
-    }
-    if (articleSearch.country) {
-      searchParams += `country=${articleSearch.country}&`;
-    }
-    if (articleSearch.content) {
-      searchParams += `content=${articleSearch.content}&`;
-    }
-    router.push(`/document?${searchParams}`);
-  };
-
 
   return (
     <>
@@ -55,18 +43,17 @@ export default function NavigationBar() {
         onClick={toggleNavBar}
       />
 
-      <nav
-        className={`fixed left-0 top-0 z-20 box-border h-full w-80 overflow-y-auto flex-shrink-0 transform bg-secondary p-4 text-darkprim shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+      <nav className={`fixed left-0 top-0 z-20 box-border h-full w-80 overflow-y-auto flex-shrink-0 transform bg-secondary p-4 text-darkprim shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
           isNavBarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex h-full flex-col">
           <>
             <div className="flex justify-between rounded-sm">
-              <button
-                className="group w-full rounded-md border-0 bg-secondary text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white"
-                onClick={() => router.push("/")}
-              >
+              <Link
+                className="group w-full rounded-md border-0 bg-secondary text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white no-underline text-darkprim"
+                href="/"
+                >
                 <div className="flex items-center group-active:text-white">
                   <Image
                     src="/ProcoLink.png"
@@ -75,7 +62,6 @@ export default function NavigationBar() {
                     height={40}
                     className="mr-4"
                   />
-                  {/* <IconMessages className="mr-4 size-7 fill-darkprim group-hover:fill-white group-active:fill-primary" /> */}
                   <div className="font-inter text-lg font-semibold">
                     ProcoLink{" "}
                     <div className="hidden group-hover:inline">
@@ -83,7 +69,7 @@ export default function NavigationBar() {
                     </div>
                   </div>
                 </div>
-              </button>
+              </Link>
             </div>
             <hr className="w-full border-[-1px] border-solid border-darkprim" />
             <div className="flex flex-col gap-8 mt-8">
@@ -125,7 +111,11 @@ export default function NavigationBar() {
                 </CardHeader>
                 <CardContent className="grid grid-cols-1">
                   <label className="mb-1">Date Range</label>
-                  <DatePickerWithRange className="rounded-sm border border-primary font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary" />
+                  <DatePickerWithRange className="rounded-sm border border-primary font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary" 
+                    setStore={setArticleSearch}
+                    store={articleSearch}
+                    setOtherStore={setProfileSearch}
+                  />
                   <label className="mt-3 mb-1">Title</label>
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
@@ -133,10 +123,13 @@ export default function NavigationBar() {
                     value={articleSearch.title ? articleSearch.title : ""}
                     minRows={1}
                     cacheMeasurements={true}
-                    onChange={(e) => setArticleSearch({...articleSearch, title: e.target.value})}
+                    onChange={(e) => {
+                      setArticleSearch({...articleSearch, title: e.target.value})
+                      setProfileSearch({})
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        handleFilterEnter();
+                        router.push(`/document`);
                       }
                     }}
                   />
@@ -147,10 +140,13 @@ export default function NavigationBar() {
                     value={articleSearch.country ? articleSearch.country : ""}
                     minRows={1}
                     cacheMeasurements={true}
-                    onChange={(e) => setArticleSearch({...articleSearch, country: e.target.value})}
+                    onChange={(e) => {
+                      setArticleSearch({...articleSearch, country: e.target.value})
+                      setProfileSearch({})
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        handleFilterEnter();
+                        router.push(`/document`);
                       }
                     }}
                   />
@@ -161,16 +157,19 @@ export default function NavigationBar() {
                     value={articleSearch.content ? articleSearch.content : ""}
                     minRows={1}
                     cacheMeasurements={true}
-                    onChange={(e) => setArticleSearch({...articleSearch, content: e.target.value})}
+                    onChange={(e) => {
+                      setArticleSearch({...articleSearch, content: e.target.value})
+                      setProfileSearch({})
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        handleFilterEnter();
+                        router.push(`/document`);
                       }
                     }}
                   />
                   <div className="mt-3 mb-1"></div>
                   <Button
-                    onClick={handleFilterEnter}
+                    onClick={() => router.push(`/document`)}
                     className="border-none bg-primary text-darkprim hover:bg-darkprim hover:text-white active:bg-secondary active:text-darkprim"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
@@ -189,19 +188,63 @@ export default function NavigationBar() {
                   <TextareaAutosize
                     className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
                     placeholder="Name"
-                    value={profileSearch ? profileSearch : ""}
+                    value={profileSearch.name ? profileSearch.name : ""}
                     minRows={1}
                     cacheMeasurements={true}
-                    onChange={(e) => setProfileSearch(e.target.value)}
+                    onChange={(e) => {
+                      setProfileSearch({...profileSearch, name: e.target.value})
+                      setArticleSearch({})
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        // handleProfileSearch();
+                        router.push(`/document`);
                       }
                     }}
                   />
+                  <label className="mt-3 mb-1">Country</label>
+                  <TextareaAutosize
+                    className="resize-none overflow-hidden rounded-sm border border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    placeholder="Country"
+                    value={profileSearch.country ? profileSearch.country : ""}
+                    minRows={1}
+                    cacheMeasurements={true}
+                    onChange={(e) => {
+                      setProfileSearch({...profileSearch, country: e.target.value})
+                      setArticleSearch({})
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        router.push(`/document`);
+                      }
+                    }}
+                  />
+                  <label className="mt-3 mb-1">Gender</label>
+                  <DropdownMenu
+                  >
+                    <DropdownMenuTrigger
+                     className="resize-none overflow-hidden bg-white rounded-sm border-solid border-[1px] border-primary p-2 font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    >
+                      <DropdownMenuLabel className={cn("p-0 text-left font-normal", !profileSearch.gender && "text-slate-500")}>{profileSearch.gender ?? "Gender"}</DropdownMenuLabel>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuRadioGroup value={profileSearch.gender} onValueChange={(value) => {
+                        setProfileSearch({...profileSearch, gender: value})
+                        setArticleSearch({})
+                      }}>
+                        <DropdownMenuRadioItem value="male">Male</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="female">Female</DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <label className="mt-3 mb-1">Birth Date range</label>
+                  <DatePickerWithRange className="rounded-sm border border-primary font-inter text-sm text-darkprim outline-none transition-all duration-75 focus:ring-2 focus:ring-primary"
+                    store={profileSearch}
+                    setStore={setProfileSearch}
+                    setOtherStore={setArticleSearch}
+                  />
                   <div className="mt-3 mb-1"></div>
                   <Button
-                    onClick={handleFilterEnter}
+                    onClick={() => router.push(`/document`)}
                     className="border-none bg-primary text-darkprim hover:bg-darkprim hover:text-white active:bg-secondary active:text-darkprim"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">

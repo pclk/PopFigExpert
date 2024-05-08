@@ -4,18 +4,27 @@ import { addDays, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import type { articleSearchType, profileSearchType } from "@/app/stores";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useQueryState } from "nuqs";
+
+interface DatePickerWithRangeProps extends React.HTMLAttributes<HTMLDivElement> {
+  store: articleSearchType | profileSearchType | null;
+  setStore: (date: articleSearchType | profileSearchType) => void;
+  setOtherStore: (date: articleSearchType | profileSearchType) => void;
+}
 
 export function DatePickerWithRange({
   className,
-}: React.HTMLAttributes<HTMLDivElement>) {
-  const [startDate, _1] = useQueryState("startDate");
-  const [endDate, _2] = useQueryState("endDate");
+  store,
+  setStore,
+  setOtherStore
+}: DatePickerWithRangeProps) {
+
+  
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -26,17 +35,17 @@ export function DatePickerWithRange({
             variant={"outline"}
             className={cn(
               "justify-start text-left font-normal border-solid p-2 border-primary rounded-sm",
-              !startDate && "text-muted-foreground",
+              !store?.startDate && "text-muted-foreground",
             )}
           >
-            {startDate ? (
-              endDate ? (
+            {store?.startDate ? (
+              store?.endDate ? (
                 <>
-                  {format(startDate, "LLL dd, y")} -{" "}
-                  {format(endDate, "LLL dd, y")}
+                  {format(store.startDate, "LLL dd, y")} -{" "}
+                  {format(store.endDate, "LLL dd, y")}
                 </>
               ) : (
-                format(startDate, "LLL dd, y")
+                format(store.startDate, "LLL dd, y")
               )
             ) : (
               <span className="text-slate-500">Pick a date range</span>
@@ -44,7 +53,7 @@ export function DatePickerWithRange({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar />
+          <Calendar store={store} setStore={setStore} setOtherStore={setOtherStore} />
         </PopoverContent>
       </Popover>
     </div>

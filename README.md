@@ -5,41 +5,45 @@ PopFigExpert is an AI-powered information assistant designed to provide accurate
 Special mention to Centre of Strategic Infocomms Technology (CSIT), for assigning this amazing project to me! 
 Thank you Yai Hui, for guiding and assisting me from things to model selection, payment of AI credits, and allowing me to work with Next.js!
 
+## Gallery
+
+![](READMEmedia/home.gif)
+This is the homepage!
+
+![](READMEmedia/eve_article.gif)
+This is the function to generate an article summary.
+
+![](READMEmedia/eve_profile.gif)
+This is for profile summary
+
+![](READMEmedia/search.gif)
+Manual searchfunctionality.
+
+
 ## TODO
 
 - [x] Scrape and ingest MFA-Press Statements into Elasticsearch
-- [ ] Scrape and ingest Wikipedia articles into Elasticsearch
+- [x] Scrape and ingest Wikipedia articles into Elasticsearch
 - [x] Basic chatbot functionality with OpenAI API and Mixtral model support
 - [x] Set up Vercel AI SDK 
 - [x] UI for interacting with the chatbot
-- [ ] Navigation Bar with Chat history and Document search history
-  - [ ] Create tabs
-  - [ ] Populate and save fields to ES
-  - [ ] Bookmark fields
 - [x] Function calling capabilities with OpenAI
 - [x] Function calling capabilities with Mixtral
-- [ ] UI for interacting with Elasticsearch
-  - [ ] Search Input, Sorting and Filters
-  - [ ] Implement date handling functionality for date debuging
-  - [ ] Search for documents on key press
-  - [ ] Include reset button to clear all filters and search results
-  - [ ] Display errors.
-  - [ ] Load 10 documents, load 10 next when scroll
-  - [ ] Right sidebar for more info
+- [x] UI for interacting with Elasticsearch
+  - [x] Search Input, Sorting and Filters
+  - [x] Implement date handling functionality
+  - [x] Search for documents on key press
+  - [x] Include reset button to clear all filters and search results
 - [x] Integrate model's Function calling with Elasticsearch:
   - [x] Implement chatbot's ability to generate Elasticsearch queries based on user input
   - [x] Process and present Elasticsearch results to the user within the chat interface
-  - [ ] UI for displaying and sending inputs within the genUI. 
+  - [x] UI for displaying and sending inputs within the genUI. 
 - [ ] Deploy on Vercel
 
 - [] Wikipedia:
-  - [] retrieve list of countries from ES
-  - [] go to https://everypolitician.org/countries.html to get names of politicians for each relevant country
-  - [] go to https://en.wikipedia.org/wiki/List_of_historical_figures and scrape top, and image
   - [] build genUi for image + personality summary
-**- [] classify chunks underneath the same title, like the manual document search. return doc.title.length for article length.**
-**- [] prompt template in page.tsx and navigation**
-- [] No need chatid, navigation bar becomes homepage's details. homepage becomes chat.
+**- [x] classify chunks underneath the same title, like the manual document search. return doc.title.length for article length.**
+**- [x] prompt template in page.tsx and navigation**
  
 
 

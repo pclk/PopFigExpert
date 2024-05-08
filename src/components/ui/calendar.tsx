@@ -1,27 +1,28 @@
 "use client";
 
+import { articleSearchType, profileSearchType } from "@/app/stores";
 import DatePicker from "react-datepicker";
-import { DayPicker } from "react-day-picker";
-import { useQueryState } from "nuqs";
 
 import "react-datepicker/dist/react-datepicker.css";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+interface CalendarProps {
+  store: articleSearchType | profileSearchType | null;
+  setStore: (date: articleSearchType | profileSearchType) => void;
+  setOtherStore: (date: articleSearchType | profileSearchType) => void;
+}
 
-function Calendar({ className, classNames }: CalendarProps) {
-  const [startDate, setStartDate] = useQueryState("startDate");
-  const [endDate, setEndDate] = useQueryState("endDate");
+function Calendar({ store, setStore, setOtherStore }: CalendarProps) {
 
   // Convert ISO string to Date object or null
-  const startDateDate = startDate ? new Date(startDate) : null;
-  const endDateDate = endDate ? new Date(endDate) : null;
+  const startDateDate = store?.startDate ? new Date(store.startDate) : null;
+  const endDateDate = store?.endDate ? new Date(store.endDate) : null;
 
   const handleDateChange = (date: Date | null, start: boolean) => {
     const dateString = date ? date.toISOString() : "";
     if (start) {
-      setStartDate(dateString);
+      setStore({ ...store, startDate: dateString });
     } else {
-      setEndDate(dateString);
+      setStore({ ...store, endDate: dateString });
     }
   };
 
@@ -31,7 +32,10 @@ function Calendar({ className, classNames }: CalendarProps) {
         <p>Start Date</p>
         <DatePicker
           selected={startDateDate}
-          onChange={(date) => handleDateChange(date, true)}
+          onChange={(date) => {
+            handleDateChange(date, true);
+            setOtherStore({});
+          }}
           selectsStart
           className="w-20"
         />
@@ -40,7 +44,10 @@ function Calendar({ className, classNames }: CalendarProps) {
         <p>End Date</p>
         <DatePicker
           selected={endDateDate}
-          onChange={(date) => handleDateChange(date, false)}
+          onChange={(date) => {
+            handleDateChange(date, false);
+            setOtherStore({});
+          }}
           selectsEnd
           startDate={startDateDate}
           endDate={endDateDate}

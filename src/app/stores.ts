@@ -9,7 +9,7 @@ export const useUserInput = create<{
 }));
 
 
-type articleSearchType = {
+export type articleSearchType = {
   title?: string;
   startDate?: string;
   endDate?: string;
@@ -30,10 +30,16 @@ export const useArticleSearch = create<{
   setArticleSearch: (articleSearch) => set({ articleSearch }),
 }));
 
-
+export type profileSearchType = {
+  name?: string;
+  country?: string;
+  gender?: string;
+  startDate?: string;
+  endDate?: string;
+}
 export const useProfileSearch = create<{
- profileSearch: string
-  setProfileSearch: (profileSearch: string) => void;
+ profileSearch: profileSearchType
+  setProfileSearch: (profileSearch: profileSearchType) => void;
 }>((set) => ({
   profileSearch: "",
   setProfileSearch: (profileSearch) => set({ profileSearch }),

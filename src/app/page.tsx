@@ -32,10 +32,10 @@ enum tabs {
 }
 
 export const examplePrompts = {
-  "Article summary of [xxx]":
-    "Could you generate a report summary on [xxx]?",
-  "Personality summary of [xxx]":
-    "Could you generate a personality summary on [xxx]?",
+  "📜Article summary of [xxx]":
+    "Could you generate an article summary on xxx?",
+  "🧑Profile summary of [xxx]":
+    "Could you generate a profile summary on xxx?",
 };
 
 export default function Home() {

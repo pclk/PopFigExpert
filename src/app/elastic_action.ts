@@ -1,12 +1,6 @@
 "use server";
 
-import { Message } from "ai";
-
-const elasticsearchUrl = process.env.ELASTICSEARCH_URL;
-const elasticsearchUsername = process.env.ELASTICSEARCH_USERNAME;
-const elasticsearchPassword = process.env.ELASTICSEARCH_PASSWORD;
-
-type GroupedDocument ={
+export type GroupedDocument ={
   title: string;
   highlight_title: string;
   date: string;
@@ -16,7 +10,7 @@ type GroupedDocument ={
   multiple_highlight_chunks: string[];
 }
 
-type SearchResult = {
+type ArticleSearchResult = {
   title: string;
   url: string;
   date: string;
@@ -28,6 +22,35 @@ type SearchResult = {
   }
 }
 
+export type ProfileSearchResult = {
+    name?: string,
+    alternateNames?: string[],
+    gender?: string,
+    email?: string,
+    birthDate?: string,
+    deathDate?: string,
+    placeBirth?: string,
+    countryCitizenship?: string,
+    nationality?: string,
+    religionWorldview?: string,
+    numberChildren?: number,
+    residence?: string,
+    politicalParty?: string,
+    occupation?: string,
+    educatedAt?: string,
+    image?: string,
+    description?: string,
+    positionsHeld?: [
+    {
+      position?: string,
+      startDate?: string,
+      endDate?: string,
+      replaces?: string,
+      replacedBy?: string
+    }
+  ],
+    aliases?: string[],
+}
 export async function searchDocuments(
   content?: string,
   title?: string,
@@ -36,72 +59,50 @@ export async function searchDocuments(
   country?: string,
   top_k?: number,
 ) {
+  if (!content && !title && !startDate && !endDate && !country) {
+    return [];
+  }
   try {
     const requestBody = {
       from: 0,
-      size: 10,
+      size: (top_k ? top_k : 5),
       query: {
         bool: {
-          must: [] as { match: { [key: string]: string } }[],
-          filter: [] as {
-            range?: { [key: string]: { gte?: string; lte?: string } };
-          }[],
+          must: [
+            ...(country ? [{ match: { country: country } }] : []),
+            ...(content ? [{ match: { content: content } }] : []),
+            ...(title ? [{ match: { title: title } }] : [])
+          ],
+          filter: [
+            ...(startDate && endDate ? [{ range: { date: { gte: startDate, lte: endDate } } }] : []),
+            ...(startDate && !endDate ? [{ range: { date: { gte: startDate } } }] : []),
+            ...(!startDate && endDate ? [{ range: { date: { lte: endDate } } }] : [])
+          ],
         },
       },
       highlight: {
         require_field_match: false,
         pre_tags: ["<mark class='bg-darkprim text-white'>"],
         post_tags: ["</mark>"],
-        fields: {},
+        fields: {
+          ...(content ? {
+            content: {
+              highlight_query: { match: { content: content } },
+              number_of_fragments: 0
+            }
+          } : {}),
+          ...(title ? {
+            title: {
+              highlight_query: { match: { title: title } },
+              number_of_fragments: 0
+            }
+          } : {})
+        },
       },
     };
-
-    if (country) {
-      requestBody.query.bool.must.push({ match: { country: country } });
-    }
-
-    if (top_k !== undefined) {
-      requestBody.size = top_k; // Add the size parameter only if top_k is provided
-    }
-
-    if (startDate && endDate) {
-      requestBody.query.bool.filter.push({
-        range: { date: { gte: startDate, lte: endDate } },
-      });
-    } else if (startDate) {
-      requestBody.query.bool.filter.push({
-        range: { date: { gte: startDate } },
-      });
-    } else if (endDate) {
-      requestBody.query.bool.filter.push({
-        range: { date: { lte: endDate } },
-      });
-    }
-
-    if (content) {
-      requestBody.query.bool.must.push({ match: { content: content } });
-      requestBody.highlight.fields = {
-        ...requestBody.highlight.fields,
-        content: {
-          highlight_query: { match: { content: content } },
-          number_of_fragments: 0,
-        },
-      };
-    }
-
-    if (title) {
-      requestBody.query.bool.must.push({ match: { title: title } });
-      requestBody.highlight.fields = {
-        ...requestBody.highlight.fields,
-        title: {
-          highlight_query: { match: { title: title } },
-          number_of_fragments: 0,
-        },
-      };
-    }
     // console.log("sending request body", requestBody);
 
-    const response = await fetch(`${process.env.HOST_URL}/api/search`, {
+    const response = await fetch(`${process.env.HOST_URL}/api/article`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -120,7 +121,7 @@ export async function searchDocuments(
     }
 
     console.log("Elastic Response Status:", response.status);
-    console.log("Elastic body", parsedData)
+    // console.log("Elastic body", parsedData)
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -140,7 +141,7 @@ export async function searchDocuments(
         date,
         country,
         content
-      }: SearchResult = hit._source;
+      }: ArticleSearchResult = hit._source;
       const {
         title: highlight_title,
         content: highlight_content
@@ -166,7 +167,6 @@ export async function searchDocuments(
     });
     // console.log('groupedDocuments in elastic_action', groupedDocuments)
 
-    // Return the formatted data if the response was successful
     return groupedDocuments;
   } catch (error) {
     console.error("Error searching documents:", error);
@@ -176,81 +176,78 @@ export async function searchDocuments(
   }
 }
 
-export async function fetchChatHistory() {
-  "use server";
+export async function searchProfiles(
+  name?: string,
+  country?: string,
+  gender?: string,
+  startDate?: string,
+  endDate?: string,
+  top_k?: number
+) {
+  if (!name && !country && !gender && !startDate && !endDate) {
+    return [];
+  }
+  try {
+    const requestBody = {
+      from: 0,
+      size: (top_k ? top_k : 5),
+      query: {
+        bool: {
+          must: [
+            ...(name ? [{ match: { name: name } }] : []),
+            ...(country ? [{ match: { country: country } }] : []),
+            ...(gender ? [{ match: { gender: gender } }] : [])
+          ],
+          filter: [
+                ...(startDate && endDate ? [{ range: { date: { gte: startDate, lte: endDate } } }] : []),
+                ...(startDate && !endDate ? [{ range: { date: { gte: startDate } } }] : []),
+                ...(!startDate && endDate ? [{ range: { date: { lte: endDate } } }] : [])
+        ]
+        }
+      }
+    };
 
-  const response = await fetch(`${process.env.HOST_URL}/api/chathistory/r`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      elasticsearchUrl,
-      elasticsearchUsername,
-      elasticsearchPassword,
-    }),
-  });
+    const response = await fetch(`${process.env.HOST_URL}/api/profile`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
+    let parsedData;
+    try {
+      parsedData = await response.json();
+    } catch (jsonParseError) {
+      console.error("Failed to parse JSON response:", jsonParseError);
+      throw new Error(
+        "Failed to parse the response from the server. The server might be experiencing issues or the response format may have changed.",
+      );
+    }
+    
+    console.log("Elastic Response Status:", response.status);
+    // console.log("Elastic body", parsedData)t
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Elasticsearch request failed with status ${response.status}: ${errorText}`
+      );
+    }
+    console.log('parsedData length', parsedData.hits.hits.length)
+    
+    const Profiles: ProfileSearchResult[] = [];
+    parsedData.hits.hits.forEach((hit: any) => {
+      Profiles.push(hit._source)
+    })
+    // console.log('Profiles', Profiles)
+
+    return Profiles;
+  } catch (error) {
+    console.error("Error searching profiles:", error);
     throw new Error(
-      `Fetch chat history failed with status ${response.status}: ${errorText}`,
+      "An error occurred while searching profiles. Please try again later."
     );
   }
-  const chatHistory = await response.json();
-  return chatHistory;
-}
 
-export async function insertChatHistory(data: {
-  chatID: string;
-  messages: Message[];
-}) {
-  "use server";
-
-  const response = await fetch(`${process.env.HOST_URL}/api/chathistory/c`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      ...data,
-      elasticsearchUrl,
-      elasticsearchUsername,
-      elasticsearchPassword,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Insert chat history failed with status ${response.status}: ${errorText}`,
-    );
-  }
-
-  const { id } = await response.json();
-  return id;
-}
-
-async function deleteChatHistory(chatID: string) {
-  "use server";
-
-  const response = await fetch(`${process.env.HOST_URL}/api/chathistory/d`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      chatID,
-      elasticsearchUrl,
-      elasticsearchUsername,
-      elasticsearchPassword,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `Delete chat history failed with status ${response.status}: ${errorText}`,
-    );
-  }
 }
