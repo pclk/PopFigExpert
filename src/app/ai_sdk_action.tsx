@@ -53,6 +53,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
     <BotMessage content="Thinking..." />,
   );
   const uiStream = createStreamableUI();
+  let toolCallExecuted = false;
 
   (async () => {
     try {
@@ -151,7 +152,6 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
           });
         } else if (type === "tool-call") {
           const { toolName, args } = delta;
-
           if (toolName === "generate_article_summary") {
             const {
               content = undefined,
@@ -184,7 +184,8 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               4,
             )
             // console.log('passing articles to article-summary', articles)
-            uiStream.done(<ArticleSummary articles={articles} args={args} />);
+            uiStream.update(<ArticleSummary articles={articles} args={args} />);
+            toolCallExecuted = true;
             let AISummary = `Here is a summary of all ${articles.length} articles: \n\n`;
             if (articles.length === 0) {
               AISummary =
@@ -206,7 +207,6 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
                 }
               }
             }
-
             aiState.done({
               ...aiState.get(),
               messages: [
@@ -251,7 +251,8 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
             );
             const profiles = await searchProfiles(name, country, gender, startDate, endDate, 4)
             // console.log('passing profile to profile-summary', profiles)
-            uiStream.done(<ProfileSummary profiles={profiles} args={args} />);
+            uiStream.update(<ProfileSummary profiles={profiles} args={args} />);
+            toolCallExecuted = true;
             let AISummary = `Here is a summary of all ${profiles.length} articles: \n\n`;
             if (profiles.length === 0) {
               AISummary =
@@ -305,16 +306,16 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
           }
         }
       }
-      uiStream.done();
+      if (!toolCallExecuted) {
+        uiStream.done();
+      }
       messageStream.done();
     } catch (e) {
       console.error("Error encountered in AI SDK action:", e);
-      // Log the error to maintain a record for debugging and accountability
-      aiState.done(aiState.get());
-      // Notify all streams of the error to handle the UI state appropriately
-      uiStream.error(e);
-      messageStream.error(e);
-      loadingStream.error(e);
+      // aiState.done(aiState.get());
+      // uiStream.error(e);
+      // messageStream.error(e);
+      // loadingStream.error(e);
     }
   })();
   return {

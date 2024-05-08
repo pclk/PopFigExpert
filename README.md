@@ -7,19 +7,11 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
 
 ## Gallery
 
-![](READMEmedia/home.gif)
-This is the homepage!
-
-![](READMEmedia/eve_article.gif)
-This is the function to generate an article summary.
-
-![](READMEmedia/eve_profile.gif)
-This is for profile summary
-
-![](READMEmedia/search.gif)
-Manual searchfunctionality.
-
-
+| ![Homepage Interface](READMEmedia/home.gif) | <span style="font-size: large;">**Discover the homepage.<br>Engage with an intuitive chat interface.<br>Experience seamless AI interactions.**</span> |
+| --- | --- |
+| ![Article Summaries](READMEmedia/eve_article.gif) | <span style="font-size: large;">**Request AI-driven summaries.<br>Receive concise reports.<br>Analyze key documents effectively.**</span> |
+| ![Personality Summaries](READMEmedia/eve_profile.gif) | <span style="font-size: large;">**Access detailed personality insights.<br>Utilize extensive data synthesis.<br>Explore profiles of prominent figures.**</span> |
+| ![Document Search](READMEmedia/search.gif) | <span style="font-size: large;">**Search documents with advanced filters.<br>Locate articles by date, title, and more.<br>Supports detailed profile searches.**</span> |
 ## TODO
 
 - [x] Scrape and ingest MFA-Press Statements into Elasticsearch

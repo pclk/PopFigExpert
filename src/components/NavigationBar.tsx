@@ -53,6 +53,7 @@ export default function NavigationBar() {
               <Link
                 className="group w-full rounded-md border-0 bg-secondary text-sm transition-all hover:bg-white hover:shadow-md active:bg-primary active:text-white no-underline text-darkprim"
                 href="/"
+                prefetch={false}
                 >
                 <div className="flex items-center group-active:text-white">
                   <Image
