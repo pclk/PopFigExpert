@@ -1,17 +1,15 @@
-# PopFigExpert - AI-Powered Information Assistant
-
-PopFigExpert is an AI-powered information assistant designed to provide accurate and comprehensive information about popular figures, historical events, and current affairs. Built using Next.js, React, and Tailwind CSS, this application leverages the power of OpenAI's GPT-3.5 Turbo and Anthropic's Mixtral 7x8b models to deliver a seamless and interactive user experience.
-
-Special mention to Centre of Strategic Infocomms Technology (CSIT), for assigning this amazing project to me! 
-Thank you Yai Hui, for guiding and assisting me from things to model selection, payment of AI credits, and allowing me to work with Next.js!
-
-## Gallery
+# PopFigExpert - Document AI Companion powered with GenUI
 
 | ![Homepage Interface](READMEmedia/home.gif) | <div align="center"><span style="font-size: large;">**Discover the homepage.<br>Engage with an intuitive chat interface.<br>Experience seamless AI interactions.**</span></div> |
 | --- | --- |
 | ![Article Summaries](READMEmedia/eve_article.gif) | <div align="center"><span style="font-size: large;">**Request AI-driven summaries.<br>Receive concise reports.<br>Analyze key documents effectively.**</span></div> |
 | ![Personality Summaries](READMEmedia/eve_profile.gif) | <div align="center"><span style="font-size: large;">**Access detailed personality insights.<br>Utilize extensive data synthesis.<br>Explore profiles of prominent figures.**</span></div> |
 | ![Document Search](READMEmedia/search.gif) | <div align="center"><span style="font-size: large;">**Search documents with advanced filters.<br>Locate articles by date, title, and more.<br>Supports detailed profile searches.**</span></div> |
+
+PopFigExpert is an AI-powered information assistant designed to provide accurate and comprehensive information about popular figures, historical events, and current affairs. Built using Next.js, React, and Tailwind CSS, this application leverages the power of OpenAI's GPT-3.5 Turbo and Anthropic's Mixtral 7x8b models to deliver a seamless and interactive user experience.
+
+Special mention to Centre of Strategic Infocomms Technology (CSIT), for assigning this amazing project to me! 
+Thank you Yai Hui, for guiding and assisting me from things to model selection, payment of AI credits, and allowing me to work with Next.js!
 ## TODO
 
 - [x] Scrape and ingest MFA-Press Statements into Elasticsearch
@@ -123,24 +121,9 @@ If you encounter any issues,
 - **Dependency Issues**: If you face issues with dependencies, try running npm install again to ensure that all the required packages are properly installed. If the issue persists, you can try deleting the node_modules folder and reinstalling the dependencies.
 - **Browser Compatibility**: PopFigExpert is designed to be compatible with modern web browsers and was tested in a chromium browser. If you encounter any rendering or functionality issues, make sure you are using an up-to-date version of a supported browser.
 
-## Acknowledgments
-
-PopFigExpert was made possible thanks to the following technologies and libraries:
-
-- [Next.js](https://nextjs.org/)
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [OpenAI](https://www.openai.com/)
-- [Anthropic](https://www.anthropic.com/)
-- [Mixtral](https://mistral.ai/)
-- [Elasticsearch](https://www.elastic.co/elasticsearch/)
-- [Zod](https://github.com/colinhacks/zod)
-
-Special thanks to the open-source community for their valuable contributions and inspiration.
-
 ## Contact
 
-If you have any questions, suggestions, or feedback regarding PopFigExpert, please feel free to reach out to the project maintainer at [your-email@example.com](mailto:your-email@example.com).
+If you have any questions, suggestions, or feedback regarding PopFigExpert, please feel free to reach out me at [weiheng@proco.link](mailto:weiheng@proco.link).
 
 Happy exploring with PopFigExpert!
 
