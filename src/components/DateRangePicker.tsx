@@ -11,7 +11,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-interface DatePickerWithRangeProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DatePickerWithRangeProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   store: articleSearchType | profileSearchType | null;
   setStore: (date: articleSearchType | profileSearchType) => void;
   setOtherStore: (date: articleSearchType | profileSearchType) => void;
@@ -21,11 +22,8 @@ export function DatePickerWithRange({
   className,
   store,
   setStore,
-  setOtherStore
+  setOtherStore,
 }: DatePickerWithRangeProps) {
-
-  
-
   return (
     <div className={cn("grid gap-2", className)}>
       <Popover>
@@ -34,7 +32,7 @@ export function DatePickerWithRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "justify-start text-left font-normal border-solid p-2 border-primary rounded-sm",
+              "justify-start rounded-sm border-solid border-primary p-2 text-left font-normal",
               !store?.startDate && "text-muted-foreground",
             )}
           >
@@ -53,7 +51,11 @@ export function DatePickerWithRange({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar store={store} setStore={setStore} setOtherStore={setOtherStore} />
+          <Calendar
+            store={store}
+            setStore={setStore}
+            setOtherStore={setOtherStore}
+          />
         </PopoverContent>
       </Popover>
     </div>

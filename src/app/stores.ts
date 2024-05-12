@@ -1,4 +1,4 @@
-import {create} from 'zustand'
+import { create } from "zustand";
 
 export const useUserInput = create<{
   userInput: string;
@@ -8,16 +8,15 @@ export const useUserInput = create<{
   setUserInput: (userInput) => set({ userInput }),
 }));
 
-
 export type articleSearchType = {
   title?: string;
   startDate?: string;
   endDate?: string;
   country?: string;
   content?: string;
-}
+};
 export const useArticleSearch = create<{
- articleSearch: articleSearchType
+  articleSearch: articleSearchType;
   setArticleSearch: (articleSearch: articleSearchType) => void;
 }>((set) => ({
   articleSearch: {
@@ -36,12 +35,11 @@ export type profileSearchType = {
   gender?: string;
   startDate?: string;
   endDate?: string;
-}
+};
 export const useProfileSearch = create<{
- profileSearch: profileSearchType
+  profileSearch: profileSearchType;
   setProfileSearch: (profileSearch: profileSearchType) => void;
 }>((set) => ({
   profileSearch: "",
   setProfileSearch: (profileSearch) => set({ profileSearch }),
 }));
-

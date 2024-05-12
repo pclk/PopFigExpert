@@ -25,7 +25,7 @@ export default function Input({
   clearInput = true,
   submitMessage,
 }: ChatInputProps) {
-  const {userInput, setUserInput} = useUserInput()
+  const { userInput, setUserInput } = useUserInput();
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -68,7 +68,9 @@ export default function Input({
             }
           }}
         >
-          <div className="text-darkprim group-hover:text-white group-active:text-darkprim">Send</div>
+          <div className="text-darkprim group-hover:text-white group-active:text-darkprim">
+            Send
+          </div>
         </button>
       </div>
     </div>

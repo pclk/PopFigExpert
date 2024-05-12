@@ -1,21 +1,22 @@
 # PopFigExpert - Document AI Companion powered with GenUI
 
-| ![Homepage Interface](READMEmedia/home.gif) | <div align="center"><span style="font-size: large;">**Discover the homepage.<br>Engage with an intuitive chat interface.<br>Experience seamless AI interactions.**</span></div> |
-| --- | --- |
-| ![Article Summaries](READMEmedia/eve_article.gif) | <div align="center"><span style="font-size: large;">**Request AI-driven summaries.<br>Receive concise reports.<br>Analyze key documents effectively.**</span></div> |
-| ![Personality Summaries](READMEmedia/eve_profile.gif) | <div align="center"><span style="font-size: large;">**Access detailed personality insights.<br>Utilize extensive data synthesis.<br>Explore profiles of prominent figures.**</span></div> |
-| ![Document Search](READMEmedia/search.gif) | <div align="center"><span style="font-size: large;">**Search documents with advanced filters.<br>Locate articles by date, title, and more.<br>Supports detailed profile searches.**</span></div> |
+| ![Homepage Interface](READMEmedia/home.gif)           | <div align="center"><span style="font-size: large;">**Discover the homepage.<br>Engage with an intuitive chat interface.<br>Experience seamless AI interactions.**</span></div>                  |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ![Article Summaries](READMEmedia/eve_article.gif)     | <div align="center"><span style="font-size: large;">**Request AI-driven summaries.<br>Receive concise reports.<br>Analyze key documents effectively.**</span></div>                              |
+| ![Personality Summaries](READMEmedia/eve_profile.gif) | <div align="center"><span style="font-size: large;">**Access detailed personality insights.<br>Utilize extensive data synthesis.<br>Explore profiles of prominent figures.**</span></div>        |
+| ![Document Search](READMEmedia/search.gif)            | <div align="center"><span style="font-size: large;">**Search documents with advanced filters.<br>Locate articles by date, title, and more.<br>Supports detailed profile searches.**</span></div> |
 
 PopFigExpert is an AI-powered information assistant designed to provide accurate and comprehensive information about popular figures, historical events, and current affairs. Built using Next.js, React, and Tailwind CSS, this application leverages the power of OpenAI's GPT-3.5 Turbo and Anthropic's Mixtral 7x8b models to deliver a seamless and interactive user experience.
 
-Special mention to Centre of Strategic Infocomms Technology (CSIT), for assigning this amazing project to me! 
+Special mention to Centre of Strategic Infocomms Technology (CSIT), for assigning this amazing project to me!
 Thank you Yai Hui, for guiding and assisting me from things to model selection, payment of AI credits, and allowing me to work with Next.js!
+
 ## TODO
 
 - [x] Scrape and ingest MFA-Press Statements into Elasticsearch
 - [x] Scrape and ingest Wikipedia articles into Elasticsearch
 - [x] Basic chatbot functionality with OpenAI API and Mixtral model support
-- [x] Set up Vercel AI SDK 
+- [x] Set up Vercel AI SDK
 - [x] UI for interacting with the chatbot
 - [x] Function calling capabilities with OpenAI
 - [x] Function calling capabilities with Mixtral
@@ -27,18 +28,13 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
 - [x] Integrate model's Function calling with Elasticsearch:
   - [x] Implement chatbot's ability to generate Elasticsearch queries based on user input
   - [x] Process and present Elasticsearch results to the user within the chat interface
-  - [x] UI for displaying and sending inputs within the genUI. 
+  - [x] UI for displaying and sending inputs within the genUI.
 - [ ] Deploy on Vercel
 
 - [] Wikipedia:
   - [] build genUi for image + personality summary
-**- [x] classify chunks underneath the same title, like the manual document search. return doc.title.length for article length.**
-**- [x] prompt template in page.tsx and navigation**
- 
-
-
-Extras:
-- [ ] Integrate Clerk for user authentication and authorization
+    **- [x] classify chunks underneath the same title, like the manual document search. return doc.title.length for article length.**
+    **- [x] prompt template in page.tsx and navigation**
 
 ## Features
 
@@ -55,10 +51,9 @@ Extras:
 
 The application follows a client-server architecture, with the frontend built using Next.js and React, and the backend powered by Next.js API routes. The key components of the architecture include:
 
-| **[Next.js](https://nextjs.org/)** | **[React](https://reactjs.org/)** | **[Tailwind CSS](https://tailwindcss.com/)** | **[OpenAI](https://www.openai.com/)** | **[Mixtral](https://mistral.ai/)** | **[Elasticsearch](https://www.elastic.co/elasticsearch/)** | **[Zod](https://github.com/colinhacks/zod)** |
-| --- | --- | --- | --- | --- | --- | --- |
-| Next.js: A React framework that enables server-side rendering, routing, and API route handling. | React: A JavaScript library for building user interfaces. | Tailwind CSS: A utility-first CSS framework for rapidly building custom user interfaces. | OpenAI GPT-3.5 Turbo: An AI model from OpenAI used for generating chatbot responses and summaries. | Mixtral 7x8b: An open source Mixture of Experts model, suitable to run on premises, providing privacy who appreciate it, like CSIT. | Elasticsearch: A distributed search and analytics engine used for storing and querying the document database. | Zod: A TypeScript-first schema validation library used for validating user input and API responses. | |
-
+| **[Next.js](https://nextjs.org/)**                                                              | **[React](https://reactjs.org/)**                         | **[Tailwind CSS](https://tailwindcss.com/)**                                             | **[OpenAI](https://www.openai.com/)**                                                              | **[Mixtral](https://mistral.ai/)**                                                                                                  | **[Elasticsearch](https://www.elastic.co/elasticsearch/)**                                                    | **[Zod](https://github.com/colinhacks/zod)**                                                        |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | --- |
+| Next.js: A React framework that enables server-side rendering, routing, and API route handling. | React: A JavaScript library for building user interfaces. | Tailwind CSS: A utility-first CSS framework for rapidly building custom user interfaces. | OpenAI GPT-3.5 Turbo: An AI model from OpenAI used for generating chatbot responses and summaries. | Mixtral 7x8b: An open source Mixture of Experts model, suitable to run on premises, providing privacy who appreciate it, like CSIT. | Elasticsearch: A distributed search and analytics engine used for storing and querying the document database. | Zod: A TypeScript-first schema validation library used for validating user input and API responses. |     |
 
 ## Folder Structure
 
@@ -110,16 +105,17 @@ To run the PopFigExpert application locally, follow these steps:
 ## Customiation
 
 You can customize:
+
 - **AI Model**: We already set up OpenAI and Mixtral, meaning you can freely add your preferred OpenAI or Mistral models. However, for other models, you would have to code it yourself.
 - **User Interface**: The UI is built with Tailwind CSS and shadcn. You can modify the design from the tailwind to match your desired design aesthetics.
-- **Document Database**: We use Elasticsearch as our document database. You can customize the configuration there. 
+- **Document Database**: We use Elasticsearch as our document database. You can customize the configuration there.
 
-## Troubleshooting
-If you encounter any issues,
-- **Environment Variables**: Ensure that you have properly set up the required environment variables, such as API keys and Elasticsearch configuration, in the .env.local file or your deployment environment.
-- **API Errors**: If you experience errors related to the AI models or Elasticsearch, double-check that your API keys and endpoints are correct and that you have sufficient permissions to access the respective services.
-- **Dependency Issues**: If you face issues with dependencies, try running npm install again to ensure that all the required packages are properly installed. If the issue persists, you can try deleting the node_modules folder and reinstalling the dependencies.
-- **Browser Compatibility**: PopFigExpert is designed to be compatible with modern web browsers and was tested in a chromium browser. If you encounter any rendering or functionality issues, make sure you are using an up-to-date version of a supported browser.
+## Future Improvements
+
+- [ ] Integrate Clerk for user authentication and authorization
+- [ ] Ability to select documents from searches, and bring them into the chat intuitively.
+- [ ] Ability to search documents through an @mention in the chat, and bring it into the chat.
+- [ ]
 
 ## Contact
 
@@ -127,5 +123,39 @@ If you have any questions, suggestions, or feedback regarding PopFigExpert, plea
 
 Happy exploring with PopFigExpert!
 
-
 maybe i should start a nextjs project on benchmarking llms on your own questions.
+
+// Frontend Libraries
+"next": "latest",
+"react":
+"tailwindcss-animate": "latest",
+"tailwind-merge": "latest",
+"clsx": "latest",
+"lucide-react": "latest",
+"shadcn-ui": "latest"
+
+// Headless UI Libraries
+"@radix-ui
+"react-datepicker": "latest",
+"react-day-picker": "latest",
+"react-highlight-words": "latest",
+"react-markdown": "latest",
+"react-textarea-autosize": "latest"
+
+// State Management
+"zustand": "latest",
+"nuqs": "latest"
+
+// GenAI Tools
+"@ai-sdk/mistral": "latest",
+"@mistralai/mistralai": "latest",
+"ai": "latest"
+
+// Data Handling
+"date-fns": "latest",
+"lodash": "latest",
+"zod": "latest",
+"zod-to-json-schema": "latest",
+"remark-gfm": "latest"
+
+ngrok elasticsearch docker

@@ -22,7 +22,6 @@ import type { GroupedDocument } from "@/app/elastic_action";
 import ArticleSummary from "@/components/ai-ui/article-summary";
 import ProfileSummary from "@/components/ai-ui/profile-summary";
 
-
 const mistral = new Mistral({
   apiKey: process.env.MISTRAL_API_KEY || "",
 });
@@ -41,7 +40,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
       },
     ],
   });
-  console.log("current AI state:", aiState.get())
+  console.log("current AI state:", aiState.get());
 
   const history = aiState.get().messages.map((message) => ({
     role: message.role,
@@ -50,7 +49,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
 
   const loadingStream = createStreamableUI(<SpinnerMessage />);
   const messageStream = createStreamableUI(
-    <BotMessage content="Thinking..." />,
+    <BotMessage content="Thinking..." />
   );
   const uiStream = createStreamableUI();
   let toolCallExecuted = false;
@@ -68,11 +67,15 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               content: z
                 .string()
                 .optional()
-                .describe("The content of the document. This is what you should use ALL of the time to search in the database, unless otherwise specified"),
+                .describe(
+                  "The content of the document. This is what you should use ALL of the time to search in the database, unless otherwise specified"
+                ),
               title: z
                 .string()
                 .optional()
-                .describe("The title of the document. Instead of using this, you should use content instead, unless specified by the user."),
+                .describe(
+                  "The title of the document. Instead of using this, you should use content instead, unless specified by the user."
+                ),
               startDate: z
                 .string()
                 .optional()
@@ -85,22 +88,24 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
                 .string()
                 .optional()
                 .describe(
-                  "The country the document is about. Use this sparingly, most document's countries are not labelled. Using this may result in no results.",
+                  "The country the document is about. Use this sparingly, most document's countries are not labelled. Using this may result in no results."
                 ),
             }),
           },
           generate_profile_summary: {
-            description: "Searches Elasticsearch instance and returns top 4 relevant political profiles. All parameters are optional, and using only the relevant ones will be sufficient. Provide the most accurate query possible. This is a matter of utmost urgency and significance, definitely affecting lives directly.",
+            description:
+              "Searches Elasticsearch instance and returns top 4 relevant political profiles. All parameters are optional, and using only the relevant ones will be sufficient. Provide the most accurate query possible. This is a matter of utmost urgency and significance, definitely affecting lives directly.",
             parameters: z.object({
               name: z
                 .string()
                 .optional()
-                .describe("The name of the politician. This is what you should use ALL of the time to search in the database, unless otherwise specified."),
+                .describe(
+                  "The name of the politician. This is what you should use ALL of the time to search in the database, unless otherwise specified."
+                ),
               country: z
                 .string()
                 .optional()
-                .describe(
-                  "DO NOT USE unless user specifies"),
+                .describe("DO NOT USE unless user specifies"),
               gender: z
                 .string()
                 .optional()
@@ -113,7 +118,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
                 .string()
                 .optional()
                 .describe("Politician's date of death."),
-              }),
+            }),
           },
         },
         system: `\
@@ -172,7 +177,7 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
                 ]
                   .filter(Boolean) // removes falsy values
                   .join(", ")}`}
-              />,
+              />
             );
 
             const articles = await searchDocuments(
@@ -181,8 +186,8 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
               startDate,
               endDate,
               country,
-              4,
-            )
+              4
+            );
             // console.log('passing articles to article-summary', articles)
             uiStream.update(<ArticleSummary articles={articles} args={args} />);
             toolCallExecuted = true;
@@ -194,7 +199,16 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
             } else {
               const summary = await experimental_streamText({
                 model: mistral.chat("mistral-large-latest"),
-                prompt: `Could you summarize these articles, with the Title: ${articles.map((article: any) => `${article.title}, and the content: ${article.multiple_chunks.join(" ").substring(0, 500)}...`).join("\n\n")}`,
+                prompt: `Could you summarize these articles, with the Title: ${articles
+                  .map(
+                    (article: any) =>
+                      `${
+                        article.title
+                      }, and the content: ${article.multiple_chunks
+                        .join(" ")
+                        .substring(0, 500)}...`
+                  )
+                  .join("\n\n")}`,
                 maxTokens: 1000,
               });
 
@@ -225,9 +239,8 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
                 },
               ],
             });
-            console.log('updated ai state', aiState.get())
-          }
-          else if (toolName === "generate_profile_summary") {
+            console.log("updated ai state", aiState.get());
+          } else if (toolName === "generate_profile_summary") {
             const {
               name = undefined,
               country = undefined,
@@ -247,28 +260,49 @@ async function submitUserMessage(userInput: string): Promise<UIState> {
                 ]
                   .filter(Boolean) // removes falsy values
                   .join(", ")}`}
-              />,
+              />
             );
-            const profiles = await searchProfiles(name, country, gender, startDate, endDate, 4)
+            const profiles = await searchProfiles(
+              name,
+              country,
+              gender,
+              startDate,
+              endDate,
+              4
+            );
             // console.log('passing profile to profile-summary', profiles)
             uiStream.update(<ProfileSummary profiles={profiles} args={args} />);
             toolCallExecuted = true;
-            let AISummary = `Here is a summary of all ${profiles.length} articles: \n\n`;
+            let AISummary = `Here is a summary of all ${profiles.length} profiles: \n\n`;
             if (profiles.length === 0) {
               AISummary =
                 "I'm sorry, but I couldn't find any articles matching your query. Could you please rephrase your request or provide more specific details?";
               messageStream.update(<BotMessage content={AISummary} />);
             } else {
-              const profileString = profiles.map((profile: any) => {
-                return Object.entries(profile).map(([key, value]) => {
-                  if (key === "positionsHeld" && Array.isArray(value)) {
-                    return `${key}: ` + value.map(position => {
-                      return Object.entries(position).map(([posKey, posValue]) => `${posKey}: ${posValue}`).join(', ');
-                    }).join('; ');
-                  }
-                  return `${key}: ${value}`;
-                }).join(', ');
-              }).join("\n\n");
+              const profileString = profiles
+                .map((profile: any) => {
+                  return Object.entries(profile)
+                    .map(([key, value]) => {
+                      if (key === "positionsHeld" && Array.isArray(value)) {
+                        return (
+                          `${key}: ` +
+                          value
+                            .map((position) => {
+                              return Object.entries(position)
+                                .map(
+                                  ([posKey, posValue]) =>
+                                    `${posKey}: ${posValue}`
+                                )
+                                .join(", ");
+                            })
+                            .join("; ")
+                        );
+                      }
+                      return `${key}: ${value}`;
+                    })
+                    .join(", ");
+                })
+                .join("\n\n");
 
               const summary = await experimental_streamText({
                 model: mistral.chat("mistral-large-latest"),

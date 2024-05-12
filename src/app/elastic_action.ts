@@ -1,6 +1,6 @@
 "use server";
 
-export type GroupedDocument ={
+export type GroupedDocument = {
   title: string;
   highlight_title: string;
   date: string;
@@ -8,7 +8,7 @@ export type GroupedDocument ={
   url: string;
   multiple_chunks: string[];
   multiple_highlight_chunks: string[];
-}
+};
 
 type ArticleSearchResult = {
   title: string;
@@ -16,41 +16,36 @@ type ArticleSearchResult = {
   date: string;
   country: string;
   content: string;
-  highlight?: {
-    title?: string;
-    content?: string;
-  }
 }
 
 export type ProfileSearchResult = {
-    name?: string,
-    alternateNames?: string[],
-    gender?: string,
-    email?: string,
-    birthDate?: string,
-    deathDate?: string,
-    placeBirth?: string,
-    countryCitizenship?: string,
-    nationality?: string,
-    religionWorldview?: string,
-    numberChildren?: number,
-    residence?: string,
-    politicalParty?: string,
-    occupation?: string,
-    educatedAt?: string,
-    image?: string,
-    description?: string,
-    positionsHeld?: [
+  name?: string;
+  alternateNames?: string[];
+  gender?: string;
+  email?: string;
+  birthDate?: string;
+  deathDate?: string;
+  placeBirth?: string;
+  countryCitizenship?: string;
+  nationality?: string;
+  religionWorldview?: string;
+  numberChildren?: number;
+  residence?: string;
+  politicalParty?: string;
+  occupation?: string;
+  educatedAt?: string;
+  image?: string;
+  description?: string;
+  positionsHeld?: [
     {
-      position?: string,
-      startDate?: string,
-      endDate?: string,
-      replaces?: string,
-      replacedBy?: string
-    }
-  ],
-    aliases?: string[],
-}
+      position?: string;
+      startDate?: string;
+      endDate?: string;
+      replaces?: string;
+      replacedBy?: string;
+    },
+  ];
+};
 export async function searchDocuments(
   content?: string,
   title?: string,
@@ -65,18 +60,24 @@ export async function searchDocuments(
   try {
     const requestBody = {
       from: 0,
-      size: (top_k ? top_k : 5),
+      size: top_k ? top_k : 5,
       query: {
         bool: {
           must: [
             ...(country ? [{ match: { country: country } }] : []),
             ...(content ? [{ match: { content: content } }] : []),
-            ...(title ? [{ match: { title: title } }] : [])
+            ...(title ? [{ match: { title: title } }] : []),
           ],
           filter: [
-            ...(startDate && endDate ? [{ range: { date: { gte: startDate, lte: endDate } } }] : []),
-            ...(startDate && !endDate ? [{ range: { date: { gte: startDate } } }] : []),
-            ...(!startDate && endDate ? [{ range: { date: { lte: endDate } } }] : [])
+            ...(startDate && endDate
+              ? [{ range: { date: { gte: startDate, lte: endDate } } }]
+              : []),
+            ...(startDate && !endDate
+              ? [{ range: { date: { gte: startDate } } }]
+              : []),
+            ...(!startDate && endDate
+              ? [{ range: { date: { lte: endDate } } }]
+              : []),
           ],
         },
       },
@@ -85,18 +86,22 @@ export async function searchDocuments(
         pre_tags: ["<mark class='bg-darkprim text-white'>"],
         post_tags: ["</mark>"],
         fields: {
-          ...(content ? {
-            content: {
-              highlight_query: { match: { content: content } },
-              number_of_fragments: 0
-            }
-          } : {}),
-          ...(title ? {
-            title: {
-              highlight_query: { match: { title: title } },
-              number_of_fragments: 0
-            }
-          } : {})
+          ...(content
+            ? {
+                content: {
+                  highlight_query: { match: { content: content } },
+                  number_of_fragments: 0,
+                },
+              }
+            : {}),
+          ...(title
+            ? {
+                title: {
+                  highlight_query: { match: { title: title } },
+                  number_of_fragments: 0,
+                },
+              }
+            : {}),
         },
       },
     };
@@ -130,22 +135,15 @@ export async function searchDocuments(
       );
     }
     const groupedDocuments: GroupedDocument[] = [];
-    const urlMap: { [url: string]: GroupedDocument} = {};
-    console.log('parsedData length', parsedData.hits.hits.length)
+    const urlMap: { [url: string]: GroupedDocument } = {};
+    console.log("parsedData length", parsedData.hits.hits.length);
 
     // Format the parsed data as seen in document.tsx
     parsedData.hits.hits.forEach((hit: any) => {
-      const {
-        title,
-        url,
-        date,
-        country,
-        content
-      }: ArticleSearchResult = hit._source;
-      const {
-        title: highlight_title,
-        content: highlight_content
-      } = hit.highlight ?? {}
+      const { title, url, date, country, content }: ArticleSearchResult =
+        hit._source;
+      const { title: highlight_title, content: highlight_content } =
+        hit.highlight ?? {};
       if (url in urlMap) {
         urlMap[url].multiple_chunks.push(content);
         urlMap[url].multiple_highlight_chunks.push(highlight_content);
@@ -157,8 +155,8 @@ export async function searchDocuments(
           url: url,
           country: country,
           multiple_chunks: [content],
-          multiple_highlight_chunks: [highlight_content]
-        }
+          multiple_highlight_chunks: [highlight_content],
+        };
       }
     });
 
@@ -182,7 +180,7 @@ export async function searchProfiles(
   gender?: string,
   startDate?: string,
   endDate?: string,
-  top_k?: number
+  top_k?: number,
 ) {
   if (!name && !country && !gender && !startDate && !endDate) {
     return [];
@@ -190,21 +188,27 @@ export async function searchProfiles(
   try {
     const requestBody = {
       from: 0,
-      size: (top_k ? top_k : 5),
+      size: top_k ? top_k : 5,
       query: {
         bool: {
           must: [
             ...(name ? [{ match: { name: name } }] : []),
             ...(country ? [{ match: { country: country } }] : []),
-            ...(gender ? [{ match: { gender: gender } }] : [])
+            ...(gender ? [{ match: { gender: gender } }] : []),
           ],
           filter: [
-                ...(startDate && endDate ? [{ range: { date: { gte: startDate, lte: endDate } } }] : []),
-                ...(startDate && !endDate ? [{ range: { date: { gte: startDate } } }] : []),
-                ...(!startDate && endDate ? [{ range: { date: { lte: endDate } } }] : [])
-        ]
-        }
-      }
+            ...(startDate && endDate
+              ? [{ range: { date: { gte: startDate, lte: endDate } } }]
+              : []),
+            ...(startDate && !endDate
+              ? [{ range: { date: { gte: startDate } } }]
+              : []),
+            ...(!startDate && endDate
+              ? [{ range: { date: { lte: endDate } } }]
+              : []),
+          ],
+        },
+      },
     };
 
     const response = await fetch(`${process.env.HOST_URL}/api/profile`, {
@@ -224,30 +228,29 @@ export async function searchProfiles(
         "Failed to parse the response from the server. The server might be experiencing issues or the response format may have changed.",
       );
     }
-    
+
     console.log("Elastic Response Status:", response.status);
     // console.log("Elastic body", parsedData)t
 
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
-        `Elasticsearch request failed with status ${response.status}: ${errorText}`
+        `Elasticsearch request failed with status ${response.status}: ${errorText}`,
       );
     }
-    console.log('parsedData length', parsedData.hits.hits.length)
-    
+    console.log("parsedData length", parsedData.hits.hits.length);
+
     const Profiles: ProfileSearchResult[] = [];
     parsedData.hits.hits.forEach((hit: any) => {
-      Profiles.push(hit._source)
-    })
+      Profiles.push(hit._source);
+    });
     // console.log('Profiles', Profiles)
 
     return Profiles;
   } catch (error) {
     console.error("Error searching profiles:", error);
     throw new Error(
-      "An error occurred while searching profiles. Please try again later."
+      "An error occurred while searching profiles. Please try again later.",
     );
   }
-
 }

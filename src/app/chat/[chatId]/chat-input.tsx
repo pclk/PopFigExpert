@@ -14,7 +14,7 @@ export interface ChatInputProps {
 export function ChatInput({ id, title }: ChatInputProps) {
   const [messages, setMessages] = useUIState<typeof AI>();
   const { submitUserMessage } = useActions();
-  const {userInput, setUserInput} = useUserInput();
+  const { userInput, setUserInput } = useUserInput();
 
   return (
     <div className="sticky bottom-0 left-0 flex w-full bg-white">

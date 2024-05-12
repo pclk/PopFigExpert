@@ -24,11 +24,10 @@ export default function RootLayout({
       <body className={`m-0 flex ${inter.className}`}>
         <AI>
           <Providers>
-              <NavigationBar
-              />
-              <main className="relative grow overflow-y-auto p-4">
-                {children}
-              </main>
+            <NavigationBar />
+            <main className="relative grow overflow-y-auto p-4">
+              {children}
+            </main>
           </Providers>
         </AI>
       </body>

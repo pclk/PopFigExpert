@@ -1,4 +1,3 @@
-const MillionLint = require("@million/lint");
 /** @type {import('next').NextConfig} */
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const nextConfig = {
@@ -24,6 +23,4 @@ const nextConfig = {
     ],
   },
 };
-module.exports = MillionLint.next({
-  rsc: true,
-})(nextConfig);
+module.exports = nextConfig;

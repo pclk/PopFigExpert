@@ -12,7 +12,6 @@ interface CalendarProps {
 }
 
 function Calendar({ store, setStore, setOtherStore }: CalendarProps) {
-
   // Convert ISO string to Date object or null
   const startDateDate = store?.startDate ? new Date(store.startDate) : null;
   const endDateDate = store?.endDate ? new Date(store.endDate) : null;
@@ -27,7 +26,7 @@ function Calendar({ store, setStore, setOtherStore }: CalendarProps) {
   };
 
   return (
-    <div className="flex space-x-2 bg-white pl-10 px-6 pb-6">
+    <div className="flex space-x-2 bg-white px-6 pb-6 pl-10">
       <div>
         <p>Start Date</p>
         <DatePicker

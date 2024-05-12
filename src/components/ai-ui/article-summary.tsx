@@ -10,7 +10,6 @@ import {
 import Suggestions from "./suggestions";
 import type { GroupedDocument } from "@/app/elastic_action";
 
-
 interface ReportSummaryProps {
   articles: GroupedDocument[];
   args: {
@@ -68,43 +67,44 @@ export default function ArticleSummary({ articles, args }: ReportSummaryProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex overflow-y-auto rounded-md">
-        {articles.map((article, index) => {
-    const isEnlarged = enlargedArticles.includes(index);
-    const flexBasis = isEnlarged ? '100%' : `${100 / articles.length}%`;
+          {articles.map((article, index) => {
+            const isEnlarged = enlargedArticles.includes(index);
+            const flexBasis = isEnlarged ? "100%" : `${100 / articles.length}%`;
 
-    return (
-      <div
-        key={index}
-        className={`mb-2 h-96 cursor-pointer rounded-lg p-2 transition-all duration-500 ease-in-out hover:text-primary ${
-          isEnlarged ? 'h-auto' : ''
-        }`}
-        style={{ flexBasis }}
-        onClick={() => toggleArticle(index)}
-      >
-              <h3
-                className="mt-0"
-                dangerouslySetInnerHTML={{
-                  __html: article.highlight_title ?? article.title,
-                }}
-              ></h3>
-              <div className="text-muted-foreground text-sm">
-                {article.date && <span>({article.date})</span>}
-                {article.country && <span> - {article.country}</span>}
-              </div>
-              {article.multiple_chunks.map((chunk, index) => (
-                <pre
-                  key={index}
-                  className="mt-2 overflow-hidden text-ellipsis whitespace-pre-wrap rounded-md bg-secondary p-2 font-inter text-sm shadow-lg"
+            return (
+              <div
+                key={index}
+                className={`mb-2 h-96 cursor-pointer rounded-lg p-2 transition-all duration-500 ease-in-out hover:text-primary ${
+                  isEnlarged ? "h-auto" : ""
+                }`}
+                style={{ flexBasis }}
+                onClick={() => toggleArticle(index)}
+              >
+                <h3
+                  className="mt-0"
                   dangerouslySetInnerHTML={{
-                    __html: article.multiple_highlight_chunks[index] ?? chunk,
+                    __html: article.highlight_title ?? article.title,
                   }}
-                ></pre>
-              ))}
-            </div>
-          )})}
+                ></h3>
+                <div className="text-muted-foreground text-sm">
+                  {article.date && <span>({article.date})</span>}
+                  {article.country && <span> - {article.country}</span>}
+                </div>
+                {article.multiple_chunks.map((chunk, index) => (
+                  <pre
+                    key={index}
+                    className="mt-2 overflow-hidden text-ellipsis whitespace-pre-wrap rounded-md bg-secondary p-2 font-inter text-sm shadow-lg"
+                    dangerouslySetInnerHTML={{
+                      __html: article.multiple_highlight_chunks[index] ?? chunk,
+                    }}
+                  ></pre>
+                ))}
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
       <Suggestions suggestions={suggestions} />
     </div>
   );
-};
+}
