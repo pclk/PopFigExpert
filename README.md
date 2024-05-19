@@ -29,12 +29,7 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
   - [x] Implement chatbot's ability to generate Elasticsearch queries based on user input
   - [x] Process and present Elasticsearch results to the user within the chat interface
   - [x] UI for displaying and sending inputs within the genUI.
-- [ ] Deploy on Vercel
-
-- [] Wikipedia:
-  - [] build genUi for image + personality summary
-    **- [x] classify chunks underneath the same title, like the manual document search. return doc.title.length for article length.**
-    **- [x] prompt template in page.tsx and navigation**
+     
 
 ## Features
 
@@ -49,28 +44,9 @@ Thank you Yai Hui, for guiding and assisting me from things to model selection, 
 
 ## Architecture
 
-The application follows a client-server architecture, with the frontend built using Next.js and React, and the backend powered by Next.js API routes. The key components of the architecture include:
+![image](https://github.com/pclk/PopFigExpert/assets/132553855/0ee7e9dd-2c68-44bc-b9ee-1df59efdbea7)
 
-| **[Next.js](https://nextjs.org/)**                                                              | **[React](https://reactjs.org/)**                         | **[Tailwind CSS](https://tailwindcss.com/)**                                             | **[OpenAI](https://www.openai.com/)**                                                              | **[Mixtral](https://mistral.ai/)**                                                                                                  | **[Elasticsearch](https://www.elastic.co/elasticsearch/)**                                                    | **[Zod](https://github.com/colinhacks/zod)**                                                        |
-| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | --- |
-| Next.js: A React framework that enables server-side rendering, routing, and API route handling. | React: A JavaScript library for building user interfaces. | Tailwind CSS: A utility-first CSS framework for rapidly building custom user interfaces. | OpenAI GPT-3.5 Turbo: An AI model from OpenAI used for generating chatbot responses and summaries. | Mixtral 7x8b: An open source Mixture of Experts model, suitable to run on premises, providing privacy who appreciate it, like CSIT. | Elasticsearch: A distributed search and analytics engine used for storing and querying the document database. | Zod: A TypeScript-first schema validation library used for validating user input and API responses. |     |
 
-## Folder Structure
-
-The project follows a standard Next.js folder structure, with additional directories for components, context, and utility functions:
-
-- `app`: Contains the main application components and pages.
-  - `api`: Defines the API routes for handling requests to the AI models and Elasticsearch.
-  - `chat`: Implements the chat functionality, including chat history and message display.
-  - `document`: Handles the document search functionality.
-- `components`: Contains reusable React components used throughout the application.
-  - `ai-ui`: Implements the user interface components specific to the AI interactions.
-  - `home`: Defines the components used on the home page, such as the model dropdown and tab selector.
-  - `ui`: Contains generic UI components, such as buttons, cards, and input fields.
-- `context`: Manages the application state using React Context API.
-- `lib`: Contains utility functions and type definitions.
-  - `utils`: Provides helper functions for interacting with the AI models and Elasticsearch.
-  - `validators`: Defines data validation schemas using Zod.
 
 ## Getting Started
 
@@ -79,14 +55,14 @@ To run the PopFigExpert application locally, follow these steps:
 1. Clone the repository:
 
    ```
-   git clone https://github.com/yourusername/PopFigExpert.git
+   git clone https://github.com/pclk/PopFigExpert
    ```
 
 2. Install the dependencies:
 
    ```
-   cd PopFigExpert
-   npm install
+   cd src
+   npm i
    ```
 
 3. Set up the required environment variables:
@@ -115,7 +91,6 @@ You can customize:
 - [ ] Integrate Clerk for user authentication and authorization
 - [ ] Ability to select documents from searches, and bring them into the chat intuitively.
 - [ ] Ability to search documents through an @mention in the chat, and bring it into the chat.
-- [ ]
 
 ## Contact
 
